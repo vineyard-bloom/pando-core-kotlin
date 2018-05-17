@@ -1,4 +1,4 @@
-# Vine Coin (working title)
+# Vinecoin (working title)
 
 Truly decentralized cryptocurrency.  Written in Kotlin.
 
