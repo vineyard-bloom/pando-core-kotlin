@@ -69,10 +69,10 @@ There are benchmarks that claim SQL databases are less efficient than LevelDB.  
 
 ### 5. Infrastructure Logic Embedded into the Protocol
 
-#### a. Transaction Fees
+There have been periods in Bitcoin's history when transaction fees have been prohibitively expensive for certain business applications.  Solutions have been presented to mitigate this problem, but they generally require modifications to the underlying protocol, and require a certain amount of consensus because everyone who uses Bitcoin has to use the same fee structure.  This is like having to pay postage even when you hand someone a letter.
 
-There have been periods in Bitcoin's history when transaction fees have been prohibitively expensive for certain business applications.  Solutions have been presented to mitigate this problem, but they generally require modifications to the underlying protocol, and require a certain amount of consensus because everyone who uses Bitcoin has to use the same fee structure.  This is similar to if FedEx and UPS had 
- 
+TODO Gas fees also a blocker for scaling
+
 ## Problems with Other Methods
 
 ### Proof of Stake
@@ -83,10 +83,23 @@ Proof of Stake is superior to Proof of Work in that it removes the need for exce
 
 Vinecoin is to BitEth what Git is to Subversion.
 
-### 1. A Protocol with Abstracted Trust
+### Primary Features
 
-### 2. A Blockchain Per Address
+### a. A Blockchain Per Address
 
-### 3. Guarantee that any state change log is readily available
+In this model, each address has a unique blockchain.  These blockchains would be known as Address Block Chains (ABC).  Each block contains an array of transactions involving that address.  Any time value is transfered from one address to another, an identical transaction record is added to the blockchain of each address.
 
-### 4. A SQL Database
+There could also be a second type of blockchain called a Composite Block Chain (CBC). Instead of containing an array of transactions, a CBC block contains an array of blocks from other blockchains.  A CBC can be used to add federated confidence to a collection of ABCs.
+
+### b. A Protocol with Abstracted, Relative Trust
+
+In this model, nodes can have varying degrees of trust for each node, blockchain, block, and transactions.
+
+
+### c. Guarantee that any state change log is readily available
+
+### Secondary Features
+
+### a. A Protocol with Abstracted Fees
+
+### c. A SQL Database
