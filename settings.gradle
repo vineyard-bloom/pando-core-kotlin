@@ -1,4 +1,4 @@
-rootProject.name = 'vinecoin'
+rootProject.name = 'pando'
 
 def addProjects(File path) {
     def name = path.name

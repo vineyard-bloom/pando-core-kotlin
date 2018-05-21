@@ -2,9 +2,9 @@ import junit.framework.TestCase.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import vinecoin.generateKeyPair
-import vinecoin.sign
-import vinecoin.verify
+import pando.generateKeyPair
+import pando.sign
+import pando.verify
 
 class CryptoSpec : Spek({
   describe("cryptography") {

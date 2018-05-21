@@ -55,6 +55,8 @@ Ethereum likewise has no built-in means of getting an address ledger.  The simpl
 
 Operations requiring an address ledger are one of the most common tasks employed by blockchain business applications.  Some form of address ledger is required to send transactions.
 
+On top of that, BitEth was designed with the assumption that most use cases would only need light nodes with a minimal amount of data.  Much of the current BitEth infrascture is only successfully operating because it is using light nodes, which have even less queryable data at their finger tips.
+
 #### Internal Transactions
 
 Ethereum also has a notion of messages or "internal transactions" that are not logged and not queryable by any normal Ethereum infrastructure.  These transactions are invisible to most ethereum business applications.  There are some solutions that can detect internal transactions but they are not common and require hacking standard ethereum tools.
@@ -93,7 +95,7 @@ There could also be a second type of blockchain called a Composite Block Chain (
 
 ### b. A Protocol with Abstracted, Relative Trust
 
-In this model, nodes can have varying degrees of trust for each node, blockchain, block, and transactions.
+In this model, nodes can have varying degrees of trust for each node, blockchain, and block.  This trust is quantified by confidence ratings. The Pando protocol dictates how a node interacts with other nodes based on its confidence in those nodes and their data.  The Pando protocol does not dictate how confidence ratings are derived.  
 
 
 ### c. Guarantee that any state change log is readily available
