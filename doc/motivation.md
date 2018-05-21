@@ -1,4 +1,4 @@
-# Motivation for Vinecoin (working title)
+# Motivation for Pando
 
 ## Terms
 
@@ -81,7 +81,7 @@ Proof of Stake is superior to Proof of Work in that it removes the need for exce
 
 ## The Solution
 
-Vinecoin is to BitEth what Git is to Subversion.
+Pando is to BitEth what Git is to Subversion.
 
 ### Primary Features
 
