@@ -41,7 +41,6 @@ The internet scales because each website does not need to know about every other
 BitEth turns this arrangement on its head.  In order to accurately query the transaction history of a single address, an entire blockchain is needed.  In order to broadcast a transaction, an entire blockchain is needed.  Out of the box, BitEth requires everyone to be Google.
 
 Some services such as block explorers are attempting to act the part of Google by taking on the weight of a blokchain for their end-users, but that is an even harder scaling problem than creating a search engine.  A search engine is an auxilary tool that assists in web browsing.  It provides higher level features on top of a lower level infrastructure.  A block explorer has to provide higher level features *and* the lower level infrastructure.      
-
 ### 4. Impractical Logic and Accounting
 
 #### Transient Addresses
@@ -73,7 +72,7 @@ There are benchmarks that claim SQL databases are less efficient than LevelDB.  
 
 There have been periods in Bitcoin's history when transaction fees have been prohibitively expensive for certain business applications.  Solutions have been presented to mitigate this problem, but they generally require modifications to the underlying protocol, and require a certain amount of consensus because everyone who uses Bitcoin has to use the same fee structure.  This is like having to pay postage even when you hand someone a letter.
 
-TODO Gas fees also a blocker for scaling
+TODO Integrated Gas fees also a blocker for smart contract scaling
 
 ## Problems with Other Methods
 
@@ -95,10 +94,39 @@ There could also be a second type of blockchain called a Composite Block Chain (
 
 ### b. A Protocol with Abstracted, Relative Trust
 
-In this model, nodes can have varying degrees of trust for each node, blockchain, and block.  This trust is quantified by confidence ratings. The Pando protocol dictates how a node interacts with other nodes based on its confidence in those nodes and their data.  The Pando protocol does not dictate how confidence ratings are derived.  
+In this model, nodes can have varying degrees of trust for each node, blockchain, and block.  This trust is quantified by confidence ratings. The Pando protocol dictates how a node interacts with other nodes based on its confidence in those nodes and their data.  The Pando protocol does not dictate how confidence ratings are derived, though it's core tools can provide optional out-of-the-box methods for deriving confidence ratings.
 
+Each node in a Pando network can provide data.  In such a role that node is a source.  A node can also use data it receives from other nodes.  In such a role that node is a consumer.  
+
+When a node outputs data, it provides that data with attributed confidence ratings.  A consumer also attributes a confidence rating to each source, which colors the confidence ratings of the data received from that source.
+
+Each block in a chain can have varying confidence ratings, but higher blocks cannot have higher confidence ratings than lower blocks.  This leads to a gradual confidence entropy, with the offset that confidence ratings are not inherent attributes of blockchain data but are mutable values ascribed to blockchain data.  Thus, confidence ratings can be re-evaluated and consider new data.  While a blockchain has an entropic confidence curve, the overall height of that curve can be raised over time through additional validation.
+
+A confidence rating can be a complex value ranging between degrees of three modes: trusted, distrusted and unknown.  Trusted and distrusted sources are diametrically opposed, while an unknown source may or may not be trustworthy.
+
+When multiple sources with varying confidence ratings are aggregated together, the resulting aggregate confidence rating is determined by the "Confidence Purity" of the sources.  When distrusted sources are mixed with trusted sources, the resulting confidence rating is distrust.
+
+When a trusted source refers to data originating from a source that is unknown to the consumer, the unknown data inherits the trusted confidence rating of the trusted source.  In Pando this is referred to as vouching.
+
+With this design, it is possible to create a private blockchain and later graft it into a public blockchain.  Part of the grafting process involves scanning the private blockchain to verify that it is compatible with the public blockchain.
+
+One common compatibility question between Pando blockchains is whether all funds passing through each chain can be traced back to trusted coinbases, and that the passage of funds do not involve forks.  This is to prevent indiscriminate minting.
+
+Thus, if an organization wanted to spin up a private blockchain, they could choose to mint their own Pando coins and alienate themselves from other blockchains.  However, if the private blockchain was only funded through external sources, that blockchain could later be grafted into the blockchain those funds originated from.
+
+That highlights a notable point about Pando's cross-blockchain compatability.  When sending Pando coins from one address to another, the source blockchain does not need to trust the destination blockchain.  This is because at worse case, the coin is being burned, and it is permissible for a coin owner to burn his own coins.  Later on, if the private blockchain is grafted into the public blockchain, the funds that at one time appeared burned would become "resurrected".
+   
+Because Pando supports multiple confidence rating methods within the same ecosystem, it is possible for methods like Proof of Work and Proof of Stake to both be used within Pando blockchains.
+
+One benefit of abstracted trust is it makes it possible to integrate external data sources into a Pando network.  For example, a trusted Pando source can output data derived from bitcoin and ethereum blockchains.  That data can then be consumed by Pando smart contracts.  Note that this integration is only one-way.  Pando can consume BitEth data, but BitEth has no means of consuming Pando data.
 
 ### c. Guarantee that any state change log is readily available
+
+ox Bitcoin readily provides information on state changes, but out-of-the-box provides very little ability to query those state changes in a relational way.  (In other words, it can be hard to get from one state change to another related state change.)
+
+Ethereum provides similar challenges and on top of that contains state changes that are impossible to query out-of-the-box.
+
+Pando ensures that all state changes are readily queryable.  Part of this is an incidental side-effect of having the blockchains grouped per address.
 
 ### Secondary Features
 
