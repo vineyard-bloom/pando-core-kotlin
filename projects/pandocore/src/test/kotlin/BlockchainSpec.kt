@@ -16,7 +16,7 @@ class BlockchainSpec : Spek({
       val block = blocks.first()
       assertEquals(1, block.transactions.size)
       val transaction = block.transactions.first()
-      assertEquals(1000, transaction.value )
+      assertEquals(1000, transaction.value as Long)
       assertNull(transaction.from)
       assertEquals(pair.address, transaction.to)
     }
