@@ -9,5 +9,7 @@ fun createNewBlockchain(address: Address) =
     Blockchain(address, listOf())
 
 fun mintTokens(blockchain: Blockchain, amount: TokenValue): Blockchain {
-  return Blockchain(blockchain.address, blockchain.blocks)
+  val transaction = Transaction("",)
+  val newBlock = Block()
+  return Blockchain(blockchain.address, blockchain.blocks.plus(listOf(newBlock)))
 }
