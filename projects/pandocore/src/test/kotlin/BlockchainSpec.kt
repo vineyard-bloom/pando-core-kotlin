@@ -9,7 +9,7 @@ class BlockchainSpec : Spek({
 
     it("can mint new tokens") {
       val pair = generateAddressPair()
-      val newBlockchain = createBlockchain(pair.address)
+      val newBlockchain = createNewBlockchain(pair.address)
       val updatedBlockchain = mintTokens(newBlockchain, 1000)
       val blocks = updatedBlockchain.blocks
       assertEquals(1, blocks.size)

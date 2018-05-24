@@ -5,7 +5,7 @@ data class Blockchain(
     val blocks: List<Block>
 )
 
-fun createBlockchain(address: Address) =
+fun createNewBlockchain(address: Address) =
     Blockchain(address, listOf())
 
 fun mintTokens(blockchain: Blockchain, amount: TokenValue): Blockchain {
