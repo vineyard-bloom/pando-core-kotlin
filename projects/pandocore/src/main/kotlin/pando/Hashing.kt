@@ -6,7 +6,7 @@ data class BlockHashContents(
     val address: Address,
     val valueType: ValueType,
     val transactionHashes: List<String>,
-    val previousBlock: Hash,
+    val previousBlock: Hash?,
     val createdAt: LocalDateTime
 )
 
@@ -16,9 +16,6 @@ fun hashTransaction(value: Value, to: Address, from: Address?): String {
       value
   return hash256(input)
 }
-
-fun hashTransactions(transactions: List<Transaction>) =
-    transactions.map { it.hash }
 
 fun hashBlock(contents: BlockHashContents): String {
   val input = contents.address +
