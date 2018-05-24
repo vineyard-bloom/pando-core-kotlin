@@ -7,3 +7,11 @@ data class Transaction(
     val from: Address?
 )
 
+fun createTransaction(value: Value, to: Address, from: Address?): Transaction {
+  return Transaction(
+      hashTransaction(value, to, from),
+      value,
+      to,
+      from
+  )
+}

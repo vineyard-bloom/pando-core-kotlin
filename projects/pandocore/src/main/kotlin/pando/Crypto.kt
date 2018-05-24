@@ -6,8 +6,6 @@ import java.util.*
 import java.security.*
 import java.util.Base64.getDecoder
 
-
-
 fun generateRandomString(size: Int): String {
   val array = ByteArray(size)
   Random().nextBytes(array)
