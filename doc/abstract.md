@@ -26,13 +26,7 @@ The main point of using Proof of Work within BitEth is to prevent conflicts, but
 
 A key part of that conflict resolution is democracy.  It is standard for BitEth miners to defer to the majority when conflicts arise.  It is even possible for the majority to overrule a lottery-appointed Monarch.
 
-### 2. Faux Trustless
-
-There is no such thing as a trustless system.  Everything needs to trust something.  When the word "trustless" is applied to BitEth it is used relatively, meaning that there are certain things BitEth does not need to trust.  But that is not a reduction in trust, it is simply trading explicit trust in one thing for implicit trust in another.
-
-TODO list examples of BitEth trust
-
-### 3. Centralized
+### 2. Centralized
 
 BitEth currencies are marketed as decentralized, but that is once again relative.  The custodianship of their ledgers is decentralized, while the ledgers themselves are more centralized than any government currency.
 
@@ -40,14 +34,16 @@ The internet scales because each website does not need to know about every other
 
 BitEth turns this arrangement on its head.  In order to accurately query the transaction history of a single address, an entire blockchain is needed.  In order to broadcast a transaction, an entire blockchain is needed.  Out of the box, BitEth requires everyone to be Google.
 
-Some services such as block explorers are attempting to act the part of Google by taking on the weight of a blokchain for their end-users, but that is an even harder scaling problem than creating a search engine.  A search engine is an auxilary tool that assists in web browsing.  It provides higher level features on top of a lower level infrastructure.  A block explorer has to provide higher level features *and* the lower level infrastructure.      
-### 4. Impractical Logic and Accounting
+Some services such as block explorers are attempting to act the part of Google by taking on the weight of a blokchain for their end-users, but that is an even harder scaling problem than creating a search engine.  A search engine is an auxilary tool that assists in web browsing.  It provides higher level features on top of a lower level infrastructure.  A block explorer has to provide higher level features *and* the lower level infrastructure.
+
+### 3. Impractical Logic and Accounting
 
 #### Transient Addresses
 
 Bitcoin was designed to use transient addresses, where each address would only be used once.  Such a design might appeal to mathematicians and criminals, but is an accounting atrocity.
 
 #### Missing Account Ledger Support
+
 Because of this design, Bitcoin has no built-in support for viewing a single address ledger.  Bitcoind has some deprecated wallet support but that mostly works with addresses grouped by account and still only has limited support for dealing with individual addresses.
 
 Ethereum likewise has no built-in means of getting an address ledger.  The simplest approach is to query every block in the blockchain and gather all of the transactions related to that address.
@@ -68,7 +64,7 @@ BitEth nodes largely store their data as flat key/value pairs using LevelDB.
 
 There are benchmarks that claim SQL databases are less efficient than LevelDB.  However, the test cases of those benchmarks use both SQL and LevelDB to store key/value pairs, and are not using indexes.  That is like comparing a machine gun and a baseball bat in a fight where the combatants can only use their weapons as clubs. 
 
-### 5. Infrastructure Logic Embedded into the Protocol
+### 4. Infrastructure Logic Embedded into the Protocol
 
 There have been periods in Bitcoin's history when transaction fees have been prohibitively expensive for certain business applications.  Solutions have been presented to mitigate this problem, but they generally require modifications to the underlying protocol, and require a certain amount of consensus because everyone who uses Bitcoin has to use the same fee structure.  This is like having to pay postage even when you hand someone a letter.
 
@@ -78,7 +74,7 @@ TODO Integrated Gas fees also a blocker for smart contract scaling
 
 ### Proof of Stake
 
-Proof of Stake is superior to Proof of Work in that it removes the need for excessive computation.  However, it is still ultimately another form of Monarch-for-a-day that has the same trust and scaling issues.
+Proof of Stake is superior to Proof of Work in that it minimizes the need for excessive computation.  However, it is still ultimately another form of Monarch-for-a-day that has the same scaling issues.
 
 ## The Solution
 
@@ -96,9 +92,11 @@ There could also be a second type of blockchain called a Composite Block Chain (
 
 In this model, nodes can have varying degrees of trust for each node, blockchain, and block.  This trust is quantified by confidence ratings. The Pando protocol dictates how a node interacts with other nodes based on its confidence in those nodes and their data.  The Pando protocol does not dictate how confidence ratings are derived, though it's core tools can provide optional out-of-the-box methods for deriving confidence ratings.
 
-Each node in a Pando network can provide data.  In such a role that node is a source.  A node can also use data it receives from other nodes.  In such a role that node is a consumer.  
+Nodes in a Pando network are not directly peer-to-peer.  A Pando network is comprised of producers and consumers.  Producers provide data and consumers gather it.  A single node can be both a producer and a consumer.
 
-When a node outputs data, it provides that data with attributed confidence ratings.  A consumer also attributes a confidence rating to each source, which colors the confidence ratings of the data received from that source.
+Two nodes can form an indirectly peer-to-peer relationship via a circular feedback loop of producing and consuming.
+
+Producers can publicly distribute a distinct uri and public key that represent that producer.  When a block is passed along nodes, that block is accompanied by an array of signatures.  When a producer transmits a block, it can sign that block and attach the signature to that block.  As a block passes along nodes it can gather more signatures.  This allows a consumer to recieve blocks from a single aggregate producer and verify that the data originated from other trusted producers.
 
 Each block in a chain can have varying confidence ratings, but higher blocks cannot have higher confidence ratings than lower blocks.  This leads to a gradual confidence entropy, with the offset that confidence ratings are not inherent attributes of blockchain data but are mutable values ascribed to blockchain data.  Thus, confidence ratings can be re-evaluated and consider new data.  While a blockchain has an entropic confidence curve, the overall height of that curve can be raised over time through additional validation.
 
