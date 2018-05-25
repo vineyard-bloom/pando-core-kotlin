@@ -16,7 +16,7 @@ class NetworkSpec : Spek({
       val thirdBlockchain = utility.createNewBlockchain()
       val firstNode = createNode(listOf(firstBlockchain))
       val secondNode = createNode(listOf(secondBlockchain))
-      val thirdNode = createNode(listOf(secondBlockchain))
+      val thirdNode = createNode(listOf(thirdBlockchain))
       val network = LocalNetwork(listOf(firstNode, secondNode, thirdNode))
       val newBlocks = sendTokens(firstBlockchain, secondBlockchain, 100)
       network.broadcastBlocks(firstNode, newBlocks)
@@ -27,8 +27,6 @@ class NetworkSpec : Spek({
       assertEquals(1, block.transactions.size)
       val transaction = block.transactions.first()
       assertEquals(100, transaction.value as Long)
-      assertNull(transaction.from)
-      assertEquals(secondBlockchain.address, transaction.to)
 
       assertEquals(2, firstNode.blockchains[firstBlockchain.address]!!.blocks.size)
       assertEquals(0, thirdNode.blockchains[thirdBlockchain.address]!!.blocks.size)

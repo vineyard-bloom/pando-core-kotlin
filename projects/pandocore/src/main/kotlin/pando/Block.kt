@@ -6,6 +6,7 @@ typealias BlockIndex = Long
 
 data class Block(
     val index: BlockIndex,
+    val address: Address,
     val hash: Hash,
     val transactions: List<Transaction>,
     val previousBlock: Block?,
@@ -31,6 +32,7 @@ fun createBlock(blockchain: Blockchain, transactions: List<Transaction>): Block 
 
   return Block(
       index = blockchain.blocks.size.toLong(),
+      address = blockchain.address,
       hash = hash,
       transactions = transactions,
       previousBlock = previousBlock,
