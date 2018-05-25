@@ -11,3 +11,4 @@ data class Node(
 
 fun createNode(blockchains: List<Blockchain>) =
     Node(UUID.randomUUID(), blockchains.associate { Pair(it.address, it) }.toMutableMap())
+
