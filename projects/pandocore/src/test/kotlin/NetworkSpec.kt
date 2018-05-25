@@ -26,7 +26,7 @@ class NetworkSpec : Spek({
       val block = blocks.first()
       assertEquals(1, block.transactions.size)
       val transaction = block.transactions.first()
-      assertEquals(1000, transaction.value as Long)
+      assertEquals(100, transaction.value as Long)
       assertNull(transaction.from)
       assertEquals(secondBlockchain.address, transaction.to)
 
