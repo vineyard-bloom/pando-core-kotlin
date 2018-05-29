@@ -4,13 +4,17 @@ import java.time.LocalDateTime
 
 typealias BlockIndex = Long
 
-data class Block(
+data class BlockContents(
     val index: BlockIndex,
     val address: Address,
-    val hash: Hash,
     val transactions: List<SignedTransaction>,
     val previousBlock: Block?,
     val createdAt: LocalDateTime
+)
+
+data class Block(
+    val hash: Hash,
+    val contents: BlockContents
 )
 
 fun getBlockHash(block: Block?) =
@@ -31,11 +35,13 @@ fun createBlock(blockchain: Blockchain, transactions: List<SignedTransaction>): 
   ))
 
   return Block(
-      index = blockchain.blocks.size.toLong(),
-      address = blockchain.address,
       hash = hash,
-      transactions = transactions,
-      previousBlock = previousBlock,
-      createdAt = createdAt
+      contents = BlockContents(
+        index = blockchain.blocks.size.toLong(),
+        address = blockchain.address,
+        transactions = transactions,
+        previousBlock = previousBlock,
+        createdAt = createdAt
+      )
   )
 }
