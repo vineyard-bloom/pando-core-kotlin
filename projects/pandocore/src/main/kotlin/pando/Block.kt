@@ -7,7 +7,7 @@ typealias BlockIndex = Long
 data class BlockContents(
     val index: BlockIndex,
     val address: Address,
-    val transactions: List<BaseTransaction>,
+    val transactions: List<SignedTransaction>,
     val previousBlock: Block?,
     val createdAt: LocalDateTime
 )
@@ -23,7 +23,7 @@ fun getBlockHash(block: Block?) =
     else
       null
 
-fun createBlock(blockchain: Blockchain, transactions: List<BaseTransaction>): Block {
+fun createBlock(blockchain: Blockchain, transactions: List<SignedTransaction>): Block {
   val previousBlock = getLastBlock(blockchain)
   val createdAt = LocalDateTime.now()
   val hash = hashBlock(BlockHashContents(

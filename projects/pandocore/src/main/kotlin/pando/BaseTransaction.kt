@@ -1,5 +1,7 @@
 package pando
 
+import java.security.PrivateKey
+
 data class TransactionContent(
     val value: Value,
     val to: Address,
@@ -29,6 +31,15 @@ data class SignedTransaction(
 
   val content: TransactionContent
     get() = base.content
+
+  val value: Value
+    get() = content.value
+
+  val to: Address
+    get() = content.to
+
+  val from: Address?
+    get() = content.from
 }
 
 fun createTransaction(content: TransactionContent): BaseTransaction {
@@ -41,6 +52,8 @@ fun createTransaction(content: TransactionContent): BaseTransaction {
 fun createTransaction(value: Value, to: Address, from: Address?) =
     createTransaction(TransactionContent(value, to, from))
 
-fun signTransaction(transaction: BaseTransaction): SignedTransaction {
-  throw Error("Not implemented.")
+fun signTransaction(transaction: BaseTransaction, privateKey: PrivateKey): SignedTransaction {
+  val signature = sign(privateKey, transaction.hash)
+  val signatureString = byteArrayToString(signature)
+  return SignedTransaction(transaction, listOf(signatureString))
 }
