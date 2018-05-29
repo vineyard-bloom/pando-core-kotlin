@@ -5,14 +5,14 @@ typealias ValidationErrors = List<Error>
 fun validateBlockchain(blockchain: Blockchain): ValidationErrors {
   return blockchain.blocks.flatMap { block ->
     if (hashBlock(BlockHashContents(
-                    address = block.address,
-                    valueType = ValueType.long,
-                    transactionHashes = block.transactions.map { it.hash },
-                    previousBlock = getBlockHash(block.previousBlock),
-                    createdAt = block.createdAt
-            )) == block.hash)
+            address = block.contents.address,
+            valueType = ValueType.long,
+            transactionHashes = block.contents.transactions.map { it.hash },
+            previousBlock = getBlockHash(block.contents.previousBlock),
+            createdAt = block.contents.createdAt
+        )) == block.hash)
       listOf()
     else
-      listOf(Error("Incorrect hash has been found in block " + block.index))
+      listOf(Error("Incorrect hash has been found in block " + block.contents.index))
   }
 }
