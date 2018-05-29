@@ -36,13 +36,22 @@ fun sendTokens(fromBlockchain: Blockchain, toBlockchain: Blockchain, amount: Tok
   return listOf(fromBlock, toBlock)
 }
 
-fun validateBlock(block: Block) {
-  block.transactions.map {
-    println(it)
+fun validateBlock(block: Block): Boolean {
+  val validBlock = block.transactions.filter {
+    it.to !== null && it.from !== null && it.signatures == null
   }
+  if (validBlock.isNotEmpty()) {
+    return false
+  }
+    return true
 }
 
 fun addBlock(blockchain: Blockchain, block: Block): Blockchain {
-  validateBlock(block)
-  return Blockchain(blockchain.address, blockchain.blocks.plus(listOf(block)))
+  val validBlock = validateBlock(block)
+  if (validBlock) {
+    return Blockchain(blockchain.address, blockchain.blocks.plus(listOf(block)))
+  }
+  else {
+    throw Error("Invalid signature")
+  }
 }

@@ -24,8 +24,8 @@ class ValidationSpec : Spek({
       val b = createBlock(genesis, listOf(signTransaction(transaction, pair.private)))
       val badBlock = Block(b.index, b.address, "Bad Hash", b.transactions, b.previousBlock, b.createdAt)
       val blockchain = addBlock(genesis, badBlock)
-//      val errors = validateBlockchain(blockchain)
-//      assertEquals(1, errors.size)
+      val errors = validateBlockchain(blockchain)
+      assertEquals(1, errors.size)
     }
 
   }
