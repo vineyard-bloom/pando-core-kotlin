@@ -1,0 +1,7 @@
+apply from: "$rootProject.projectDir/build_kotlin.gradle"
+
+requires 'pandocore'
+
+dependencies {
+    compile group: 'com.zaxxer', name: 'HikariCP', version: '2.7.9'
+}
