@@ -15,7 +15,13 @@ data class BlockContents(
 data class Block(
     val hash: Hash,
     val contents: BlockContents
-)
+) {
+  val index: BlockIndex get() = contents.index
+  val address: Address get() = contents.address
+  val transactions: List<SignedTransaction> get() = contents.transactions
+  val previousBlock: Block? get() = contents.previousBlock
+  val createdAt: LocalDateTime get() = contents.createdAt
+}
 
 fun getBlockHash(block: Block?) =
     if (block != null)
@@ -37,11 +43,11 @@ fun createBlock(blockchain: Blockchain, transactions: List<SignedTransaction>): 
   return Block(
       hash = hash,
       contents = BlockContents(
-        index = blockchain.blocks.size.toLong(),
-        address = blockchain.address,
-        transactions = transactions,
-        previousBlock = previousBlock,
-        createdAt = createdAt
+          index = blockchain.blocks.size.toLong(),
+          address = blockchain.address,
+          transactions = transactions,
+          previousBlock = previousBlock,
+          createdAt = createdAt
       )
   )
 }
