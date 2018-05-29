@@ -1,8 +1,6 @@
-package persistence
+package grounded
 
 import com.zaxxer.hikari.HikariDataSource
-import pando.Address
-import pando.Blockchain
 
 enum class Dialect {
   postgres
@@ -29,16 +27,5 @@ fun createDataSource(config: DatabaseConfig): HikariDataSource {
   source.username = config.username
   source.password = config.password
   return source
-}
-
-class Database(val source: HikariDataSource) {
-  
-  fun setBlockchain(blockchain: Blockchain) {
-
-  }
-
-  fun getBlockchain(address: Address): Blockchain? {
-    throw Error("Not implemented.")
-  }
 }
 

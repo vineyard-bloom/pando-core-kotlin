@@ -2,6 +2,13 @@ apply from: "$rootProject.projectDir/build_kotlin.gradle"
 
 requires 'pandocore'
 
+repositories {
+    maven {
+        url  "https://dl.bintray.com/kotlin/exposed"
+    }
+}
+
 dependencies {
+    compile 'org.jetbrains.exposed:exposed:0.10.2'
     compile group: 'com.zaxxer', name: 'HikariCP', version: '2.7.9'
 }
