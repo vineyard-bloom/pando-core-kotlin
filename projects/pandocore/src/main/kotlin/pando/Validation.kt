@@ -2,6 +2,6 @@ package pando
 
 typealias ValidationErrors = List<Error>
 
-fun validateBlock(blockchain: Blockchain): ValidationErrors {
+fun validateBlockchain(blockchain: Blockchain): ValidationErrors {
   return listOf(Error("Not implemented"))
 }

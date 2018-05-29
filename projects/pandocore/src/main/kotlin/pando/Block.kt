@@ -8,7 +8,7 @@ data class Block(
     val index: BlockIndex,
     val address: Address,
     val hash: Hash,
-    val transactions: List<Transaction>,
+    val transactions: List<BaseTransaction>,
     val previousBlock: Block?,
     val createdAt: LocalDateTime
 )
@@ -19,7 +19,7 @@ fun getBlockHash(block: Block?) =
     else
       null
 
-fun createBlock(blockchain: Blockchain, transactions: List<Transaction>): Block {
+fun createBlock(blockchain: Blockchain, transactions: List<BaseTransaction>): Block {
   val previousBlock = getLastBlock(blockchain)
   val createdAt = LocalDateTime.now()
   val hash = hashBlock(BlockHashContents(
