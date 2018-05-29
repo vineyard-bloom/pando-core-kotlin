@@ -37,7 +37,7 @@ fun sendTokens(fromBlockchain: Blockchain, toBlockchain: Blockchain, amount: Tok
 }
 
 fun validateBlock(block: Block): Boolean {
-  val validBlock = block.transactions.filter {
+  val validBlock = block.contents.transactions.filter {
     it.to !== null && it.from !== null && it.signatures == null
   }
   if (validBlock.isNotEmpty()) {
