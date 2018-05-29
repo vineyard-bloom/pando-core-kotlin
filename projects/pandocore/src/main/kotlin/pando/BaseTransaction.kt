@@ -24,7 +24,7 @@ data class BaseTransaction(
 
 data class SignedTransaction(
     val base: BaseTransaction,
-    val signatures: List<String>
+    val signatures: List<ByteArray>
 ) {
   val hash: Hash
     get() = base.hash
@@ -54,6 +54,5 @@ fun createTransaction(value: Value, to: Address, from: Address?) =
 
 fun signTransaction(transaction: BaseTransaction, privateKey: PrivateKey): SignedTransaction {
   val signature = sign(privateKey, transaction.hash)
-  val signatureString = byteArrayToString(signature)
-  return SignedTransaction(transaction, listOf(signatureString))
+  return SignedTransaction(transaction, listOf(signature))
 }
