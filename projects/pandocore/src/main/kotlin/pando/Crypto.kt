@@ -18,6 +18,8 @@ fun hash256(privateKey: String): String {
 
 fun keyToString(publicKey: PublicKey): String = Base64.getEncoder().encodeToString(publicKey.encoded)
 
+fun byteArrayToString(signature: ByteArray): String = String(signature, Charset.forName("UTF-8"))
+
 data class AddressKeyPair(
     val address: Address,
     val keyPair: KeyPair
