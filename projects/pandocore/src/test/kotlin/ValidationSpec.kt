@@ -18,7 +18,7 @@ class ValidationSpec : Spek({
     it("can detect bad block hashes") {
       val genesis = mintTokens(utility.createNewBlockchain(), 1000)
       val b = createBlock(genesis, listOf(createTransaction(100, "nowhere", genesis.address)))
-      val badBlock = Block(b.index, b.address, "Bad Hash", b.transactions, b.previousBlock, b.createdAt)
+      val badBlock = Block("Bad Hash", BlockContents(b.contents.index, b.contents.address, b.contents.transactions, b.contents.previousBlock, b.contents.createdAt))
       val blockchain = addBlock(genesis, badBlock)
       val errors = validateBlockchain(blockchain)
       assertEquals(1, errors.size)
