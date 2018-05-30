@@ -20,11 +20,13 @@ class PersistenceSpec : Spek({
     it("can save and load a blockchain") {
       val config = loadAppConfig("config/config.json")
       val db = PandoDatabase(config)
+      val newBlockchain = createNewBlockchain()
 
       db.fixtureInit()
-      db.saveBlockchain()
-      db.loadBlockchain()
+      db.saveBlockchain(newBlockchain)
+      val data = db.loadBlockchain(newBlockchain)
 
+      assertEquals(1, date.size)
     }
 
   }
