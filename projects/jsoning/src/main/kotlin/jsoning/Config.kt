@@ -7,10 +7,6 @@ import java.io.FileNotFoundException
 import java.nio.file.Files
 import java.nio.file.Paths
 
-data class AppConfig(
-    val database: DatabaseConfig
-)
-
 inline fun <reified T> loadJsonFile(path: String): T {
   if (!File(path).isFile)
     throw FileNotFoundException(path)
@@ -22,6 +18,3 @@ inline fun <reified T> loadJsonFile(path: String): T {
     mapper.readValue(it, T::class.java)
   }
 }
-
-fun loadAppConfig(path: String): AppConfig =
-    loadJsonFile<AppConfig>(path)
