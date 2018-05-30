@@ -39,11 +39,16 @@ fun sendTokens(fromBlockchain: Blockchain, toBlockchain: Blockchain, amount: Tok
   return listOf(fromBlock, toBlock)
 }
 
-fun addBlock(blockchain: Blockchain, block: Block): Blockchain {
+fun addBlockWithValidation(blockchain: Blockchain, block: Block): Blockchain  {
   val validationErrors = validateBlock(block, blockchain.publicKey)
   if (validationErrors.none()) {
     return blockchain.copy(blocks = blockchain.blocks.plus(listOf(block)))
   } else {
-    throw validationErrors.first()
+    throw Error("Block hash is not valid")
   }
 }
+
+fun addBlockWithoutValidation(blockchain: Blockchain, block: Block): Blockchain  {
+  return blockchain.copy(blocks = blockchain.blocks.plus(listOf(block)))
+}
+
