@@ -11,11 +11,11 @@ import pando.Address
 import pando.Blockchain
 
 object Blockchains : Table() {
-  val id: Column<Int> = integer("id").autoIncrement().uniqueIndex()
-  val address: Column<String> = varchar("id", 255).primaryKey()
-  val balance: Column<Int> = integer("balance")
-  // val date: Column<DateTime> = datetime("created")
-  // val modified: Column<DateTime> = datetime("modified")
+  val id = integer("id").autoIncrement().uniqueIndex()
+  val address = varchar("id", 255).primaryKey()
+  val balance = integer("balance")
+  // val date = datetime("created")
+  // val modified = datetime("modified")
 }
 
 class PandoDatabase(private val config: DatabaseConfig) {
@@ -27,6 +27,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
     transaction {
       create(Blockchains)
     }
+  }
 
   fun saveBlockchain(blockchain: Blockchain) {
     Database.connect(source)
