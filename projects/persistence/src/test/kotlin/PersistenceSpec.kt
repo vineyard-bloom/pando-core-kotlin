@@ -1,3 +1,4 @@
+import grounded.DatabaseConfig
 import jsoning.loadJsonFile
 import junit.framework.TestCase.*
 import org.jetbrains.spek.api.Spek
@@ -16,7 +17,6 @@ class PersistenceSpec : Spek({
   describe("persistence") {
 
     it("can save and load a blockchain") {
-
     }
 
   }

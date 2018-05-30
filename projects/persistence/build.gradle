@@ -2,6 +2,15 @@ apply from: "$rootProject.projectDir/build_kotlin.gradle"
 
 requires 'pandocore', 'jsoning'
 
+repositories {
+    maven {
+        url  "https://dl.bintray.com/kotlin/exposed"
+    }
+}
+
+dependencies {
+    compile 'org.jetbrains.exposed:exposed:0.10.2'
+}
 buildscript {
     repositories {
         mavenCentral()
