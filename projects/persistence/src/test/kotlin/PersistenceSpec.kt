@@ -1,3 +1,4 @@
+import jsoning.loadJsonFile
 import junit.framework.TestCase.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
@@ -12,9 +13,9 @@ fun loadAppConfig(path: String): AppConfig =
     loadJsonFile<AppConfig>(path)
 
 class PersistenceSpec : Spek({
-  describe("cryptography") {
+  describe("persistence") {
 
-    it("can detect valid signatures") {
+    it("can save and load a blockchain") {
 
     }
 

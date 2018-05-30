@@ -1,6 +1,6 @@
 apply from: "$rootProject.projectDir/build_kotlin.gradle"
 
-requires 'pandocore'
+requires 'pandocore', 'jsoning'
 
 buildscript {
     repositories {

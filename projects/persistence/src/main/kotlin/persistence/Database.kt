@@ -33,11 +33,11 @@ fun createDataSource(config: DatabaseConfig): HikariDataSource {
 
 class Database(val source: HikariDataSource) {
   
-  fun setBlockchain(blockchain: Blockchain) {
+  fun saveBlockchain(blockchain: Blockchain) {
 
   }
 
-  fun getBlockchain(address: Address): Blockchain? {
+  fun loadBlockchain(address: Address): Blockchain? {
     throw Error("Not implemented.")
   }
 }
