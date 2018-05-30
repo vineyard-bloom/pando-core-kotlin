@@ -22,3 +22,4 @@ compileTestKotlin {
   kotlinOptions.jvmTarget = "1.8"
 }
 buildDir = new File(rootProject.projectDir, "build/" + project.name)
+

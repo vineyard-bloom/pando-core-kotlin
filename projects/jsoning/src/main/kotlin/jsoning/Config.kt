@@ -1,0 +1,27 @@
+package jsoning
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import java.io.File
+import java.io.FileNotFoundException
+import java.nio.file.Files
+import java.nio.file.Paths
+
+data class AppConfig(
+    val database: DatabaseConfig
+)
+
+inline fun <reified T> loadJsonFile(path: String): T {
+  if (!File(path).isFile)
+    throw FileNotFoundException(path)
+
+  val mapper = ObjectMapper()
+  mapper.registerModule(KotlinModule())
+
+  return Files.newBufferedReader(Paths.get(path)).use {
+    mapper.readValue(it, T::class.java)
+  }
+}
+
+fun loadAppConfig(path: String): AppConfig =
+    loadJsonFile<AppConfig>(path)
