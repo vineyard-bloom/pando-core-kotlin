@@ -11,11 +11,11 @@ class LocalNetwork(val nodes: List<Node>) : Network {
     val toAddress = blocks[0].contents.transactions[0].to
     for (block in blocks) {
       nodes.flatMap { node -> node.blockchains.filter { it.key == block.contents.address }.map { Pair(node, it) }}
-                .forEach { it.first.blockchains[it.second.key] = addBlock(it.first.blockchains[it.second.key]!! , block) }
+                .forEach { it.first.blockchains[it.second.key] = addBlockWithValidation(it.first.blockchains[it.second.key]!! , block) }
     }
 
 
-    // TODO find all related blockchains within each node and replace that blockchain with a new blockchain using addBlock.
+    // TODO find all related blockchains within each node and replace that blockchain with a new blockchain using addBlockWithValidation.
   }
 
 }
