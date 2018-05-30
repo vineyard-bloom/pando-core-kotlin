@@ -1,0 +1,10 @@
+{
+  "database": {
+    "host": "localhost",
+    "database": "pandoTest",
+    "devMode": true,
+    "username": "",
+    "password": "",
+    "dialect": "postgres"
+  }
+}
