@@ -1,6 +1,5 @@
 {
   "database": {
-    "port": "3000",
     "host": "localhost",
     "database": "pandoTest",
     "username": "",
