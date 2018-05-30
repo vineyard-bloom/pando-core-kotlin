@@ -8,20 +8,20 @@ class ValidationSpec : Spek({
   describe("validation") {
 
     it("can detect good blockchains") {
-      val genesis = mintTokens(utility.createNewBlockchain(), 1000)
-      val pair = generateKeyPair()
-      val transaction = createTransaction(100, "nowhere", genesis.address)
-      val secondBlock = createBlock(genesis, listOf(signTransaction(transaction, pair.private)))
-      val blockchain = addBlock(genesis, secondBlock)
+      val (genesis, privateKey) = utility.createNewBlockchain()
+      val mining = mintTokens(genesis, 1000)
+      val transaction = createTransaction(100, "nowhere", mining.address)
+      val secondBlock = createBlock(mining, listOf(signTransaction(transaction, privateKey)))
+      val blockchain = addBlock(mining, secondBlock)
 //      val errors = validateBlockchain(blockchain)
 //      assertEquals(0, errors.size)
     }
 
     it("can detect bad block hashes") {
-      val genesis = mintTokens(utility.createNewBlockchain(), 1000)
-      val pair = generateKeyPair()
-      val transaction = createTransaction(100, "nowhere", genesis.address)
-      val b = createBlock(genesis, listOf(signTransaction(transaction, pair.private)))
+      val (genesis, privateKey) = utility.createNewBlockchain()
+      val mining = mintTokens(genesis, 1000)
+      val transaction = createTransaction(100, "nowhere", mining.address)
+      val b = createBlock(genesis, listOf(signTransaction(transaction, privateKey)))
       val badBlock = Block("Bad Hash", BlockContents(b.contents.index, b.contents.address, b.contents.transactions, b.contents.previousBlock, b.contents.createdAt))
       val blockchain = addBlock(genesis, badBlock)
       val errors = validateBlockchain(blockchain)

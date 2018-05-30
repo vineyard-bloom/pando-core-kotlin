@@ -9,8 +9,7 @@ class BlockchainSpec : Spek({
   describe("blockchains") {
 
     it("can mint new tokens") {
-      println(System.getProperty("user.dir"))
-      val newBlockchain =  createNewBlockchain()
+      val (newBlockchain) =  createNewBlockchain()
       val updatedBlockchain = mintTokens(newBlockchain, 1000)
       val blocks = updatedBlockchain.blocks
       assertEquals(1, blocks.size)

@@ -11,9 +11,9 @@ class NetworkSpec : Spek({
   describe("a network") {
 
     it("can broadcast blocks") {
-      val firstBlockchain = mintTokens(utility.createNewBlockchain(), 1000)
-      val secondBlockchain = utility.createNewBlockchain()
-      val thirdBlockchain = utility.createNewBlockchain()
+      val firstBlockchain = mintTokens(utility.createNewBlockchain().first, 1000)
+      val (secondBlockchain) = utility.createNewBlockchain()
+      val (thirdBlockchain) = utility.createNewBlockchain()
       val firstNode = createNode(listOf(firstBlockchain))
       val secondNode = createNode(listOf(secondBlockchain))
       val thirdNode = createNode(listOf(thirdBlockchain))
@@ -30,7 +30,6 @@ class NetworkSpec : Spek({
 
       assertEquals(2, firstNode.blockchains[firstBlockchain.address]!!.blocks.size)
       assertEquals(0, thirdNode.blockchains[thirdBlockchain.address]!!.blocks.size)
-
     }
 
     it("can detect double spends") {
