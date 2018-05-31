@@ -45,7 +45,7 @@ class NetworkSpec : Spek({
       addBlocksToNode(thirdNode, spendTwo)
 
       assertEquals(2, firstNode.blockchains[firstBlockchain.address]!!.blocks.size)
-      assertEquals(1gaa, secondNode.blockchains[secondBlockchain.address]!!.blocks.size + thirdNode.blockchains[thirdBlockchain.address]!!.blocks.size)
+      assertEquals(1, secondNode.blockchains[secondBlockchain.address]!!.blocks.size + thirdNode.blockchains[thirdBlockchain.address]!!.blocks.size)
 
     }
 
