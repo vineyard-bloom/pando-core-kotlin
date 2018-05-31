@@ -4,6 +4,7 @@
     "database": "pandoTest",
     "username": "",
     "password": "",
-    "dialect": "postgres"
+    "dialect": "postgres",
+    "port": 5432
   }
 }

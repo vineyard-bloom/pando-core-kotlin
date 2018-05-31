@@ -12,10 +12,8 @@ import pando.Blockchain
 
 object Blockchains : Table() {
   val id = integer("id").autoIncrement().uniqueIndex()
-  val address = varchar("id", 255).primaryKey()
-  val balance = integer("balance")
-  // val date = datetime("created")
-  // val modified = datetime("modified")
+  val address = varchar("address", 255).primaryKey()
+  val publicKey = varchar("publicKey", 255)
 }
 
 class PandoDatabase(private val config: DatabaseConfig) {
@@ -35,6 +33,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
     transaction {
       Blockchains.insert {
         it[address] = blockchain.address
+        it[publicKey] = blockchain.publicKey.toString()
       }
     }
   }
