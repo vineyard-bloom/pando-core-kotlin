@@ -1,5 +1,10 @@
 package pando
 
+fun addBlockToNode(node: Node, block: Block) {
+  node.blockchains.filter { it.key == block.contents.address }.map { Pair(node, it) }
+          .forEach { it.first.blockchains[it.second.key] = addBlockWithValidation(it.first.blockchains[it.second.key]!!, block) }
+}
+
 interface Network {
   fun broadcastBlocks(node: Node, block: List<Block>)
 }
@@ -7,11 +12,8 @@ interface Network {
 class LocalNetwork(val nodes: List<Node>) : Network {
 
   override fun broadcastBlocks(node: Node, blocks: List<Block>) {
-//    val otherNodes = nodes.filter { it != node }
-    val toAddress = blocks[0].contents.transactions[0].to
     for (block in blocks) {
-      nodes.flatMap { node -> node.blockchains.filter { it.key == block.contents.address }.map { Pair(node, it) }}
-                .forEach { it.first.blockchains[it.second.key] = addBlockWithValidation(it.first.blockchains[it.second.key]!! , block) }
+      nodes.map { addBlockToNode(it, block) }
     }
 
 
