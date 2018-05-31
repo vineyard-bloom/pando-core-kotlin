@@ -38,6 +38,7 @@ repositories {
 dependencies {
     compile group: 'com.zaxxer', name: 'HikariCP', version: '2.7.9'
     compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
+    compile 'org.postgresql:postgresql:42.2.2.jre7'
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     testCompile 'org.jetbrains.spek:spek-api:1.1.5'
     testRuntime 'org.jetbrains.spek:spek-junit-platform-engine:1.1.5'
