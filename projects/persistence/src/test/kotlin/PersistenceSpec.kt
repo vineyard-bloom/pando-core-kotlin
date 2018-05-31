@@ -27,8 +27,10 @@ class PersistenceSpec : Spek({
 
       db.fixtureInit()
       db.saveBlockchain(newBlockchain)
-//      val data = db.loadBlockchain(newBlockchain.address)
-//
+      val data = db.loadBlockchain(newBlockchain.address)
+
+      println("Data is: $data")
+
 //      assertEquals(1, data.size)
     }
 

@@ -2,11 +2,9 @@ package persistence
 
 import grounded.DatabaseConfig
 import grounded.createDataSource
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.SchemaUtils.drop
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import pando.Address
 import pando.Blockchain
@@ -40,8 +38,12 @@ class PandoDatabase(private val config: DatabaseConfig) {
     }
   }
 
-  fun loadBlockchain(address: Address): Blockchain? {
-    throw Error("Not implemented.")
+  fun loadBlockchain(address: Address): Any? {
+    return transaction {
+      Blockchains.select { Blockchains.address eq address }.map {
+        it[Blockchains.address]
+      }
+    }
   }
 }
 
