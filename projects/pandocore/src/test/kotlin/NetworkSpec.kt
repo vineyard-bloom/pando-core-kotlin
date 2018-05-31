@@ -2,23 +2,21 @@ import junit.framework.TestCase.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import pando.LocalNetwork
-import pando.createNode
-import pando.mintTokens
-import pando.sendTokens
+import pando.*
 
 class NetworkSpec : Spek({
   describe("a network") {
 
     it("can broadcast blocks") {
-      val firstBlockchain = mintTokens(utility.createNewBlockchain().first, 1000)
+      val (genesisBlockchain, firstPrivateKey) = utility.createNewBlockchain()
+      val firstBlockchain = mintTokens(genesisBlockchain, 1000)
       val (secondBlockchain) = utility.createNewBlockchain()
       val (thirdBlockchain) = utility.createNewBlockchain()
       val firstNode = createNode(listOf(firstBlockchain))
       val secondNode = createNode(listOf(secondBlockchain))
       val thirdNode = createNode(listOf(thirdBlockchain))
       val network = LocalNetwork(listOf(firstNode, secondNode, thirdNode))
-      val newBlocks = sendTokens(firstBlockchain, secondBlockchain, 100, firstBlockchain.privateKey)
+      val newBlocks = sendTokens(firstBlockchain, secondBlockchain, 100, firstPrivateKey)
       network.broadcastBlocks(firstNode, newBlocks)
 
       val blocks = secondNode.blockchains[secondBlockchain.address]!!.blocks
@@ -33,7 +31,23 @@ class NetworkSpec : Spek({
     }
 
     it("can detect double spends") {
-      assertTrue(true)
+      val (genesisBlockchain, firstPrivateKey) = utility.createNewBlockchain()
+      val firstBlockchain = mintTokens(genesisBlockchain, 100)
+      val (secondBlockchain) = utility.createNewBlockchain()
+      val (thirdBlockchain) = utility.createNewBlockchain()
+      val firstNode = createNode(listOf(firstBlockchain))
+      val secondNode = createNode(listOf(secondBlockchain))
+      val thirdNode = createNode(listOf(thirdBlockchain))
+      val network = LocalNetwork(listOf(firstNode, secondNode, thirdNode))
+      val spendOne = sendTokens(firstBlockchain, secondBlockchain, 100, firstPrivateKey)
+      val spendTwo = sendTokens(firstBlockchain, thirdBlockchain, 100, firstPrivateKey)
+
+      network.broadcastBlocks(firstNode, spendOne)
+      network.broadcastBlocks(firstNode, spendTwo)
+
+      assertEquals(2, firstNode.blockchains[firstBlockchain.address]!!.blocks.size)
+      assertEquals(1, secondNode.blockchains[secondBlockchain.address]!!.blocks.size + thirdNode.blockchains[thirdBlockchain.address]!!.blocks.size)
+
     }
 
   }

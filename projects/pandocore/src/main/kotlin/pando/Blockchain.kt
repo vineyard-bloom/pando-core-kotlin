@@ -6,12 +6,11 @@ import java.security.PublicKey
 data class Blockchain(
     val address: Address,
     val publicKey: PublicKey,
-    val privateKey: PrivateKey,
     val blocks: List<Block>
 )
 
-fun createNewBlockchain(address: Address, publicKey: PublicKey, privateKey: PrivateKey) =
-    Blockchain(address, publicKey, privateKey, listOf())
+fun createNewBlockchain(address: Address, publicKey: PublicKey) =
+    Blockchain(address, publicKey, listOf())
 
 fun getLastBlock(blockchain: Blockchain): Block? =
     if (blockchain.blocks.any())
