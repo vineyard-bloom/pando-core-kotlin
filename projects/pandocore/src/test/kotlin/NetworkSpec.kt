@@ -18,7 +18,7 @@ class NetworkSpec : Spek({
       val secondNode = createNode(listOf(secondBlockchain))
       val thirdNode = createNode(listOf(thirdBlockchain))
       val network = LocalNetwork(listOf(firstNode, secondNode, thirdNode))
-      val newBlocks = sendTokens(firstBlockchain, secondBlockchain, 100)
+      val newBlocks = sendTokens(firstBlockchain, secondBlockchain, 100, firstBlockchain.privateKey)
       network.broadcastBlocks(firstNode, newBlocks)
 
       val blocks = secondNode.blockchains[secondBlockchain.address]!!.blocks

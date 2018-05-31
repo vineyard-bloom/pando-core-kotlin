@@ -17,7 +17,8 @@ fun validateBlockHash(block: Block): ValidationErrors =
       listOf(Error("Incorrect hash has been found in block " + block.contents.index))
 
 fun validateTransactionSignature(transaction: SignedTransaction, publicKey: PublicKey): Boolean =
-    transaction.signatures.all { verify(transaction.hash, it, publicKey) }
+  transaction.signatures.all { verify(transaction.hash, it, publicKey) }
+
 
 fun validateBlockTransactionSignatures(block: Block, publicKey: PublicKey): ValidationErrors =
     block.transactions

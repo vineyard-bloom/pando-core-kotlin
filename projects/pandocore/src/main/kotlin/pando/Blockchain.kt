@@ -1,15 +1,17 @@
 package pando
 
+import java.security.PrivateKey
 import java.security.PublicKey
 
 data class Blockchain(
     val address: Address,
     val publicKey: PublicKey,
+    val privateKey: PrivateKey,
     val blocks: List<Block>
 )
 
-fun createNewBlockchain(address: Address, publicKey: PublicKey) =
-    Blockchain(address, publicKey, listOf())
+fun createNewBlockchain(address: Address, publicKey: PublicKey, privateKey: PrivateKey) =
+    Blockchain(address, publicKey, privateKey, listOf())
 
 fun getLastBlock(blockchain: Blockchain): Block? =
     if (blockchain.blocks.any())
@@ -25,10 +27,9 @@ fun mintTokens(blockchain: Blockchain, amount: TokenValue): Blockchain {
   return blockchain.copy(blocks = blockchain.blocks.plus(listOf(newBlock)))
 }
 
-fun sendTokens(fromBlockchain: Blockchain, toBlockchain: Blockchain, amount: TokenValue): List<Block> {
+fun sendTokens(fromBlockchain: Blockchain, toBlockchain: Blockchain, amount: TokenValue, privateKey: PrivateKey): List<Block> {
   val transaction = createTransaction(amount, toBlockchain.address, fromBlockchain.address)
-  val pair = generateKeyPair()
-  val signedTransaction = signTransaction(transaction, pair.private)
+  val signedTransaction = signTransaction(transaction, privateKey)
   val fromBlock = createBlock(fromBlockchain, listOf(signedTransaction))
   val toBlock = createBlock(toBlockchain, listOf(signedTransaction))
   return listOf(fromBlock, toBlock)
