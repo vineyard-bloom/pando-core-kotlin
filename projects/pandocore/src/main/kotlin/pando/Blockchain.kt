@@ -18,6 +18,11 @@ fun getLastBlock(blockchain: Blockchain): Block? =
     else
       null
 
+fun getBalance(blockchain: Blockchain) {
+  println(blockchain.blocks.map { it.transactions.first().value })
+  blockchain.blocks.map { it.transactions.first().value }
+}
+
 fun mintTokens(blockchain: Blockchain, amount: TokenValue): Blockchain {
   val transaction = createTransaction(amount, blockchain.address, null)
   val pair = generateKeyPair()

@@ -1,8 +1,11 @@
 package pando
 
 fun addBlockToNode(node: Node, block: Block) {
-  node.blockchains.filter { it.key == block.contents.address }.map { Pair(node, it) }
-          .forEach { it.first.blockchains[it.second.key] = addBlockWithValidation(it.first.blockchains[it.second.key]!!, block) }
+  node.blockchains.filter { it.key == block.contents.address }.map { Pair(node, it)}
+          .forEach {
+            getBalance(it.first.blockchains[it.second.key]!!)
+            it.first.blockchains[it.second.key] = addBlockWithValidation(it.first.blockchains[it.second.key]!!, block)
+          }
 }
 
 fun addBlocksToNode(node: Node, blocks: List<Block>) {
