@@ -5,6 +5,12 @@ fun addBlockToNode(node: Node, block: Block) {
           .forEach { it.first.blockchains[it.second.key] = addBlockWithValidation(it.first.blockchains[it.second.key]!!, block) }
 }
 
+fun addBlocksToNode(node: Node, blocks: List<Block>) {
+  for (block in blocks) {
+    addBlockToNode(node, block)
+  }
+}
+
 interface Network {
   fun broadcastBlocks(node: Node, block: List<Block>)
 }

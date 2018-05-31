@@ -35,18 +35,17 @@ class NetworkSpec : Spek({
       val firstBlockchain = mintTokens(genesisBlockchain, 100)
       val (secondBlockchain) = utility.createNewBlockchain()
       val (thirdBlockchain) = utility.createNewBlockchain()
-      val firstNode = createNode(listOf(firstBlockchain))
-      val secondNode = createNode(listOf(secondBlockchain))
-      val thirdNode = createNode(listOf(thirdBlockchain))
-      val network = LocalNetwork(listOf(firstNode, secondNode, thirdNode))
+      val firstNode = createNode(listOf(firstBlockchain, secondBlockchain, thirdBlockchain))
+      val secondNode = createNode(listOf(firstBlockchain, secondBlockchain, thirdBlockchain))
+      val thirdNode = createNode(listOf(firstBlockchain, secondBlockchain, thirdBlockchain))
       val spendOne = sendTokens(firstBlockchain, secondBlockchain, 100, firstPrivateKey)
       val spendTwo = sendTokens(firstBlockchain, thirdBlockchain, 100, firstPrivateKey)
 
-      network.broadcastBlocks(firstNode, spendOne)
-      network.broadcastBlocks(firstNode, spendTwo)
+      addBlocksToNode(secondNode, spendOne)
+      addBlocksToNode(thirdNode, spendTwo)
 
       assertEquals(2, firstNode.blockchains[firstBlockchain.address]!!.blocks.size)
-      assertEquals(1, secondNode.blockchains[secondBlockchain.address]!!.blocks.size + thirdNode.blockchains[thirdBlockchain.address]!!.blocks.size)
+      assertEquals(1gaa, secondNode.blockchains[secondBlockchain.address]!!.blocks.size + thirdNode.blockchains[thirdBlockchain.address]!!.blocks.size)
 
     }
 
