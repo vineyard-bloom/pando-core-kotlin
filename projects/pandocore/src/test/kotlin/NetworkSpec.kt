@@ -9,25 +9,31 @@ class NetworkSpec : Spek({
 
     it("can broadcast blocks") {
       val (genesisBlockchain, firstPrivateKey) = utility.createNewBlockchain()
-      val firstBlockchain = mintTokens(genesisBlockchain, 1000)
+      val firstBlockchain = mintTokens(genesisBlockchain, 100)
       val (secondBlockchain) = utility.createNewBlockchain()
       val (thirdBlockchain) = utility.createNewBlockchain()
       val firstNode = createNode(listOf(firstBlockchain))
-      val secondNode = createNode(listOf(secondBlockchain))
-      val thirdNode = createNode(listOf(thirdBlockchain))
-//      val network = LocalNetwork(listOf(firstNode, secondNode, thirdNode))
-      val newBlocks = sendTokens(firstBlockchain, secondBlockchain, 100, firstPrivateKey)
-//      network.broadcastBlocks(firstNode, newBlocks)
+      val spend = sendTokens(firstBlockchain, secondBlockchain, 100, firstPrivateKey)
 
-      val blocks = secondNode.blockchains[secondBlockchain.address]!!.blocks
-      assertEquals(1, blocks.size)
-      val block = blocks.first()
-      assertEquals(1, block.contents.transactions.size)
-      val transaction = block.contents.transactions.first()
-      assertEquals(100, transaction.value as Long)
+      val (validatedSpendFrom, _) = validateBlock(spend.first(), firstBlockchain.publicKey, firstBlockchain)
+      assertNotNull(validatedSpendFrom)
 
-      assertEquals(2, firstNode.blockchains[firstBlockchain.address]!!.blocks.size)
-      assertEquals(0, thirdNode.blockchains[thirdBlockchain.address]!!.blocks.size)
+      val (validatedSpendTo, _) = validateBlock(spend.last(), firstBlockchain.publicKey, firstNode.blockchains[firstBlockchain.address]!!)
+      assertNotNull(validatedSpendTo)
+
+      addBlockToNode(firstNode, validatedSpendFrom!!)
+
+      val modifiedBlockchain = firstNode.blockchains[firstBlockchain.address]!!
+
+//      val blocks = secondBlockchain.blocks
+//      assertEquals(1, blocks.size)
+//      val block = blocks.first()
+//      assertEquals(1, block.contents.transactions.size)
+//      val transaction = block.contents.transactions.first()
+//      assertEquals(100, transaction.value as Long)
+
+      assertEquals(2, firstBlockchain.blocks.size)
+      assertEquals(0, thirdBlockchain.blocks.size)
     }
 
     it("can detect double spends") {
