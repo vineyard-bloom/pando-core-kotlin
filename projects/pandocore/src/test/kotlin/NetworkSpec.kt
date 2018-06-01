@@ -9,31 +9,33 @@ class NetworkSpec : Spek({
 
     it("can broadcast blocks") {
       val (genesisBlockchain, firstPrivateKey) = utility.createNewBlockchain()
-      val firstBlockchain = mintTokens(genesisBlockchain, 100)
+      val firstBlockchain = mintTokens(genesisBlockchain, 1000)
       val (secondBlockchain) = utility.createNewBlockchain()
       val (thirdBlockchain) = utility.createNewBlockchain()
-      val firstNode = createNode(listOf(firstBlockchain))
-      val spend = sendTokens(firstBlockchain, secondBlockchain, 100, firstPrivateKey)
+      val firstNode = createNode(listOf(firstBlockchain, secondBlockchain))
+      val spendA = sendTokens(firstBlockchain, secondBlockchain, 100, firstPrivateKey)
 
-      val (validatedSpendFrom, _) = validateBlock(spend.first(), firstBlockchain.publicKey, firstBlockchain)
-      assertNotNull(validatedSpendFrom)
+      val (validatedSpendAFrom, _) = validateBlock(spendA.first(), firstBlockchain.publicKey, firstBlockchain)
+      assertNotNull(validatedSpendAFrom)
 
-      val (validatedSpendTo, _) = validateBlock(spend.last(), firstBlockchain.publicKey, firstNode.blockchains[firstBlockchain.address]!!)
-      assertNotNull(validatedSpendTo)
+      val (validatedSpendATo, _) = validateBlock(spendA.last(), firstBlockchain.publicKey, firstNode.blockchains[firstBlockchain.address]!!)
+      assertNotNull(validatedSpendATo)
+      addBlockToNode(firstNode, validatedSpendAFrom!!)
+      addBlockToNode(firstNode, validatedSpendATo!!)
 
-      addBlockToNode(firstNode, validatedSpendFrom!!)
+      val modifiedBlockchainOne = firstNode.blockchains[firstBlockchain.address]!!
+      val modifiedBlockchainTwo = firstNode.blockchains[secondBlockchain.address]!!
 
-      val modifiedBlockchain = firstNode.blockchains[firstBlockchain.address]!!
-
-//      val blocks = secondBlockchain.blocks
-//      assertEquals(1, blocks.size)
-//      val block = blocks.first()
-//      assertEquals(1, block.contents.transactions.size)
-//      val transaction = block.contents.transactions.first()
-//      assertEquals(100, transaction.value as Long)
-
-      assertEquals(2, firstBlockchain.blocks.size)
+      assertEquals(2, modifiedBlockchainOne.blocks.size)
+      assertEquals(1, modifiedBlockchainTwo.blocks.size)
       assertEquals(0, thirdBlockchain.blocks.size)
+
+      val balanceOne = getBalance(modifiedBlockchainOne)
+      assertEquals(900, balanceOne)
+
+      val balanceTwo = getBalance(modifiedBlockchainTwo)
+      assertEquals(100, balanceTwo)
+
     }
 
     it("can detect double spends") {
