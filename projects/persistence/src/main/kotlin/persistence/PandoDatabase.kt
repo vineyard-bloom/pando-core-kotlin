@@ -15,6 +15,12 @@ object Blockchains : Table() {
   val publicKey = varchar("publicKey", 375)
 }
 
+data class BlockchainData(
+  val id: Int,
+  val address: String,
+  val publicKey: String
+)
+
 class PandoDatabase(private val config: DatabaseConfig) {
   private val source = createDataSource(config)
 
@@ -38,12 +44,13 @@ class PandoDatabase(private val config: DatabaseConfig) {
     }
   }
 
-  fun loadBlockchain(address: Address): Any? {
-    return transaction {
-      Blockchains.select { Blockchains.address eq address }.map {
-        it[Blockchains.address]
+  fun loadBlockchain(address: Address): BlockchainData? {
+    val blockchain = transaction {
+      Blockchains.select { Blockchains.address eq address }.limit(1).map {
+        BlockchainData(it[Blockchains.id], it[Blockchains.address], it[Blockchains.publicKey])
       }
     }
+    return blockchain.first()
   }
 }
 

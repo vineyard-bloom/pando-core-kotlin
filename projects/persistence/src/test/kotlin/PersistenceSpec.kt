@@ -17,21 +17,41 @@ fun loadAppConfig(path: String): AppConfig =
 
 class PersistenceSpec : Spek({
   describe("persistence") {
+    val appConfig = loadAppConfig("config/config.json")
+    val db = PandoDatabase(appConfig.database)
+    db.fixtureInit()
 
     it("can save and load a blockchain") {
-      val appConfig = loadAppConfig("config/config.json")
-      val db = PandoDatabase(appConfig.database)
-
       val pair = generateAddressPair()
       val newBlockchain = createNewBlockchain(pair.address, pair.keyPair.public)
 
-      db.fixtureInit()
       db.saveBlockchain(newBlockchain)
       val data = db.loadBlockchain(newBlockchain.address)
 
       println("Returned data is: $data")
 
-//      assertEquals(1, data.size)
+      assert(data != null)
+      assertEquals(data!!.address, newBlockchain.address)
+      assertEquals(data!!.publicKey, newBlockchain.publicKey.toString())
+    }
+
+    it("returns null when trying to load a nonexistent address") {
+      val pair = generateAddressPair()
+
+      db.loadBlockchain(pair.address)
+
+      // TODO should return null
+
+    }
+
+    it("throws an error when trying to save a duplicate address") {
+      val pair = generateAddressPair()
+      val newBlockchain = createNewBlockchain(pair.address, pair.keyPair.public)
+
+      db.saveBlockchain(newBlockchain)
+      db.saveBlockchain(newBlockchain)
+
+      // TODO should throw error
     }
 
   }
