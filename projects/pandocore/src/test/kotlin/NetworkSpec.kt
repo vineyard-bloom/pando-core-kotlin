@@ -15,9 +15,9 @@ class NetworkSpec : Spek({
       val firstNode = createNode(listOf(firstBlockchain))
       val secondNode = createNode(listOf(secondBlockchain))
       val thirdNode = createNode(listOf(thirdBlockchain))
-      val network = LocalNetwork(listOf(firstNode, secondNode, thirdNode))
+//      val network = LocalNetwork(listOf(firstNode, secondNode, thirdNode))
       val newBlocks = sendTokens(firstBlockchain, secondBlockchain, 100, firstPrivateKey)
-      network.broadcastBlocks(firstNode, newBlocks)
+//      network.broadcastBlocks(firstNode, newBlocks)
 
       val blocks = secondNode.blockchains[secondBlockchain.address]!!.blocks
       assertEquals(1, blocks.size)
@@ -35,14 +35,28 @@ class NetworkSpec : Spek({
       val firstBlockchain = mintTokens(genesisBlockchain, 100)
       val (secondBlockchain) = utility.createNewBlockchain()
       val (thirdBlockchain) = utility.createNewBlockchain()
-      val firstNode = createNode(listOf(firstBlockchain, secondBlockchain, thirdBlockchain))
-      val spendOne = sendTokens(firstBlockchain, secondBlockchain, 100, firstPrivateKey)
-      val spendTwo = sendTokens(firstBlockchain, thirdBlockchain, 100, firstPrivateKey)
+      val firstNode = createNode(listOf(firstBlockchain))
+      val spendA = sendTokens(firstBlockchain, secondBlockchain, 100, firstPrivateKey)
+      val spendB = sendTokens(firstBlockchain, thirdBlockchain, 100, firstPrivateKey)
 
-      addBlocksToNode(firstNode, spendOne)
-      addBlocksToNode(firstNode, spendTwo)
+      val (validatedSpendAFrom, _) = validateBlock(spendA.first(), firstBlockchain.publicKey, firstBlockchain)
+      assertNotNull(validatedSpendAFrom)
 
-      assertEquals(1, firstNode.blockchains[secondBlockchain.address]!!.blocks.size + firstNode.blockchains[thirdBlockchain.address]!!.blocks.size)
+      val (validatedSpendATo, _) = validateBlock(spendA.last(), firstBlockchain.publicKey, firstNode.blockchains[firstBlockchain.address]!!)
+      assertNotNull(validatedSpendATo)
+      addBlockToNode(firstNode, validatedSpendAFrom!!)
+      val modifiedBlockchain = firstNode.blockchains[firstBlockchain.address]!!
+
+      assertEquals(2, modifiedBlockchain.blocks.size)
+
+      val balance = getBalance(modifiedBlockchain)
+      assertEquals(0, balance)
+
+      val (validatedSpendBFrom, _) = validateBlock(spendB.first(), firstBlockchain.publicKey, modifiedBlockchain)
+      val (validatedSpendBTo, _) = validateBlock(spendB.last(), firstBlockchain.publicKey, modifiedBlockchain)
+      assertNull(validatedSpendBFrom)
+      assertNull(validatedSpendBTo)
+//      addBlockToNode(firstNode, validatedSpendB!!)
 
     }
 

@@ -23,6 +23,10 @@ data class Block(
   val createdAt: LocalDateTime get() = contents.createdAt
 }
 
+data class ValidatedBlock(
+    val block: Block
+)
+
 fun getBlockHash(block: Block?) =
     if (block != null)
       block.hash

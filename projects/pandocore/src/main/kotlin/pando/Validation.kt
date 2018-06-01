@@ -17,7 +17,7 @@ fun validateBlockHash(block: Block): ValidationErrors =
       listOf(Error("Incorrect hash has been found in block " + block.contents.index))
 
 fun validateTransactionSignature(transaction: SignedTransaction, publicKey: PublicKey): Boolean =
-  transaction.signatures.all { verify(transaction.hash, it, publicKey) }
+    transaction.signatures.all { verify(transaction.hash, it, publicKey) }
 
 
 fun validateBlockTransactionSignatures(block: Block, publicKey: PublicKey): ValidationErrors =
@@ -32,12 +32,19 @@ fun validateBlockTransactionSignatures(block: Block, publicKey: PublicKey): Vali
             listOf()
         }
 
-fun validateBlock(block: Block, publicKey: PublicKey, blockchain: Blockchain): ValidationErrors {
+fun validateBlock(block: Block, publicKey: PublicKey, blockchain: Blockchain): Pair<ValidatedBlock?, ValidationErrors> {
   val hashErrors = validateBlockHash(block)
   val transactionSignatureErrors = validateBlockTransactionSignatures(block, publicKey)
-  return hashErrors.plus(transactionSignatureErrors)
+  val balanceErrors = checkBalance(blockchain, block)
+  val errors = hashErrors.plus(transactionSignatureErrors).plus(balanceErrors)
+  val validatedBlock = if (errors.none())
+    ValidatedBlock(block)
+  else
+    null
+
+  return Pair(validatedBlock, errors)
 }
 
 fun validateBlockchain(blockchain: Blockchain): ValidationErrors {
-  return blockchain.blocks.flatMap { validateBlock(it, blockchain.publicKey, blockchain) }
+  return blockchain.blocks.flatMap { validateBlock(it, blockchain.publicKey, blockchain).second }
 }
