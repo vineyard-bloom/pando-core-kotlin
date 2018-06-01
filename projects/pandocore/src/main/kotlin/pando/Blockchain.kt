@@ -18,10 +18,20 @@ fun getLastBlock(blockchain: Blockchain): Block? =
     else
       null
 
-fun getBalance(blockchain: Blockchain) {
-  println(blockchain.blocks.map { it.transactions.first().value })
-  blockchain.blocks.map { it.transactions.first().value }
+fun checkBalance(blockchain: Blockchain, block: Block): ValidationErrors {
+  var balance = 0L
+  for (block in blockchain.blocks) {
+    if (block.transactions.first().from == blockchain.address) {
+      balance += block.transactions.first().value as Long
+    }
+  }
+  println(balance)
+  if (balance - block.transactions.first().value as Long >= 0) {
+    return listOf()
+  }
+  return listOf(Error("Bad balance"))
 }
+
 
 fun mintTokens(blockchain: Blockchain, amount: TokenValue): Blockchain {
   val transaction = createTransaction(amount, blockchain.address, null)
@@ -40,11 +50,13 @@ fun sendTokens(fromBlockchain: Blockchain, toBlockchain: Blockchain, amount: Tok
 }
 
 fun addBlockWithValidation(blockchain: Blockchain, block: Block): Blockchain  {
-  val validationErrors = validateBlock(block, blockchain.publicKey)
+  val validationErrors = validateBlock(block, blockchain.publicKey, blockchain)
   if (validationErrors.none()) {
     return blockchain.copy(blocks = blockchain.blocks.plus(listOf(block)))
-  } else {
-    throw Error("Block hash is not valid")
+  }
+  else {
+    return blockchain
+//    throw validationErrors.first()
   }
 }
 

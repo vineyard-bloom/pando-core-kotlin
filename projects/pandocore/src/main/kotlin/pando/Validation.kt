@@ -32,12 +32,13 @@ fun validateBlockTransactionSignatures(block: Block, publicKey: PublicKey): Vali
             listOf()
         }
 
-fun validateBlock(block: Block, publicKey: PublicKey): ValidationErrors {
+fun validateBlock(block: Block, publicKey: PublicKey, blockchain: Blockchain): ValidationErrors {
   val hashErrors = validateBlockHash(block)
   val transactionSignatureErrors = validateBlockTransactionSignatures(block, publicKey)
-  return hashErrors.plus(transactionSignatureErrors)
+  val balanceErrors = checkBalance(blockchain, block)
+  return hashErrors.plus(transactionSignatureErrors)plus.(balanceErrors)
 }
 
 fun validateBlockchain(blockchain: Blockchain): ValidationErrors {
-  return blockchain.blocks.flatMap { validateBlock(it, blockchain.publicKey) }
+  return blockchain.blocks.flatMap { validateBlock(it, blockchain.publicKey, blockchain) }
 }
