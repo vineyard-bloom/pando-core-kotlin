@@ -32,10 +32,18 @@ class PersistenceSpec : Spek({
       assertEquals("DB response should include the correct publicKey", newBlockchain.publicKey.toString(), data!!.publicKey)
     }
 
-    it("returns null when trying to load a nonexistent address") {
+    it("returns null when trying to load a nonexistent blockchain") {
       val pair = generateAddressPair()
       val data = db.loadBlockchain(pair.address)
       assertEquals("Should return null when there is no matching DB entry", null, data)
+    }
+
+    it("can save and load a block") {
+      // Create block
+      // Save to DB
+      // Load from DB
+      // Assert
+
     }
 
   }
