@@ -9,11 +9,11 @@ import pando.generateAddressPair
 import persistence.PandoDatabase
 
 data class AppConfig(
-    val database: DatabaseConfig
+  val database: DatabaseConfig
 )
 
 fun loadAppConfig(path: String): AppConfig =
-    loadJsonFile<AppConfig>(path)
+  loadJsonFile<AppConfig>(path)
 
 class PersistenceSpec : Spek({
   describe("persistence") {
@@ -24,34 +24,18 @@ class PersistenceSpec : Spek({
     it("can save and load a blockchain") {
       val pair = generateAddressPair()
       val newBlockchain = createNewBlockchain(pair.address, pair.keyPair.public)
-
       db.saveBlockchain(newBlockchain)
       val data = db.loadBlockchain(newBlockchain.address)
 
-      println("Returned data is: $data")
-
-      assert(data != null)
-      assertEquals(data!!.address, newBlockchain.address)
-      assertEquals(data!!.publicKey, newBlockchain.publicKey.toString())
+      assertNotNull("DB response should not be null", data)
+      assertEquals("DB response should include the correct address", newBlockchain.address, data!!.address)
+      assertEquals("DB response should include the correct publicKey", newBlockchain.publicKey.toString(), data!!.publicKey)
     }
 
     it("returns null when trying to load a nonexistent address") {
       val pair = generateAddressPair()
-
-      db.loadBlockchain(pair.address)
-
-      // TODO should return null
-
-    }
-
-    it("throws an error when trying to save a duplicate address") {
-      val pair = generateAddressPair()
-      val newBlockchain = createNewBlockchain(pair.address, pair.keyPair.public)
-
-      db.saveBlockchain(newBlockchain)
-      db.saveBlockchain(newBlockchain)
-
-      // TODO should throw error
+      val data = db.loadBlockchain(pair.address)
+      assertEquals("Should return null when there is no matching DB entry", null, data)
     }
 
   }

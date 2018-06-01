@@ -9,17 +9,17 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import pando.Address
 import pando.Blockchain
 
+data class BlockchainData(
+    val id: Int,
+    val address: String,
+    val publicKey: String
+)
+
 object Blockchains : Table() {
   val id = integer("id").autoIncrement().uniqueIndex()
   val address = varchar("address", 40).primaryKey()
   val publicKey = varchar("publicKey", 375)
 }
-
-data class BlockchainData(
-  val id: Int,
-  val address: String,
-  val publicKey: String
-)
 
 class PandoDatabase(private val config: DatabaseConfig) {
   private val source = createDataSource(config)
@@ -46,9 +46,13 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
   fun loadBlockchain(address: Address): BlockchainData? {
     val blockchain = transaction {
-      Blockchains.select { Blockchains.address eq address }.limit(1).map {
+      Blockchains.select { Blockchains.address eq address }.map {
         BlockchainData(it[Blockchains.id], it[Blockchains.address], it[Blockchains.publicKey])
       }
+    }
+
+    if (blockchain.isEmpty()) {
+      return null
     }
     return blockchain.first()
   }
