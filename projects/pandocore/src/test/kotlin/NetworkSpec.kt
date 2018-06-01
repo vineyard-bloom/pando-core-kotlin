@@ -36,15 +36,13 @@ class NetworkSpec : Spek({
       val (secondBlockchain) = utility.createNewBlockchain()
       val (thirdBlockchain) = utility.createNewBlockchain()
       val firstNode = createNode(listOf(firstBlockchain, secondBlockchain, thirdBlockchain))
-      val secondNode = createNode(listOf(firstBlockchain, secondBlockchain, thirdBlockchain))
-      val thirdNode = createNode(listOf(firstBlockchain, secondBlockchain, thirdBlockchain))
       val spendOne = sendTokens(firstBlockchain, secondBlockchain, 100, firstPrivateKey)
       val spendTwo = sendTokens(firstBlockchain, thirdBlockchain, 100, firstPrivateKey)
 
-      addBlocksToNode(secondNode, spendOne)
-      addBlocksToNode(thirdNode, spendTwo)
+      addBlocksToNode(firstNode, spendOne)
+      addBlocksToNode(firstNode, spendTwo)
 
-      assertEquals(1, secondNode.blockchains[secondBlockchain.address]!!.blocks.size + thirdNode.blockchains[thirdBlockchain.address]!!.blocks.size)
+      assertEquals(1, firstNode.blockchains[secondBlockchain.address]!!.blocks.size + firstNode.blockchains[thirdBlockchain.address]!!.blocks.size)
 
     }
 

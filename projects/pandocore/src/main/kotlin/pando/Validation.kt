@@ -35,8 +35,7 @@ fun validateBlockTransactionSignatures(block: Block, publicKey: PublicKey): Vali
 fun validateBlock(block: Block, publicKey: PublicKey, blockchain: Blockchain): ValidationErrors {
   val hashErrors = validateBlockHash(block)
   val transactionSignatureErrors = validateBlockTransactionSignatures(block, publicKey)
-  val balanceErrors = checkBalance(blockchain, block)
-  return hashErrors.plus(transactionSignatureErrors)plus.(balanceErrors)
+  return hashErrors.plus(transactionSignatureErrors)
 }
 
 fun validateBlockchain(blockchain: Blockchain): ValidationErrors {

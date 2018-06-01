@@ -18,18 +18,23 @@ fun getLastBlock(blockchain: Blockchain): Block? =
     else
       null
 
-fun checkBalance(blockchain: Blockchain, block: Block): ValidationErrors {
+fun getBalance(blockchain: Blockchain): Long {
   var balance = 0L
   for (block in blockchain.blocks) {
-    if (block.transactions.first().from == blockchain.address) {
+    if (block.transactions.first().from == blockchain.address)
+      balance -= block.transactions.first().value as Long
+    else
       balance += block.transactions.first().value as Long
-    }
   }
-  println(balance)
-  if (balance - block.transactions.first().value as Long >= 0) {
+  return balance
+}
+
+fun checkBalance(blockchain: Blockchain, block: Block): ValidationErrors {
+  val balance = getBalance(blockchain)
+  if (balance - block.transactions.first().value as Long >= 0)
     return listOf()
-  }
-  return listOf(Error("Bad balance"))
+  else
+    return listOf(Error("Insufficient funds"))
 }
 
 
@@ -46,6 +51,7 @@ fun sendTokens(fromBlockchain: Blockchain, toBlockchain: Blockchain, amount: Tok
   val signedTransaction = signTransaction(transaction, privateKey)
   val fromBlock = createBlock(fromBlockchain, listOf(signedTransaction))
   val toBlock = createBlock(toBlockchain, listOf(signedTransaction))
+  val balanceErrors = checkBalance(fromBlockchain, fromBlock)
   return listOf(fromBlock, toBlock)
 }
 
