@@ -12,8 +12,7 @@ class ValidationSpec : Spek({
       val mining = mintTokens(genesis, 1000)
       val transaction = createTransaction(100, "nowhere", mining.address)
       val secondBlock = createBlock(mining, listOf(signTransaction(transaction, privateKey)))
-      val blockchain = addBlockWithValidation(mining, secondBlock)
-      val errors = validateBlockchain(blockchain)
+      val (_, errors) = validateBlock(secondBlock, mining.publicKey, mining)
       assertEquals(0, errors.size)
     }
 
@@ -23,8 +22,7 @@ class ValidationSpec : Spek({
       val transaction = createTransaction(100, "nowhere", mining.address)
       val b = createBlock(genesis, listOf(signTransaction(transaction, privateKey)))
       val badBlock = Block("Bad Hash", BlockContents(b.contents.index, b.contents.address, b.contents.transactions, b.contents.previousBlock, b.contents.createdAt))
-      val blockchain = addBlockWithoutValidation(genesis, badBlock)
-      val errors = validateBlockchain(blockchain)
+      val (blockchain, errors) = validateBlock(badBlock, genesis.publicKey, genesis)
       assertEquals(1, errors.size)
     }
 

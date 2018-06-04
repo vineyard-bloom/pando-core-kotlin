@@ -1,21 +1,28 @@
 package pando
 
-interface Network {
-  fun broadcastBlocks(node: Node, block: List<Block>)
+fun addBlockToNode(node: Node, block: ValidatedBlock) {
+  return node.blockchains.filter { it.key == block.block.contents.address }
+      .map { Pair(node, it) }
+      .forEach {
+        it.first.blockchains[it.second.key] = addBlockWithoutValidation(it.first.blockchains[it.second.key]!!, block)
+      }
 }
 
-class LocalNetwork(val nodes: List<Node>) : Network {
+fun addBlocksToNode(node: Node, blocks: List<ValidatedBlock>) =
+    blocks.forEach { addBlockToNode(node, it) }
 
-  override fun broadcastBlocks(node: Node, blocks: List<Block>) {
-//    val otherNodes = nodes.filter { it != node }
-    val toAddress = blocks[0].contents.transactions[0].to
-    for (block in blocks) {
-      nodes.flatMap { node -> node.blockchains.filter { it.key == block.contents.address }.map { Pair(node, it) }}
-                .forEach { it.first.blockchains[it.second.key] = addBlockWithValidation(it.first.blockchains[it.second.key]!! , block) }
-    }
+//interface Network {
+//  fun broadcastBlocks(node: Node, block: List<Block>)
+//}
 
-
-    // TODO find all related blockchains within each node and replace that blockchain with a new blockchain using addBlockWithValidation.
-  }
-
-}
+//class LocalNetwork(val nodes: List<Node>) : Network {
+//
+//  override fun broadcastBlocks(node: Node, blocks: List<Block>) {
+//    for (block in blocks) {
+//      nodes.map { addBlockToNode(it, block) }
+//    }
+//
+//
+//  }
+//
+//}
