@@ -21,17 +21,17 @@ fun getLastBlock(blockchain: Blockchain): Block? =
 fun getBalance(blockchain: Blockchain): Long {
   var balance = 0L
   for (block in blockchain.blocks) {
-    if (block.transactions.first().from == blockchain.address)
-      balance -= block.transactions.first().value as Long
+    if (block.transaction.from == blockchain.address)
+      balance -= block.transaction.value as Long
     else
-      balance += block.transactions.first().value as Long
+      balance += block.transaction.value as Long
   }
   return balance
 }
 
 fun checkBalance(blockchain: Blockchain, block: Block): ValidationErrors {
   val balance = getBalance(blockchain)
-  if (balance - block.transactions.first().value as Long >= 0)
+  if (balance - block.transaction.value as Int >= 0)
     return listOf()
   else
     return listOf(Error("Insufficient funds"))
@@ -41,30 +41,16 @@ fun checkBalance(blockchain: Blockchain, block: Block): ValidationErrors {
 fun mintTokens(blockchain: Blockchain, amount: TokenValue): Blockchain {
   val transaction = createTransaction(amount, blockchain.address, null)
   val pair = generateKeyPair()
-  val signedTransaction = signTransaction(transaction, pair.private)
-  val newBlock = createBlock(blockchain, listOf(signedTransaction))
+  val newBlock = createBlock(blockchain, transaction, pair.private)
   return blockchain.copy(blocks = blockchain.blocks.plus(listOf(newBlock)))
 }
 
 fun sendTokens(fromBlockchain: Blockchain, toBlockchain: Blockchain, amount: TokenValue, privateKey: PrivateKey): List<Block> {
   val transaction = createTransaction(amount, toBlockchain.address, fromBlockchain.address)
-  val signedTransaction = signTransaction(transaction, privateKey)
-  val fromBlock = createBlock(fromBlockchain, listOf(signedTransaction))
-  val toBlock = createBlock(toBlockchain, listOf(signedTransaction))
-  val balanceErrors = checkBalance(fromBlockchain, fromBlock)
+  val fromBlock = createBlock(fromBlockchain, transaction, privateKey)
+  val toBlock = createBlock(toBlockchain, transaction, privateKey)
   return listOf(fromBlock, toBlock)
 }
-
-//fun addBlockWithValidation(blockchain: Blockchain, block: Block): Pair<Blockchain?, ValidationErrors> {
-//  val validationErrors = validateBlock(block, blockchain.publicKey, blockchain)
-//
-//  val newBlockchain = if (validationErrors.none())
-//    blockchain.copy(blocks = blockchain.blocks.plus(listOf(block)))
-//  else
-//    null
-//
-//  return Pair(newBlockchain, validationErrors)
-//}
 
 fun addBlockWithoutValidation(blockchain: Blockchain, block: ValidatedBlock): Blockchain {
   return blockchain.copy(blocks = blockchain.blocks.plus(listOf(block.block)))
