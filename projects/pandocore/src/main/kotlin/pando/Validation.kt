@@ -18,10 +18,10 @@ fun validateBlockHash(block: Block): ValidationErrors =
 
 
 fun validateBlockSignature(block: Block, publicKey: PublicKey): ValidationErrors =
-  if (block.blockSignature.signature.isEmpty())
+  if (block.blockSignatures.isEmpty())
     listOf(Error("Block has no signatures"))
-  else if (!verify(block.hash, block.blockSignature.signature, publicKey))
-    listOf(Error("Invalid transaction signature."))
+  else if (block.blockSignatures.all { !verify(block.hash, it.signature, publicKey)})
+    listOf(Error("Invalid block signatures"))
   else
     listOf()
 
@@ -30,7 +30,7 @@ fun validateBlock(block: Block, publicKey: PublicKey, blockchain: Blockchain): P
   val hashErrors = validateBlockHash(block)
   val blockSignatureErrors = validateBlockSignature(block, publicKey)
   val balanceErrors = checkBalance(blockchain, block)
-  val errors = (balanceErrors)
+  val errors = blockSignatureErrors.plus(balanceErrors).plus(hashErrors)
   val validatedBlock = if (errors.none())
     ValidatedBlock(block)
   else

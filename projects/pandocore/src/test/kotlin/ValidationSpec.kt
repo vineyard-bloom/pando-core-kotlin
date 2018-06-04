@@ -21,9 +21,9 @@ class ValidationSpec : Spek({
       val mining = mintTokens(genesis, 1000)
       val transaction = createTransaction(100L, "nowhere", mining.address)
       val b = createBlock(genesis, transaction, privateKey)
-      val badBlock = Block("Bad Hash", BlockContents(b.contents.index, b.contents.address, b.contents.transaction, b.contents.previousBlock, b.contents.createdAt), b.blockSignature)
+      val badBlock = Block("Bad Hash", BlockContents(b.contents.index, b.contents.address, b.contents.transaction, b.contents.previousBlock, b.contents.createdAt), b.blockSignatures)
       val (blockchain, errors) = validateBlock(badBlock, genesis.publicKey, genesis)
-      assertEquals(1, errors.size)
+      assertEquals(3, errors.size)
     }
 
   }

@@ -23,7 +23,7 @@ data class BlockSignature(
 data class Block(
     val hash: Hash,
     val contents: BlockContents,
-    val blockSignature: BlockSignature
+    val blockSignatures: List <BlockSignature>
 ) {
   val index: BlockIndex get() = contents.index
   val address: Address get() = contents.address
@@ -61,7 +61,7 @@ fun createBlock(blockchain: Blockchain, transaction: BaseTransaction, privateKey
 
   return Block(
       hash = hash,
-      blockSignature = blockSignature,
+      blockSignatures = listOf(blockSignature),
       contents = BlockContents(
           index = blockchain.blocks.size.toLong(),
           address = blockchain.address,
