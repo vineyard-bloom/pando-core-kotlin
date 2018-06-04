@@ -22,26 +22,6 @@ data class BaseTransaction(
     get() = content.from
 }
 
-//data class SignedTransaction(
-//    val base: BaseTransaction,
-//    val signatures: List<ByteArray>
-//) {
-//  val hash: Hash
-//    get() = base.hash
-//
-//  val content: TransactionContent
-//    get() = base.content
-//
-//  val value: Value
-//    get() = content.value
-//
-//  val to: Address
-//    get() = content.to
-//
-//  val from: Address?
-//    get() = content.from
-//}
-
 fun createTransaction(content: TransactionContent): BaseTransaction {
   return BaseTransaction(
       hashTransaction(content.value, content.to, content.from),
@@ -52,7 +32,3 @@ fun createTransaction(content: TransactionContent): BaseTransaction {
 fun createTransaction(value: Value, to: Address, from: Address?) =
     createTransaction(TransactionContent(value, to, from))
 
-//fun signTransaction(transaction: BaseTransaction, privateKey: PrivateKey): SignedTransaction {
-//  val signature = sign(privateKey, transaction.hash)
-//  return SignedTransaction(transaction, listOf(signature))
-//}
