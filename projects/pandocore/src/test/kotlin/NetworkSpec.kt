@@ -12,22 +12,30 @@ class NetworkSpec : Spek({
       val firstBlockchain = mintTokens(genesisBlockchain, 1000)
       val (secondBlockchain) = utility.createNewBlockchain()
       val (thirdBlockchain) = utility.createNewBlockchain()
-      val firstNode = createNode(listOf(firstBlockchain))
-      val secondNode = createNode(listOf(secondBlockchain))
-      val thirdNode = createNode(listOf(thirdBlockchain))
-//      val network = LocalNetwork(listOf(firstNode, secondNode, thirdNode))
-      val newBlocks = sendTokens(firstBlockchain, secondBlockchain, 100, firstPrivateKey)
-//      network.broadcastBlocks(firstNode, newBlocks)
+      val firstNode = createNode(listOf(firstBlockchain, secondBlockchain))
+      val spendA = sendTokens(firstBlockchain, secondBlockchain, 100, firstPrivateKey)
 
-      val blocks = secondNode.blockchains[secondBlockchain.address]!!.blocks
-      assertEquals(1, blocks.size)
-      val block = blocks.first()
-      assertEquals(1, block.contents.transactions.size)
-      val transaction = block.contents.transactions.first()
-      assertEquals(100, transaction.value as Long)
+      val (validatedSpendAFrom, _) = validateBlock(spendA.first(), firstBlockchain.publicKey, firstBlockchain)
+      assertNotNull(validatedSpendAFrom)
 
-      assertEquals(2, firstNode.blockchains[firstBlockchain.address]!!.blocks.size)
-      assertEquals(0, thirdNode.blockchains[thirdBlockchain.address]!!.blocks.size)
+      val (validatedSpendATo, _) = validateBlock(spendA.last(), firstBlockchain.publicKey, firstNode.blockchains[firstBlockchain.address]!!)
+      assertNotNull(validatedSpendATo)
+      addBlockToNode(firstNode, validatedSpendAFrom!!)
+      addBlockToNode(firstNode, validatedSpendATo!!)
+
+      val modifiedBlockchainOne = firstNode.blockchains[firstBlockchain.address]!!
+      val modifiedBlockchainTwo = firstNode.blockchains[secondBlockchain.address]!!
+
+      assertEquals(2, modifiedBlockchainOne.blocks.size)
+      assertEquals(1, modifiedBlockchainTwo.blocks.size)
+      assertEquals(0, thirdBlockchain.blocks.size)
+
+      val balanceOne = getBalance(modifiedBlockchainOne)
+      assertEquals(900, balanceOne)
+
+      val balanceTwo = getBalance(modifiedBlockchainTwo)
+      assertEquals(100, balanceTwo)
+
     }
 
     it("can detect double spends") {
