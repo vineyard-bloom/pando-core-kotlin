@@ -28,14 +28,11 @@ class ValidationSpec : Spek({
 
     it("can detect bad block address") {
       val (genesis, privateKey) = utility.createNewBlockchain()
-      val (secondBlockchain, privateKeyTwo) = utility.createNewBlockchain()
-      val mining = mintTokens(genesis, 1000)
+      val (secondBlockchain) = utility.createNewBlockchain()
       val miningTwo = mintTokens(secondBlockchain, 1000)
-      val transaction = createTransaction(100L, "nowhere", mining.address)
-      val transactionTwo = createTransaction(100L, "nowhere", miningTwo.address)
+      val transaction = createTransaction(100L, miningTwo.address, miningTwo.address)
       val b = createBlock(genesis, transaction, privateKey)
-      val bTwo = createBlock(secondBlockchain, transactionTwo, privateKeyTwo)
-      val badBlock = Block(b.hash, BlockContents(b.contents.index, bTwo.address, b.contents.transaction, b.contents.previousBlock, b.contents.createdAt), b.blockSignatures)
+      val badBlock = Block(b.hash, BlockContents(b.contents.index, b.address, b.contents.transaction, b.contents.previousBlock, b.contents.createdAt), b.blockSignatures)
       val (_, errors) = validateBlock(badBlock, genesis.publicKey, genesis)
       assertEquals(2, errors.size)
     }

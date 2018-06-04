@@ -25,12 +25,18 @@ fun validateBlockSignature(block: Block, publicKey: PublicKey): ValidationErrors
   else
     listOf()
 
+fun validateBlockAddress(block: Block, blockchain: Blockchain): ValidationErrors =
+  if (block.address == block.transaction.from)
+    listOf()
+  else
+    listOf(Error("Invalid block address"))
 
 fun validateBlock(block: Block, publicKey: PublicKey, blockchain: Blockchain): Pair<ValidatedBlock?, ValidationErrors> {
   val hashErrors = validateBlockHash(block)
+  val addressErrors = validateBlockAddress(block, blockchain)
   val blockSignatureErrors = validateBlockSignature(block, publicKey)
   val balanceErrors = checkBalance(blockchain, block)
-  val errors = blockSignatureErrors.plus(balanceErrors).plus(hashErrors)
+  val errors = blockSignatureErrors.plus(balanceErrors).plus(hashErrors).plus(addressErrors)
   val validatedBlock = if (errors.none())
     ValidatedBlock(block)
   else
