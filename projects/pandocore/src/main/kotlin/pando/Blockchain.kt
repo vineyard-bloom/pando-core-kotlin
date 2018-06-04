@@ -31,7 +31,7 @@ fun getBalance(blockchain: Blockchain): Long {
 
 fun checkBalance(blockchain: Blockchain, block: Block): ValidationErrors {
   val balance = getBalance(blockchain)
-  if (balance - block.transaction.value as Long >= 0L)
+  if (balance - block.transaction.value as Int >= 0)
     return listOf()
   else
     return listOf(Error("Insufficient funds"))
