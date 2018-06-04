@@ -31,7 +31,7 @@ fun getBalance(blockchain: Blockchain): Long {
 
 fun checkBalance(blockchain: Blockchain, block: Block): ValidationErrors {
   val balance = getBalance(blockchain)
-  if (balance - block.transaction.value as Long >= 0)
+  if (balance - block.transaction.value as Long >= 0L)
     return listOf()
   else
     return listOf(Error("Insufficient funds"))
@@ -51,17 +51,6 @@ fun sendTokens(fromBlockchain: Blockchain, toBlockchain: Blockchain, amount: Tok
   val toBlock = createBlock(toBlockchain, transaction, privateKey)
   return listOf(fromBlock, toBlock)
 }
-
-//fun addBlockWithValidation(blockchain: Blockchain, block: Block): Pair<Blockchain?, ValidationErrors> {
-//  val validationErrors = validateBlock(block, blockchain.publicKey, blockchain)
-//
-//  val newBlockchain = if (validationErrors.none())
-//    blockchain.copy(blocks = blockchain.blocks.plus(listOf(block)))
-//  else
-//    null
-//
-//  return Pair(newBlockchain, validationErrors)
-//}
 
 fun addBlockWithoutValidation(blockchain: Blockchain, block: ValidatedBlock): Blockchain {
   return blockchain.copy(blocks = blockchain.blocks.plus(listOf(block.block)))

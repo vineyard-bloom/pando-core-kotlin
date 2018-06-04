@@ -16,27 +16,21 @@ fun validateBlockHash(block: Block): ValidationErrors =
     else
       listOf(Error("Incorrect hash has been found in block " + block.contents.index))
 
-//fun validateTransactionSignature(transaction: BaseTransaction, publicKey: PublicKey): Boolean =
-//    transaction.signatures.all { verify(transaction.hash, it, publicKey) }
 
+fun validateBlockSignature(block: Block, publicKey: PublicKey): ValidationErrors =
+  if (block.blockSignature.signature.isEmpty())
+    listOf(Error("Block has no signatures"))
+  else if (!verify(block.hash, block.blockSignature.signature, publicKey))
+    listOf(Error("Invalid transaction signature."))
+  else
+    listOf()
 
-fun validateBlockTransactionSignatures(block: Block, publicKey: PublicKey): ValidationErrors =
-    block.transactions
-        .filter { it.from == block.address }
-        .flatMap {
-          if (it.signatures.none())
-            listOf(Error("Transaction has no signatures"))
-          else if (!validateTransactionSignature(it, publicKey))
-            listOf(Error("Invalid transaction signature."))
-          else
-            listOf()
-        }
 
 fun validateBlock(block: Block, publicKey: PublicKey, blockchain: Blockchain): Pair<ValidatedBlock?, ValidationErrors> {
   val hashErrors = validateBlockHash(block)
-  val transactionSignatureErrors = validateBlockTransactionSignatures(block, publicKey)
+  val blockSignatureErrors = validateBlockSignature(block, publicKey)
   val balanceErrors = checkBalance(blockchain, block)
-  val errors = hashErrors.plus(transactionSignatureErrors).plus(balanceErrors)
+  val errors = (balanceErrors)
   val validatedBlock = if (errors.none())
     ValidatedBlock(block)
   else
