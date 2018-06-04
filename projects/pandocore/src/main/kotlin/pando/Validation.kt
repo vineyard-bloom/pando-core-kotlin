@@ -8,7 +8,7 @@ fun validateBlockHash(block: Block): ValidationErrors =
     if (hashBlock(BlockHashContents(
             address = block.contents.address,
             valueType = ValueType.long,
-            transactionHashes = block.contents.transactions.map { it.hash },
+            transactionHashes = block.contents.transaction.hash,
             previousBlock = getBlockHash(block.contents.previousBlock),
             createdAt = block.contents.createdAt
         )) == block.hash)
@@ -16,8 +16,8 @@ fun validateBlockHash(block: Block): ValidationErrors =
     else
       listOf(Error("Incorrect hash has been found in block " + block.contents.index))
 
-fun validateTransactionSignature(transaction: SignedTransaction, publicKey: PublicKey): Boolean =
-    transaction.signatures.all { verify(transaction.hash, it, publicKey) }
+//fun validateTransactionSignature(transaction: BaseTransaction, publicKey: PublicKey): Boolean =
+//    transaction.signatures.all { verify(transaction.hash, it, publicKey) }
 
 
 fun validateBlockTransactionSignatures(block: Block, publicKey: PublicKey): ValidationErrors =

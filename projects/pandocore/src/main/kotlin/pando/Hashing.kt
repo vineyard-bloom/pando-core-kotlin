@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 data class BlockHashContents(
     val address: Address,
     val valueType: ValueType,
-    val transactionHashes: List<String>,
+    val transactionHashes: Hash,
     val previousBlock: Hash?,
     val createdAt: LocalDateTime
 )
@@ -21,7 +21,7 @@ fun hashBlock(contents: BlockHashContents): String {
   val input = contents.address +
       contents.valueType +
       contents.previousBlock +
-      contents.transactionHashes.joinToString() +
+      contents.transactionHashes +
       contents.createdAt
 
   return hash256(input)
