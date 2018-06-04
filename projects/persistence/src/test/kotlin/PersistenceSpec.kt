@@ -6,6 +6,7 @@ import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import pando.createNewBlockchain
 import pando.generateAddressPair
+import pando.mintTokens
 import persistence.PandoDatabase
 
 data class AppConfig(
@@ -39,11 +40,18 @@ class PersistenceSpec : Spek({
     }
 
     it("can save and load a block") {
-      // Create block
-      // Save to DB
-      // Load from DB
-      // Assert
+      val pair = generateAddressPair()
+      val newBlockchain =  createNewBlockchain(pair.address, pair.keyPair.public)
+      val updatedBlockchain = mintTokens(newBlockchain, 1000)
+      val block = updatedBlockchain.blocks.first()
 
+      db.saveBlockchain(updatedBlockchain)
+      db.saveBlock(block)
+      val data = db.loadBlock(block.index)
+
+      assertNotNull("DB response should not be null", data)
+      assertEquals("DB response should include the correct hash", block.hash, data!!.hash)
+      assertEquals("DB response should include the correct address", block.address, data!!.address)
     }
 
   }

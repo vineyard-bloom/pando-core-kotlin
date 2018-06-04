@@ -10,7 +10,6 @@ import org.joda.time.DateTime
 import pando.Address
 import pando.Block
 import pando.Blockchain
-import pando.Hash
 
 data class BlockchainData(
   val id: Int,
@@ -22,9 +21,9 @@ data class BlockchainData(
 
 data class BlockData(
   val hash: String,
-  val index: Int,
+  val index: Long,
   val address: String,
-  val previousBlock: Int,
+  val previousBlock: Long?,
   val created: DateTime,
   val modified: DateTime
 )
@@ -39,9 +38,9 @@ object Blockchains : Table() {
 
 object Blocks : Table() {
   val hash = varchar("hash", 64)
-  val index = integer("index").autoIncrement().uniqueIndex().primaryKey()
+  val index = long("index").primaryKey()
   val address = (varchar("address", 40) references Blockchains.address)
-  val previousBlock = integer("previousBlock")
+  val previousBlock = long("previousBlock").nullable()
   val created = datetime("created")
   val modified = datetime("modified")
 }
@@ -53,8 +52,8 @@ class PandoDatabase(private val config: DatabaseConfig) {
     Database.connect(source)
 
     transaction {
-      drop(Blockchains)
       drop(Blocks)
+      drop(Blockchains)
 
       create(Blockchains)
       create(Blocks)
@@ -92,22 +91,27 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
     transaction {
       Blocks.insert {
-//        it[address] = blockchain.address
-//        it[publicKey] = blockchain.publicKey.toString()
-//        it[created] = DateTime.now()
-//        it[modified] = DateTime.now()
         it[hash] = block.hash
         it[index] = block.index
         it[address] = block.address
-        it[previousBlock] = block.index - 1
+        it[previousBlock] = if (block.previousBlock != null) block.previousBlock!!.index else null
         it[created] = DateTime.now()
         it[modified] = DateTime.now()
       }
     }
   }
 
-  fun loadBlocks(hash: String): BlockData? {
-    throw Error("not implemented")
+  fun loadBlock(index: Long): BlockData? {
+    val block = transaction {
+      Blocks.select { Blocks.index eq index }.map {
+        BlockData(it[Blocks.hash], it[Blocks.index], it[Blocks.address], it[Blocks.previousBlock], it[Blocks.created], it[Blocks.modified])
+      }
+    }
+
+    if (block.isEmpty()) {
+      return null
+    }
+    return block.first()
   }
 }
 
