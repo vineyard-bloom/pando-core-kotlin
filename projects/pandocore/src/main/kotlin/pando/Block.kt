@@ -1,5 +1,7 @@
 package pando
 
+import java.security.PrivateKey
+import java.security.PublicKey
 import java.time.LocalDateTime
 
 typealias BlockIndex = Long
@@ -7,18 +9,25 @@ typealias BlockIndex = Long
 data class BlockContents(
     val index: BlockIndex,
     val address: Address,
-    val transactions: List<SignedTransaction>,
+    val transaction: BaseTransaction,
     val previousBlock: Block?,
     val createdAt: LocalDateTime
 )
 
+data class BlockSignature(
+  val signer: Address,
+  val publicKey: PublicKey,
+  val signature: ByteArray
+)
+
 data class Block(
     val hash: Hash,
-    val contents: BlockContents
+    val contents: BlockContents,
+    val blockSignature: BlockSignature
 ) {
   val index: BlockIndex get() = contents.index
   val address: Address get() = contents.address
-  val transactions: List<SignedTransaction> get() = contents.transactions
+  val transaction: BaseTransaction get() = contents.transaction
   val previousBlock: Block? get() = contents.previousBlock
   val createdAt: LocalDateTime get() = contents.createdAt
 }
@@ -33,25 +42,35 @@ fun getBlockHash(block: Block?) =
     else
       null
 
-fun createBlock(blockchain: Blockchain, transactions: List<SignedTransaction>): Block {
+fun createBlock(blockchain: Blockchain, transaction: BaseTransaction, privateKey: PrivateKey): Block {
   val previousBlock = getLastBlock(blockchain)
   val createdAt = LocalDateTime.now()
   val hash = hashBlock(BlockHashContents(
       address = blockchain.address,
       valueType = ValueType.long, // blockchain.valueType,
-      transactionHashes = transactions.map { it.hash },
+      transactionHashes = transaction.hash,
       previousBlock = getBlockHash(previousBlock),
       createdAt = createdAt
   ))
+  val signature = signBlock(privateKey, hash)
+  val blockSignature = BlockSignature(
+    signer = blockchain.address,
+    publicKey = blockchain.publicKey,
+    signature = signature
+  )
 
   return Block(
       hash = hash,
+      blockSignature = blockSignature,
       contents = BlockContents(
           index = blockchain.blocks.size.toLong(),
           address = blockchain.address,
-          transactions = transactions,
+          transaction = transaction,
           previousBlock = previousBlock,
           createdAt = createdAt
       )
   )
 }
+
+fun signBlock(privateKey: PrivateKey, blockHash: Hash): ByteArray =
+  sign(privateKey, blockHash)
