@@ -10,22 +10,19 @@ import org.joda.time.DateTime
 import pando.Address
 import pando.Block
 import pando.Blockchain
+import java.time.LocalDateTime
 
 data class BlockchainData(
-  val id: Int,
   val address: String,
   val publicKey: String,
-  val created: DateTime,
-  val modified: DateTime
+  val blocks: List<BlockData>
 )
 
 data class BlockData(
   val hash: String,
   val index: Long,
   val address: String,
-  val previousBlock: Long?,
-  val created: DateTime,
-  val modified: DateTime
+  val createdAt: LocalDateTime
 )
 
 object Blockchains : Table() {
@@ -41,6 +38,7 @@ object Blocks : Table() {
   val index = long("index").primaryKey()
   val address = (varchar("address", 40) references Blockchains.address)
   val previousBlock = long("previousBlock").nullable()
+  val createdAt = datetime("createdAt")
   val created = datetime("created")
   val modified = datetime("modified")
 }
@@ -52,6 +50,8 @@ class PandoDatabase(private val config: DatabaseConfig) {
     Database.connect(source)
 
     transaction {
+      logger.addLogger(StdOutSqlLogger)
+
       drop(Blocks)
       drop(Blockchains)
 
@@ -64,6 +64,8 @@ class PandoDatabase(private val config: DatabaseConfig) {
     Database.connect(source)
 
     transaction {
+      logger.addLogger(StdOutSqlLogger)
+
       Blockchains.insert {
         it[address] = blockchain.address
         it[publicKey] = blockchain.publicKey.toString()
@@ -74,9 +76,28 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadBlockchain(address: Address): BlockchainData? {
+    val blockList = transaction {
+      logger.addLogger(StdOutSqlLogger)
+
+      Blocks.select { Blocks.address eq address }.map {
+        BlockData(
+            it[Blocks.hash],
+            it[Blocks.index],
+            it[Blocks.address],
+            LocalDateTime.parse(it[Blocks.createdAt].toString())
+        )
+      }
+    }
+
     val blockchain = transaction {
+      logger.addLogger(StdOutSqlLogger)
+
       Blockchains.select { Blockchains.address eq address }.map {
-        BlockchainData(it[Blockchains.id], it[Blockchains.address], it[Blockchains.publicKey], it[Blockchains.created], it[Blockchains.modified])
+        BlockchainData(
+            it[Blockchains.address],
+            it[Blockchains.publicKey],
+            blockList
+        )
       }
     }
 
@@ -90,11 +111,14 @@ class PandoDatabase(private val config: DatabaseConfig) {
     Database.connect(source)
 
     transaction {
+      logger.addLogger(StdOutSqlLogger)
+
       Blocks.insert {
         it[hash] = block.hash
         it[index] = block.index
         it[address] = block.address
         it[previousBlock] = if (block.previousBlock != null) block.previousBlock!!.index else null
+        it[createdAt] = DateTime.parse(block.createdAt.toString())
         it[created] = DateTime.now()
         it[modified] = DateTime.now()
       }
@@ -103,8 +127,15 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
   fun loadBlock(index: Long): BlockData? {
     val block = transaction {
+      logger.addLogger(StdOutSqlLogger)
+
       Blocks.select { Blocks.index eq index }.map {
-        BlockData(it[Blocks.hash], it[Blocks.index], it[Blocks.address], it[Blocks.previousBlock], it[Blocks.created], it[Blocks.modified])
+        BlockData(
+            it[Blocks.hash],
+            it[Blocks.index],
+            it[Blocks.address],
+            LocalDateTime.parse(it[Blocks.createdAt].toString())
+        )
       }
     }
 
