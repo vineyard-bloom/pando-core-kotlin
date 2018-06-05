@@ -37,7 +37,6 @@ fun validateBlock(block: Block, publicKey: PublicKey, blockchain: Blockchain): P
   val blockSignatureErrors = validateBlockSignature(block, publicKey)
   val balanceErrors = checkBalance(blockchain, block)
   val errors = blockSignatureErrors.plus(balanceErrors).plus(hashErrors).plus(addressErrors)
-  println(errors)
   val validatedBlock = if (errors.none())
     ValidatedBlock(block)
   else
