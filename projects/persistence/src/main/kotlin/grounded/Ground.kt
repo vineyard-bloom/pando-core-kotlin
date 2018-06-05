@@ -15,15 +15,10 @@ data class DatabaseConfig(
     val port: Int?
 )
 
-fun getPort(dialect: Dialect, port: Int?): Int =
-    port ?: when (dialect) {
-      Dialect.postgres -> 5432
-    }
-
 fun createDataSource(config: DatabaseConfig): HikariDataSource {
   val source = HikariDataSource()
-  val port = getPort(config.dialect, config.port)
-  source.jdbcUrl = "jdbc:mysql://" + config.host + "/" + port + "/" + config.database
+  val portString = if (config.port != null) ":${config.port}" else ""
+  source.jdbcUrl = "jdbc:postgresql://${config.host}$portString/${config.database}"
   source.username = config.username
   source.password = config.password
   return source
