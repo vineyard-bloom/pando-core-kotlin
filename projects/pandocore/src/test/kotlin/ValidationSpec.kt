@@ -34,7 +34,7 @@ class ValidationSpec : Spek({
       val b = createBlock(genesis, transaction, privateKey)
       val badBlock = Block(b.hash, BlockContents(b.contents.index, b.address, b.contents.transaction, b.contents.previousBlock, b.contents.createdAt), b.blockSignatures)
       val (_, errors) = validateBlock(badBlock, genesis.publicKey, genesis)
-      assertEquals(2, errors.size)
+      assertEquals(1, errors.size)
     }
 
   }

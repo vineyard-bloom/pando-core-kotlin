@@ -26,7 +26,7 @@ fun validateBlockSignature(block: Block, publicKey: PublicKey): ValidationErrors
     listOf()
 
 fun validateBlockAddress(block: Block, blockchain: Blockchain): ValidationErrors =
-  if (block.address == block.transaction.from)
+  if (block.blockSignatures.any { it.signer == block.address})
     listOf()
   else
     listOf(Error("Invalid block address"))
