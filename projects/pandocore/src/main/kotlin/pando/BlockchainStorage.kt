@@ -1,6 +1,5 @@
 package pando
 
-interface BlockchainStorage {
-  fun loadBlockchain(address: Address): Blockchain?
-  fun saveBlockchain(blockchain: Blockchain)
-}
+typealias BlockchainSource = (address: Address) -> Blockchain?
+
+typealias BlockchainConsumer = (blockchain: Blockchain) -> Unit
