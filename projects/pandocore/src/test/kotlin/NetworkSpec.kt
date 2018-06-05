@@ -18,7 +18,7 @@ class NetworkSpec : Spek({
       val (validatedSpendAFrom, _) = validateBlock(spendA.first(), firstBlockchain.publicKey, firstBlockchain)
       assertNotNull(validatedSpendAFrom)
 
-      val (validatedSpendATo, _) = validateBlock(spendA.last(), firstBlockchain.publicKey, firstNode.blockchains[firstBlockchain.address]!!)
+      val (validatedSpendATo, _) = validateBlock(spendA.last(), firstBlockchain.publicKey, firstBlockchain)
       assertNotNull(validatedSpendATo)
       addBlockToNode(firstNode, validatedSpendAFrom!!)
       addBlockToNode(firstNode, validatedSpendATo!!)
