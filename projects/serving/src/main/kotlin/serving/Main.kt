@@ -7,17 +7,29 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import pando.BlockchainSource
 
 fun main(args: Array<String>) {
-  val server = embeddedServer(Netty, port = 8080) {
-    routing {
-      get("/") {
-        call.respondText("Request uri: ${call.request.uri}")
-      }
-      get("/demo") {
-        call.respondText("HELLO WORLD!")
-      }
-    }
+  embeddedServer(Netty, port = 8080, module = Application::mainModule).start(wait = true)
+}
+
+fun Application.mainModule() {
+
+  routing {
+    root()
+    address()
   }
-  server.start(wait = true)
+
+}
+
+fun Routing.root() {
+  get("/") {
+    call.respondText("Nothing to see here")
+  }
+}
+
+fun Routing.address() {
+  get("/address/{address}"){
+    call.respondText("Address: ${call.parameters["address"]}")
+  }
 }
