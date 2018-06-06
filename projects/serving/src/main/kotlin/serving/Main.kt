@@ -6,19 +6,22 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
-import io.ktor.server.netty.*
+import io.ktor.server.cio.*
 import pando.*
 
-fun createServer(source: BlockchainSource): NettyApplicationEngine{
-  return embeddedServer(Netty, port = 8080){
+fun createServer(source: BlockchainSource): ApplicationEngine{
+  return embeddedServer(CIO, port = 8080){
     routing {
+      get("/"){
+        call.respondText("hey")
+      }
       get("/address/{address}"){
-        println(source(call.parameters["address"]!!))
+        println(source(call.parameters["address"]!!)!!.address)
         if (source(call.parameters["address"]!!)!!.address == call.parameters["address"]) {
           call.respondText("Blockchain: ${source(call.parameters["address"]!!)}")
         }
         else {
-          call.respondText("No blockchain found at that address")
+          call.respondText("No Blockchain at address: ${call.parameters["address"]}")
         }
       }
     }
