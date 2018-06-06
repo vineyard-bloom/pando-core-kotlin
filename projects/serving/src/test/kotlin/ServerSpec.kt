@@ -5,14 +5,7 @@ import serving.*
 import pando.*
 import io.ktor.client.*
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.engine.config
-import io.ktor.client.call.*
-import io.ktor.client.request.get
-import io.ktor.client.response.readText
 import junit.framework.TestCase.*
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.async
-import org.jetbrains.spek.api.dsl.on
 import java.net.URL
 
 
