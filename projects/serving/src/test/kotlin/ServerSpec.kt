@@ -19,8 +19,6 @@ class ServerSpec : Spek({
 
       val test =  URL("http://0.0.0.0:8080/address/${blockchain.address}").readText()
       assertEquals(blockchain, test)
-
-
     }
 
   }
