@@ -33,4 +33,8 @@ allprojects {
     ext.requires = { String... names ->
         names.each() { project.dependencies.add('compile', project(':' + it)) }
     }
+
+    ext.testRequires = { String... names ->
+        names.each() { project.dependencies.add('testCompile', project(':' + it)) }
+    }
 }
