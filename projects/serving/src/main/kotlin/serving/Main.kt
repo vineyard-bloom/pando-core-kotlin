@@ -31,6 +31,10 @@ fun createServer(source: BlockchainSource): ApplicationEngine{
 }
 
 fun main(args: Array<String>) {
-  createServer({null})
+  val pair = generateAddressPair()
+  val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
+  val source = { address:Address -> blockchain }
+
+  createServer(source)
 }
 
