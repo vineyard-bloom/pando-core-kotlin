@@ -16,12 +16,12 @@ fun createServer(source: BlockchainSource): ApplicationEngine{
         call.respondText("hey")
       }
       get("/address/{address}"){
-        println(source(call.parameters["address"]!!))
+        println(source(call.parameters["address"]!!)!!.address)
         if (source(call.parameters["address"]!!)!!.address == call.parameters["address"]) {
           call.respondText("Blockchain: ${source(call.parameters["address"]!!)}")
         }
         else {
-          call.respondText("No blockchain found at that address")
+          call.respondText("No Blockchain at address: ${call.parameters["address"]}")
         }
       }
     }
