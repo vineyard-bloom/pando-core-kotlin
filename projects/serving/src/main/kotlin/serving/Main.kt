@@ -1,8 +1,6 @@
 package serving
 
 import io.ktor.application.*
-import io.ktor.http.*
-import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
@@ -18,7 +16,7 @@ fun createServer(source: BlockchainSource): ApplicationEngine{
       get("/address/{address}"){
         println(source(call.parameters["address"]!!)!!.address)
         if (source(call.parameters["address"]!!)!!.address == call.parameters["address"]) {
-          call.respondText("Blockchain: ${source(call.parameters["address"]!!)}")
+          call.respondText("${source(call.parameters["address"]!!)}")
         }
         else {
           call.respondText("No Blockchain at address: ${call.parameters["address"]}")
