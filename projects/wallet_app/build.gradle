@@ -1,0 +1,6 @@
+apply from: "$rootProject.projectDir/build_kotlin.gradle"
+
+requires 'pandocore', 'persistence'
+repositories {
+    maven { url "https://dl.bintray.com/kotlin/exposed" }
+}

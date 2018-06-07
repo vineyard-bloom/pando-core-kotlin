@@ -3,14 +3,10 @@ apply from: "$rootProject.projectDir/build_kotlin.gradle"
 requires 'pandocore', 'jsoning'
 
 repositories {
-    maven {
-        url  "https://dl.bintray.com/kotlin/exposed"
-    }
+    maven { url "https://dl.bintray.com/kotlin/exposed" }
+    maven { url "https://dl.bintray.com/jetbrains/spek" }
 }
 
-dependencies {
-    compile 'org.jetbrains.exposed:exposed:0.10.2'
-}
 buildscript {
     repositories {
         mavenCentral()
@@ -31,11 +27,8 @@ junitPlatform {
     }
 }
 
-repositories {
-    maven { url "http://dl.bintray.com/jetbrains/spek" }
-}
-
 dependencies {
+    compile 'org.jetbrains.exposed:exposed:0.10.2'
     compile group: 'com.zaxxer', name: 'HikariCP', version: '2.7.9'
     compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
     compile 'org.postgresql:postgresql:42.2.2.jre7'
