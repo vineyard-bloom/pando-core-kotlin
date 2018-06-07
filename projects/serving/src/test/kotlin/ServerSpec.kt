@@ -8,6 +8,7 @@ import java.net.URL
 import java.util.concurrent.TimeUnit
 import jsoning.parseJson
 import serving.BlockchainData
+import clienting.getBlockchain
 
 
 class ServerSpec : Spek({
@@ -18,14 +19,12 @@ class ServerSpec : Spek({
       val pair = generateAddressPair()
       val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
       val source = { address: Address -> blockchain }
-
       val server = createServer(source)
-      val res = URL("http://0.0.0.0:8080/blockchain/${blockchain.address}").readText()
-      val resBlock = parseJson<BlockchainData>(res)
+      val res = getBlockchain(blockchain.address)
       server.stop(1000, 30, TimeUnit.SECONDS) // Not needed but a nicety
 
 
-      assertEquals(blockchain.address, resBlock.address)
+      assertEquals(blockchain.address, res.address)
     }
 
   }
