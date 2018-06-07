@@ -1,42 +1,59 @@
 package serving
-
 import io.ktor.application.call
-import io.ktor.application.install
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
-import io.ktor.jackson.*
-import io.ktor.features.*
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.response.respond
+import jsoning.jsonify
 import pando.*
+import java.time.LocalDateTime
+
+data class BlockchainData(
+  val address: String,
+  val publicKey: String,
+  val blocks: List<BlockData>
+)
+
+data class BlockData(
+  val hash: String,
+  val index: Long,
+  val address: String,
+  val createdAt: LocalDateTime
+)
 
 fun createServer(source: BlockchainSource): ApplicationEngine {
 
   return embeddedServer(CIO, port = 8080) {
-    install(ContentNegotiation) {
-      jackson {
-        register(ContentType.Application.Json, JacksonConverter())
-      }
-    }
     routing {
       get("/") {
         call.respondText("hey")
       }
       get("/blockchain/{address}") {
-        println(source(call.parameters["address"]!!)!!.address)
+
         if (source(call.parameters["address"]!!)!!.address == call.parameters["address"]) {
-          call.respondText("${source(call.parameters["address"]!!)}", ContentType.Application.Json)
+
+          val primitiveBlockchain = BlockchainData(
+            source(call.parameters["address"]!!)!!.address,
+            source(call.parameters["address"]!!)!!.publicKey.toString(),
+            source(call.parameters["address"]!!)!!.blocks.map { BlockData(
+              it.hash,
+              it.index,
+              it.address,
+              it.createdAt
+            ) }
+          )
+
+          val json = jsonify<BlockchainData?>(primitiveBlockchain)
+          call.respondText(json)
+
         } else {
           call.respondText("No blockchain found at address: ${call.parameters["address"]}")
         }
       }
     }
-  }.start(wait = true)
+  }.start(wait = false)
 }
 
 fun main(args: Array<String>) {
