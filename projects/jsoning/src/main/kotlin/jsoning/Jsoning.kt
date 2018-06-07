@@ -18,3 +18,9 @@ inline fun <reified T> loadJsonFile(path: String): T {
     mapper.readValue(it, T::class.java)
   }
 }
+
+inline fun <reified T> parseJson(json: String): T {
+  val mapper = ObjectMapper()
+  mapper.registerModule(KotlinModule())
+  return mapper.readValue(json, T::class.java)
+}
