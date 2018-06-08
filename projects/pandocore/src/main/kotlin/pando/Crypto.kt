@@ -19,6 +19,9 @@ fun hash256(privateKey: String): String {
 fun keyToString(publicKey: PublicKey): String = Base64.getEncoder().encodeToString(publicKey.encoded)
 fun privateKeyToString(privateKey: PrivateKey): String = Base64.getEncoder().encodeToString(privateKey.encoded)
 
+fun stringToKey(publicKey: String): ByteArray = Base64.getDecoder().decode(publicKey)
+fun stringToPrivateKey(privateKey: PrivateKey): String = Base64.getEncoder().encodeToString(privateKey.encoded)
+
 fun byteArrayToString(signature: ByteArray): String = String(signature, Charset.forName("UTF-8"))
 
 data class AddressKeyPair(

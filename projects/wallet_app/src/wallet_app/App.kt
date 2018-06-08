@@ -18,6 +18,7 @@ import javafx.util.Duration
 import pando.*
 import jsoning.*
 import networking.*
+import java.io.File
 
 data class Keys(
   val publicKey: String,
@@ -51,7 +52,15 @@ class AppWindow : Application() {
     val getAddresses = Button()
     getAddresses.text = "Get Addresses"
     getAddresses.onAction = EventHandler {
-
+      File("./addresses").walkTopDown().forEach {
+        if (it.extension == "json"){
+//          println(it.nameWithoutExtension)
+//          println(parseJsonFile<Keys>(it))
+          val keys = parseJsonFile<Keys>(it)
+          val publicKey = stringToKey(keys.publicKey)
+          println(publicKey)
+        }
+      }
     }
 
     val updater = Timeline(KeyFrame(Duration.seconds(1.0), EventHandler {
