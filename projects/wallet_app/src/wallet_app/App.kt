@@ -19,7 +19,7 @@ import pando.*
 import jsoning.*
 import networking.*
 
-class Keys(
+data class Keys(
   val publicKey: String,
   val privateKey: String
 )
@@ -63,7 +63,7 @@ class AppWindow : Application() {
     root.children.add(textArea)
     root.children.add(newBlockchain)
     root.children.add(getAddresses)
-    primaryStage.scene = Scene(root, 300.0, 250.0)
+    primaryStage.scene = Scene(root, 600.0, 300.0)
 
     primaryStage.scene.addEventFilter(KeyEvent.KEY_PRESSED, object : EventHandler<KeyEvent> {
       internal val keyComb: KeyCombination = KeyCodeCombination(KeyCode.S,
