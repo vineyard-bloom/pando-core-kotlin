@@ -19,6 +19,10 @@ import pando.*
 import jsoning.*
 import networking.*
 
+class Keys(
+  val publicKey: String,
+  val privateKey: String
+)
 
 class AppWindow : Application() {
 
@@ -36,7 +40,12 @@ class AppWindow : Application() {
       textArea.text = blockchain.toString()
       val primitiveBlockchain = primitiveBlockchain(blockchain)
 
-      saveJson(Pair(primitiveBlockchain.publicKey, pair.keyPair.private.toString()), "./addresses/${blockchain.address}")
+      val newKeys = Keys(
+        primitiveBlockchain.publicKey,
+        privateKeyToString(pair.keyPair.private)
+      )
+
+      saveJson(newKeys, "./addresses/${blockchain.address}")
     }
 
     val getAddresses = Button()

@@ -19,7 +19,7 @@ data class BlockData(
 fun primitiveBlockchain(blockchain: Blockchain):BlockchainData {
   val primitiveBlockchain = BlockchainData(
     blockchain.address,
-    blockchain.publicKey.toString(),
+    keyToString(blockchain.publicKey),
     blockchain.blocks.map { BlockData(
       it.hash,
       it.index,
