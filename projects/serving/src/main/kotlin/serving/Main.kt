@@ -7,21 +7,11 @@ import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
 import jsoning.jsonify
+import networking.primitiveBlockchain
 import pando.*
+import networking.*
 import java.time.LocalDateTime
 
-data class BlockchainData(
-  val address: String,
-  val publicKey: String,
-  val blocks: List<BlockData>
-)
-
-data class BlockData(
-  val hash: String,
-  val index: Long,
-  val address: String,
-  val createdAt: LocalDateTime
-)
 
 fun createServer(source: BlockchainSource): ApplicationEngine {
 
@@ -34,16 +24,7 @@ fun createServer(source: BlockchainSource): ApplicationEngine {
 
         if (source(call.parameters["address"]!!)!!.address == call.parameters["address"]) {
 
-          val primitiveBlockchain = BlockchainData(
-            source(call.parameters["address"]!!)!!.address,
-            source(call.parameters["address"]!!)!!.publicKey.toString(),
-            source(call.parameters["address"]!!)!!.blocks.map { BlockData(
-              it.hash,
-              it.index,
-              it.address,
-              it.createdAt
-            ) }
-          )
+          val primitiveBlockchain = primitiveBlockchain(source(call.parameters["address"]!!)!!)
 
           val json = jsonify<BlockchainData?>(primitiveBlockchain)
           call.respondText(json)
