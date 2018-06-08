@@ -15,20 +15,52 @@ import javafx.scene.layout.VBox
 import javafx.scene.text.Font
 import javafx.stage.Stage
 import javafx.util.Duration
+import pando.*
+import jsoning.*
+import networking.*
+import java.io.File
+
+data class Keys(
+  val publicKey: String,
+  val privateKey: String
+)
 
 class AppWindow : Application() {
-  var code: String = ""
 
   override fun start(primaryStage: Stage) {
-    primaryStage.title = "Editor"
+    primaryStage.title = "Pando Wallet"
     val textArea = TextArea()
     textArea.setPrefRowCount(10)
     textArea.setFont(Font.font("Courier", 14.0))
 
-    val updateButton = Button()
-    updateButton.text = "Update"
-    updateButton.onAction = EventHandler {
-      code = textArea.text
+    val newBlockchain = Button()
+    newBlockchain.text = "Create Blockchain"
+    newBlockchain.onAction = EventHandler {
+      val pair = generateAddressPair()
+      val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
+      textArea.text = blockchain.toString()
+      val primitiveBlockchain = primitiveBlockchain(blockchain)
+
+      val newKeys = Keys(
+        primitiveBlockchain.publicKey,
+        privateKeyToString(pair.keyPair.private)
+      )
+
+      saveJson(newKeys, "./addresses/${blockchain.address}")
+    }
+
+    val getAddresses = Button()
+    getAddresses.text = "Get Addresses"
+    getAddresses.onAction = EventHandler {
+      File("./addresses").walkTopDown().forEach {
+        if (it.extension == "json"){
+//          println(it.nameWithoutExtension)
+//          println(parseJsonFile<Keys>(it))
+          val keys = parseJsonFile<Keys>(it)
+          val publicKey = stringToKey(keys.publicKey)
+          println(publicKey)
+        }
+      }
     }
 
     val updater = Timeline(KeyFrame(Duration.seconds(1.0), EventHandler {
@@ -38,8 +70,9 @@ class AppWindow : Application() {
 
     val root = VBox()
     root.children.add(textArea)
-    root.children.add(updateButton)
-    primaryStage.scene = Scene(root, 300.0, 250.0)
+    root.children.add(newBlockchain)
+    root.children.add(getAddresses)
+    primaryStage.scene = Scene(root, 600.0, 300.0)
 
     primaryStage.scene.addEventFilter(KeyEvent.KEY_PRESSED, object : EventHandler<KeyEvent> {
       internal val keyComb: KeyCombination = KeyCodeCombination(KeyCode.S,
@@ -47,7 +80,7 @@ class AppWindow : Application() {
 
       override fun handle(event: KeyEvent) {
         if (keyComb.match(event)) {
-          code = textArea.text
+
           event.consume() // <-- stops passing the event to next node
         }
       }
