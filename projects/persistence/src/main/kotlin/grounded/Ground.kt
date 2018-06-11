@@ -1,12 +1,7 @@
 package grounded
 
 import com.zaxxer.hikari.HikariDataSource
-import org.sqlite.SQLiteDataSource
-import java.sql.Connection
-import java.sql.DriverManager
-import java.sql.ResultSet
-import java.sql.SQLException
-import java.sql.Statement
+import javax.sql.DataSource
 
 enum class Dialect {
   postgres,
@@ -22,20 +17,23 @@ data class DatabaseConfig(
     val port: Int?
 )
 
-fun createDataSource(config: DatabaseConfig): Pair<HikariDataSource, SQLiteDataSource> {
-  val psqlSource = HikariDataSource()
-  val sqliteSource = SQLiteDataSource()
-  if (config.dialect == Dialect.postgres) {
-    val portString = if (config.port != null) ":${config.port}" else ""
-    psqlSource.jdbcUrl = "jdbc:postgresql://${config.host}$portString/${config.database}"
-    psqlSource.username = config.username
-    psqlSource.password = config.password
+fun createDataSource(config: DatabaseConfig): DataSource {
+  val portString = if (config.port != null) ":${config.port}" else ""
+  val source = HikariDataSource()
+  
+  when(config.dialect) {
 
-  }
-  else {
-    sqliteSource.url = "jdbc:sqlite:${config.database}.db"
+    Dialect.postgres -> {
+      source.jdbcUrl = "jdbc:postgresql://${config.host}$portString/${config.database}"
+      source.username = config.username
+      source.password = config.password
+    }
+
+    Dialect.sqlite -> {
+      source.jdbcUrl = "jdbc:sqlite:${config.database}.db"
+    }
   }
 
-  return Pair(psqlSource, sqliteSource)
+  return source
 }
 

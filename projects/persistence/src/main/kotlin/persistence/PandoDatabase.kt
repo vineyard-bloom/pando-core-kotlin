@@ -16,9 +16,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.text.SimpleDateFormat
 
-
-
-
 data class BlockchainData(
   val address: String,
   val publicKey: String,
@@ -49,11 +46,10 @@ object Blocks : Table() {
   val modified = datetime("modified")
 }
 
-
 class PandoDatabase(private val config: DatabaseConfig) {
   private val source = createDataSource(config)
   fun fixtureInit() {
-    Database.connect(source.second)
+    Database.connect(source)
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
     transaction {
@@ -68,7 +64,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun saveBlockchain(blockchain: Blockchain) {
-    Database.connect(source.second)
+    Database.connect(source)
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
     transaction {
@@ -117,7 +113,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun saveBlock(block: Block) {
-    Database.connect(source.second)
+    Database.connect(source)
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
     transaction {
