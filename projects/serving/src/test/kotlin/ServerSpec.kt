@@ -7,7 +7,7 @@ import serving.createServer
 import java.net.URL
 import java.util.concurrent.TimeUnit
 import jsoning.parseJson
-import serving.BlockchainData
+import networking.BlockchainData
 import clienting.getBlockchain
 
 

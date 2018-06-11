@@ -2,7 +2,7 @@ package clienting
 
 import jsoning.parseJson
 import pando.Address
-import serving.BlockchainData
+import networking.BlockchainData
 import java.net.URL
 
 fun getBlockchain(address: Address):BlockchainData {

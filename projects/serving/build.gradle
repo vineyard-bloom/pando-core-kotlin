@@ -1,6 +1,8 @@
 apply from: "$rootProject.projectDir/build_kotlin.gradle"
 
-requires 'pandocore', 'clienting', 'jsoning'
+
+requires 'pandocore', 'clienting', 'jsoning', 'networking'
+
 
 //testRequires 'clienting'
 

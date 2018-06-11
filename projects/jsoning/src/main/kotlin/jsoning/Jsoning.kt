@@ -28,10 +28,23 @@ inline fun <reified T> parseJson(json: String?): T {
   return mapper.readValue(json, T::class.java)
 }
 
+inline fun <reified T> parseJsonFile(file: File): T {
+  val mapper = ObjectMapper()
+  mapper.registerModule(KotlinModule())
+  return mapper.readValue(file, T::class.java)
+}
+
 
 inline fun <reified T> jsonify(obj: T?): String {
   val mapper = ObjectMapper()
   mapper.registerModule(KotlinModule())
   val json = mapper.writeValueAsString(obj)
   return json
+}
+
+inline fun <reified Class, String> saveJson(obj: Class, path: String): Boolean {
+  val mapper = ObjectMapper()
+  mapper.registerModule(KotlinModule())
+  mapper.writerWithDefaultPrettyPrinter().writeValue(File("$path.json"), obj)
+  return true
 }
