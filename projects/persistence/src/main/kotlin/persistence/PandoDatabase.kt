@@ -33,7 +33,6 @@ data class BlockData(
 )
 
 object Blockchains : Table() {
-  val id = integer("id").primaryKey()
   val address = varchar("address", 40).primaryKey()
   val publicKey = varchar("publicKey", 375)
   val created = datetime("created")
@@ -41,8 +40,8 @@ object Blockchains : Table() {
 }
 
 object Blocks : Table() {
-  val hash = varchar("hash", 64)
-  val index = long("index").primaryKey()
+  val hash = varchar("hash", 64).primaryKey()
+  val index = long("index")
   val address = (varchar("address", 40) references Blockchains.address)
   val previousBlock = long("previousBlock").nullable()
   val createdAt = datetime("createdAt")
@@ -50,9 +49,6 @@ object Blocks : Table() {
   val modified = datetime("modified")
 }
 
-object Test : Table() {
-  val name = varchar("test", 25)
-}
 
 class PandoDatabase(private val config: DatabaseConfig) {
   private val source = createDataSource(config)
