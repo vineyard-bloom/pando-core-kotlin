@@ -5,6 +5,21 @@ import java.nio.charset.Charset
 import java.util.*
 import java.security.*
 import java.util.Base64.getDecoder
+import java.security.KeyFactory
+import java.security.spec.X509EncodedKeySpec
+import java.util.Base64.getDecoder
+import java.io.IOException
+import java.security.GeneralSecurityException
+import com.sun.tools.corba.se.idl.InterfaceState.Public
+import java.security.PublicKey
+import java.security.spec.EncodedKeySpec
+import java.security.PrivateKey
+
+
+
+
+
+
 
 fun generateRandomString(size: Int): String {
   val array = ByteArray(size)
@@ -19,10 +34,19 @@ fun hash256(privateKey: String): String {
 fun keyToString(publicKey: PublicKey): String = Base64.getEncoder().encodeToString(publicKey.encoded)
 fun privateKeyToString(privateKey: PrivateKey): String = Base64.getEncoder().encodeToString(privateKey.encoded)
 
-fun stringToKey(publicKey: String): ByteArray = Base64.getDecoder().decode(publicKey)
+//fun stringToKey(publicKey: String): PublicKey {
+//  val keyBytes: ByteArray = Base64.encode(publicKey, Base64.getEncoder())
+//  val spec = X509EncodedKeySpec(keyBytes)
+//  val keyFactory = KeyFactory.getInstance("RSA")
+//
+//  return keyFactory.generatePublic(spec)
+//}
+
+
 fun stringToPrivateKey(privateKey: PrivateKey): String = Base64.getEncoder().encodeToString(privateKey.encoded)
 
 fun byteArrayToString(signature: ByteArray): String = String(signature, Charset.forName("UTF-8"))
+
 
 data class AddressKeyPair(
     val address: Address,

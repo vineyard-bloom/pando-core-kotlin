@@ -54,11 +54,10 @@ class AppWindow : Application() {
     getAddresses.onAction = EventHandler {
       File("./addresses").walkTopDown().forEach {
         if (it.extension == "json"){
-//          println(it.nameWithoutExtension)
-//          println(parseJsonFile<Keys>(it))
           val keys = parseJsonFile<Keys>(it)
-          val publicKey = stringToKey(keys.publicKey)
-          println(publicKey)
+//          val publicKey = stringToKey(keys.publicKey)
+//          val pubTest = keyToString(publicKey)
+//          println(pubTest)
         }
       }
     }
