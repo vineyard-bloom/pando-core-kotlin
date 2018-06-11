@@ -7,14 +7,10 @@ import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.SchemaUtils.drop
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
-import pando.Address
-import pando.Block
-import pando.Blockchain
-import pando.Value
+import pando.*
 
 data class BlockchainData(
   val address: String,
-  val publicKey: String,
   val blocks: List<BlockData>
 )
 
@@ -28,7 +24,6 @@ data class BlockData(
 object Blockchains : Table() {
   val id = integer("id").autoIncrement().uniqueIndex()
   val address = varchar("address", 40).primaryKey()
-  val publicKey = varchar("publicKey", 375)
   val created = datetime("created")
   val modified = datetime("modified")
 }
@@ -49,6 +44,8 @@ object Transactions : Table() {
   val value = long("value")
   val to = varchar("to", 40)
   val from = varchar("from", 40).nullable()
+  val created = datetime("created")
+  val modified = datetime("modified")
 }
 
 class PandoDatabase(private val config: DatabaseConfig) {
@@ -78,7 +75,6 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
       Blockchains.insert {
         it[address] = blockchain.address
-        it[publicKey] = blockchain.publicKey.toString()
         it[created] = DateTime.now()
         it[modified] = DateTime.now()
       }
@@ -105,7 +101,6 @@ class PandoDatabase(private val config: DatabaseConfig) {
       Blockchains.select { Blockchains.address eq address }.map {
         BlockchainData(
             it[Blockchains.address],
-            it[Blockchains.publicKey],
             blockList
         )
       }
@@ -154,5 +149,23 @@ class PandoDatabase(private val config: DatabaseConfig) {
     }
     return block.first()
   }
+
+  fun saveTransaction(transaction: BaseTransaction) {
+    Database.connect(source)
+
+    transaction {
+      logger.addLogger(StdOutSqlLogger)
+
+      Transactions.insert {
+        it[hash] = transaction.hash
+        it[value] = transaction.value
+        it[to] = transaction.to
+        it[to] = transaction.from
+        it[created] = DateTime.now()
+        it[modified] = DateTime.now()
+      }
+    }
+  }
+
 }
 

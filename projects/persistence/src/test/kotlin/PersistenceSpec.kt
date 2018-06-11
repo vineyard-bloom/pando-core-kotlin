@@ -30,7 +30,6 @@ class PersistenceSpec : Spek({
 
       assertNotNull("DB response should not be null", data)
       assertEquals("DB response should include the correct address", newBlockchain.address, data!!.address)
-      assertEquals("DB response should include the correct publicKey", newBlockchain.publicKey.toString(), data!!.publicKey)
     }
 
     it("returns null when trying to load a nonexistent blockchain") {
