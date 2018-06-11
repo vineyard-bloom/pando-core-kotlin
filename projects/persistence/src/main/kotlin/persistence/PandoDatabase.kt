@@ -10,7 +10,7 @@ import org.joda.time.DateTime
 import pando.Address
 import pando.Block
 import pando.Blockchain
-import java.time.LocalDateTime
+import pando.Value
 
 data class BlockchainData(
   val address: String,
@@ -22,7 +22,7 @@ data class BlockData(
   val hash: String,
   val index: Long,
   val address: String,
-  val createdAt: LocalDateTime
+  val createdAt: DateTime
 )
 
 object Blockchains : Table() {
@@ -43,6 +43,14 @@ object Blocks : Table() {
   val modified = datetime("modified")
 }
 
+object Transactions : Table() {
+  val id = integer("id").autoIncrement().uniqueIndex()
+  val hash = varchar("hash", 64)
+  val value = long("value")
+  val to = varchar("to", 40)
+  val from = varchar("from", 40).nullable()
+}
+
 class PandoDatabase(private val config: DatabaseConfig) {
   private val source = createDataSource(config)
 
@@ -52,11 +60,13 @@ class PandoDatabase(private val config: DatabaseConfig) {
     transaction {
       logger.addLogger(StdOutSqlLogger)
 
+      drop(Transactions)
       drop(Blocks)
       drop(Blockchains)
 
       create(Blockchains)
       create(Blocks)
+      create(Transactions)
     }
   }
 
@@ -84,7 +94,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
             it[Blocks.hash],
             it[Blocks.index],
             it[Blocks.address],
-            LocalDateTime.parse(it[Blocks.createdAt].toString())
+            DateTime.parse(it[Blocks.createdAt].toString())
         )
       }
     }
@@ -134,7 +144,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
             it[Blocks.hash],
             it[Blocks.index],
             it[Blocks.address],
-            LocalDateTime.parse(it[Blocks.createdAt].toString())
+            DateTime.parse(it[Blocks.createdAt].toString())
         )
       }
     }
