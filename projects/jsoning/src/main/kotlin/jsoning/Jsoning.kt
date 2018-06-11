@@ -45,6 +45,6 @@ inline fun <reified T> jsonify(obj: T?): String {
 inline fun <reified Class, String> saveJson(obj: Class, path: String): Boolean {
   val mapper = ObjectMapper()
   mapper.registerModule(KotlinModule())
-  mapper.writerWithDefaultPrettyPrinter().writeValue(File("$path.json"), obj)
+  mapper.writerWithDefaultPrettyPrinter().writeValue(File("" + path + ".json"), obj)
   return true
 }

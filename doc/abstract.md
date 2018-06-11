@@ -26,7 +26,7 @@ BitEth is sometimes referred to as trustless.  That is a misnomer.  Everyone nee
 
 The only way BitEth currently retains any measure of universal trust is due to a delicate balance of power, where the major stakeholders of BitEth are competing for mining power.  If any single organization gains at least 51% of mining power of a blockchain, that organization will become the singular authority that blockchain follows as long as the 51% hold is maintained.
 
-The problem with BitEth is not that such an occurance is possible, but that such an occurance is surprising.  It is a natural rule of this world that power consolidates.  Power consolidation is inevitable.  The best that can be done is to design systems that work with along grain and minimize the problems of consolidated power.
+The problem with BitEth is not that such an occurance is possible, but that such an occurance is surprising.  It is a natural rule that power consolidates.  Power consolidation is inevitable.  The best that can be done is to design systems that work with along grain and minimize the problems of consolidated power.
 
 Historically it is normal for each government to control its own currency.  Governements and currencies work closely together.  Bitcoin was created to be a currency independent of government, but in the end has become itself a government, replete with its own politicians, taxes, and civil wars.
 

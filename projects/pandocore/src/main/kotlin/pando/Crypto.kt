@@ -2,24 +2,11 @@ package pando
 
 import org.apache.commons.codec.digest.DigestUtils
 import java.nio.charset.Charset
-import java.util.*
 import java.security.*
-import java.util.Base64.getDecoder
 import java.security.KeyFactory
+import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
-import java.util.Base64.getDecoder
-import java.io.IOException
-import java.security.GeneralSecurityException
-import com.sun.tools.corba.se.idl.InterfaceState.Public
-import java.security.PublicKey
-import java.security.spec.EncodedKeySpec
-import java.security.PrivateKey
-
-
-
-
-
-
+import java.util.*
 
 fun generateRandomString(size: Int): String {
   val array = ByteArray(size)
@@ -32,7 +19,7 @@ fun hash256(privateKey: String): String {
 }
 
 fun keyToString(publicKey: PublicKey): String = Base64.getEncoder().encodeToString(publicKey.encoded)
-fun privateKeyToString(privateKey: PrivateKey): String = Base64.getEncoder().encodeToString(privateKey.encoded)
+fun keyToString(privateKey: PrivateKey): String = Base64.getEncoder().encodeToString(privateKey.encoded)
 
 //fun stringToKey(publicKey: String): PublicKey {
 //  val keyBytes: ByteArray = Base64.encode(publicKey, Base64.getEncoder())
@@ -42,8 +29,19 @@ fun privateKeyToString(privateKey: PrivateKey): String = Base64.getEncoder().enc
 //  return keyFactory.generatePublic(spec)
 //}
 
+fun stringToPublicKey(value: String): PublicKey {
+  val bytes = Base64.getDecoder().decode(value)
+  val keySpec = X509EncodedKeySpec(bytes)
+  val keyFactory = KeyFactory.getInstance("RSA")
+  return keyFactory.generatePublic(keySpec)
+}
 
-fun stringToPrivateKey(privateKey: PrivateKey): String = Base64.getEncoder().encodeToString(privateKey.encoded)
+fun stringToPrivateKey(value: String): PrivateKey {
+  val bytes = Base64.getDecoder().decode(value)
+  val keySpec = PKCS8EncodedKeySpec(bytes)
+  val keyFactory = KeyFactory.getInstance("RSA")
+  return keyFactory.generatePrivate(keySpec)
+}
 
 fun byteArrayToString(signature: ByteArray): String = String(signature, Charset.forName("UTF-8"))
 
