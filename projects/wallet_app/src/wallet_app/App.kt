@@ -15,15 +15,18 @@ import javafx.scene.layout.VBox
 import javafx.scene.text.Font
 import javafx.stage.Stage
 import javafx.util.Duration
+import jsoning.parseJsonFile
+import jsoning.saveJson
+import networking.primitiveBlockchain
 import pando.*
-import jsoning.*
-import networking.*
 import java.io.File
 
 data class Keys(
-  val publicKey: String,
-  val privateKey: String
+    val publicKey: String,
+    val privateKey: String
 )
+
+val keyDirectory = "addresses"
 
 class AppWindow : Application() {
 
@@ -42,22 +45,28 @@ class AppWindow : Application() {
       val primitiveBlockchain = primitiveBlockchain(blockchain)
 
       val newKeys = Keys(
-        primitiveBlockchain.publicKey,
-        privateKeyToString(pair.keyPair.private)
+          primitiveBlockchain.publicKey,
+          keyToString(pair.keyPair.private)
       )
+      val directory = File(keyDirectory);
+      if (!directory.exists())
+        directory.mkdir()
 
-      saveJson(newKeys, "./addresses/${blockchain.address}")
+      saveJson(newKeys, keyDirectory + "/" + blockchain.address)
     }
 
     val getAddresses = Button()
     getAddresses.text = "Get Addresses"
     getAddresses.onAction = EventHandler {
-      File("./addresses").walkTopDown().forEach {
-        if (it.extension == "json"){
+      File(keyDirectory).walkTopDown().forEach {
+        if (it.extension == "json") {
           val keys = parseJsonFile<Keys>(it)
-//          val publicKey = stringToKey(keys.publicKey)
-//          val pubTest = keyToString(publicKey)
-//          println(pubTest)
+          val publicKey = stringToPublicKey(keys.publicKey)
+          val privateKey = stringToPrivateKey(keys.privateKey)
+          val pubTest = keyToString(publicKey)
+          println(pubTest)
+          val privTest = keyToString(privateKey)
+          println(privTest)
         }
       }
     }
