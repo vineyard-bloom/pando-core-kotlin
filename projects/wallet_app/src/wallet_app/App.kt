@@ -21,8 +21,7 @@ import pando.*
 import java.io.File
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
-
-
+import javafx.stage.Modality
 
 
 data class Keys(
@@ -31,15 +30,11 @@ data class Keys(
 )
 
 
-class Address constructor(address: String, publicKey: String, privateKey: String) {
+class Address constructor(address: String) {
   private val address: SimpleStringProperty
-  private val publicKey: SimpleStringProperty
-  private val privateKey: SimpleStringProperty
 
   init {
     this.address = SimpleStringProperty(address)
-    this.publicKey = SimpleStringProperty(publicKey)
-    this.privateKey = SimpleStringProperty(privateKey)
   }
 
   fun getAddress(): String {
@@ -48,22 +43,6 @@ class Address constructor(address: String, publicKey: String, privateKey: String
 
   fun setAddress(fName: String) {
     address.set(fName)
-  }
-
-  fun getPublicKey(): String {
-    return publicKey.get()
-  }
-
-  fun setPublicKey(fName: String) {
-    publicKey.set(fName)
-  }
-
-  fun getPrivateKey(): String {
-    return privateKey.get()
-  }
-
-  fun setPrivateKey(fName: String) {
-    privateKey.set(fName)
   }
 
 }
@@ -75,80 +54,71 @@ class AppWindow : Application() {
 
   override fun start(primaryStage: Stage) {
     primaryStage.title = "Pando Wallet"
-    val addressCol = TableColumn<Address, String>("Address")
-    val publicCol = TableColumn<Address, String>("Public Key")
-    val privateCol = TableColumn<Address, String>("Private Key")
-    val tableView = TableView<Address>()
-    addressCol.setCellValueFactory(
-      PropertyValueFactory<Address, String>("address")
-    )
-    publicCol.setCellValueFactory(
-      PropertyValueFactory<Address, String>("publicKey")
-    )
-    privateCol.setCellValueFactory(
-      PropertyValueFactory<Address, String>("privateKey")
-    )
-
-    tableView.getSelectionModel().setCellSelectionEnabled(true)
-
-    val data = FXCollections.observableArrayList<Address>()
-
-    tableView.getColumns().addAll(addressCol, publicCol, privateCol)
-
-    tableView.setItems(data);
-
-    val newBlockchain = Button()
-    newBlockchain.text = "Create Blockchain"
-    newBlockchain.onAction = EventHandler {
-      val pair = generateAddressPair()
-      val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
-      val primitiveBlockchain = primitiveBlockchain(blockchain)
-
-      val newKeys = Keys(
-          primitiveBlockchain.publicKey,
-          keyToString(pair.keyPair.private)
-      )
-      val directory = File(keyDirectory);
-      if (!directory.exists())
-        directory.mkdir()
-      data.add(Address(blockchain.address, newKeys.publicKey, newKeys.privateKey))
-      saveJson(newKeys, keyDirectory + "/" + blockchain.address)
-    }
-
-    File(keyDirectory).walk().forEach {
-      if (it.extension == "json") {
-        val address = File(it.toString()).nameWithoutExtension
-        val keys = parseJsonFile<Keys>(it)
-        val publicKey = stringToPublicKey(keys.publicKey)
-        val privateKey = stringToPrivateKey(keys.privateKey)
-        data.add(Address(address, keys.publicKey, keys.privateKey))
-      }
-    }
-
-    val updater = Timeline(KeyFrame(Duration.seconds(1.0), EventHandler {
-    }))
-    updater.cycleCount = Timeline.INDEFINITE
-    updater.play()
+//    val addressCol = TableColumn<Address, String>("Address")
+//    val tableView = TableView<Address>()
+//    addressCol.setCellValueFactory(PropertyValueFactory<Address, String>("address"))
+//
+//
+//    tableView.getSelectionModel().setCellSelectionEnabled(true)
+//
+//    val data = FXCollections.observableArrayList<Address>()
+//
+//    tableView.getColumns().addAll(addressCol)
+//
+//    tableView.setItems(data);
 
     val root = VBox()
-    root.children.add(tableView)
-    root.children.add(newBlockchain)
+    primaryStage.scene = Scene(root, 800.0, 500.0)
 
-    primaryStage.scene = Scene(root, 1400.0, 500.0)
+    val client = Client(primaryStage)
 
-    primaryStage.scene.addEventFilter(KeyEvent.KEY_PRESSED, object : EventHandler<KeyEvent> {
-      internal val keyComb: KeyCombination = KeyCodeCombination(KeyCode.S,
-          KeyCombination.CONTROL_DOWN)
-
-      override fun handle(event: KeyEvent) {
-        if (keyComb.match(event)) {
-
-          event.consume() // <-- stops passing the event to next node
-        }
-      }
-    })
+//    val newBlockchain = Button()
+//    newBlockchain.text = "Create Address"
+//    newBlockchain.onAction = EventHandler {
+//      val pair = generateAddressPair()
+//      val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
+//      val primitiveBlockchain = primitiveBlockchain(blockchain)
+//
+//      val newKeys = Keys(
+//          primitiveBlockchain.publicKey,
+//          keyToString(pair.keyPair.private)
+//      )
+//      val directory = File(keyDirectory);
+//      if (!directory.exists())
+//        directory.mkdir()
+//      data.add(Address(blockchain.address))
+//      saveJson(newKeys, keyDirectory + "/" + blockchain.address)
+//    }
+//
+//    val newTransaction = Button()
+//    newTransaction.text = "New Transaction"
+//    newTransaction.onAction = EventHandler {
+//      client.sendTransaction(client)
+//    }
+//
+//    File(keyDirectory).walk().forEach {
+//      if (it.extension == "json") {
+//        val address = File(it.toString()).nameWithoutExtension
+//        val keys = parseJsonFile<Keys>(it)
+//        val publicKey = stringToPublicKey(keys.publicKey)
+//        val privateKey = stringToPrivateKey(keys.privateKey)
+//        data.add(Address(address))
+//      }
+//    }
+//
+//    val updater = Timeline(KeyFrame(Duration.seconds(1.0), EventHandler {
+//    }))
+//    updater.cycleCount = Timeline.INDEFINITE
+//    updater.play()
+//
+//    root.children.add(tableView)
+//    root.children.add(newBlockchain)
+//    root.children.add(newTransaction)
 
     primaryStage.show()
+
+    client.goToMainScene(client)
+
   }
 
   companion object {
@@ -158,6 +128,8 @@ class AppWindow : Application() {
     }
   }
 }
+
+
 
 object App {
   @JvmStatic
