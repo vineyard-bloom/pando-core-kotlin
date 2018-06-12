@@ -11,7 +11,7 @@ import pando.*
 
 data class BlockchainData(
   val address: String,
-  val blocks: List<BlockData>
+  val blocks: List<BlockData?>
 )
 
 data class BlockData(
@@ -38,9 +38,9 @@ object Blockchains : Table() {
 
 object Blocks : Table() {
   val hash = varchar("hash", 64)
-  val index = long("index").primaryKey()
+  val index = long("index").uniqueIndex().primaryKey()
   val address = (varchar("address", 40) references Blockchains.address)
-  val transactionHash = varchar("transactionHash", 64)
+  val transactionHash = varchar("transactionHash", 64).uniqueIndex()
   val previousBlock = long("previousBlock").nullable()
   val createdAt = datetime("createdAt")
   val created = datetime("created")
@@ -92,18 +92,31 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
   fun loadBlockchain(address: Address): BlockchainData? {
 
-    val blockList = transaction {
+    // Grab list of blockIndexes for all Blocks.address that match Blockchain.address
+    val blockIndexes = transaction {
       logger.addLogger(StdOutSqlLogger)
 
       Blocks.select { Blocks.address eq address }.map {
-        BlockData(
-            it[Blocks.hash],
-            it[Blocks.index],
-            it[Blocks.address],
-            it[Blocks.createdAt]
-        )
+        it[Blocks.index]
       }
     }
+
+    // Map through blockIndexes and run loadBlock on each
+    val blockList = blockIndexes.map { index -> loadBlock(index) }
+    println("the block list is: $blockList")
+
+
+//      Blocks.select { Blocks.address eq address }.map {
+//        BlockData(
+//            it[Blocks.hash],
+//            it[Blocks.index],
+//            it[Blocks.address],
+//            TransactionData(
+//
+//            ),
+//            it[Blocks.createdAt]
+//        )
+//      }
 
     val blockchain = transaction {
       logger.addLogger(StdOutSqlLogger)
@@ -142,8 +155,6 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadBlock(index: Long): BlockData? {
-    // Use join statement to get block and transaction data
-
     val block = transaction {
       logger.addLogger(StdOutSqlLogger)
 
@@ -156,24 +167,20 @@ class PandoDatabase(private val config: DatabaseConfig) {
           Transactions.value,
           Transactions.to,
           Transactions.from
-          ).select { Blocks.index.eq(index) and Blocks.transactionHash.eq(Transactions.hash) }.forEach {
-//        if (it[Users.cityId] != null) {
-//          println("${it[Users.name]} lives in ${it[Cities.name]}")
-//        }
-//        else {
-//          println("${it[Users.name]} lives nowhere")
-//        }
+      ).select { Blocks.index.eq(index) and Blocks.transactionHash.eq(Transactions.hash) }.map {
+        BlockData(
+            it[Blocks.hash],
+            it[Blocks.index],
+            it[Blocks.address],
+            TransactionData(
+                it[Transactions.hash],
+                it[Transactions.value],
+                it[Transactions.to],
+                it[Transactions.from]
+            ),
+            it[Blocks.createdAt]
+        )
       }
-
-//      Blocks.select { Blocks.index eq index }.map {
-//        BlockData(
-//            it[Blocks.hash],
-//            it[Blocks.index],
-//            it[Blocks.address],
-//            TRANSACTION,
-//            it[Blocks.createdAt]
-//        )
-//      }
     }
 
     if (block.isEmpty()) {

@@ -4,10 +4,7 @@ import junit.framework.TestCase.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import pando.createNewBlockchain
-import pando.createTransaction
-import pando.generateAddressPair
-import pando.mintTokens
+import pando.*
 import persistence.PandoDatabase
 
 data class AppConfig(
@@ -36,40 +33,65 @@ class PersistenceSpec : Spek({
 
 
     it("can save and load a blockchain") {
-      val pair = generateAddressPair()
-      val newBlockchain = createNewBlockchain(pair.address, pair.keyPair.public)
-      db.saveBlockchain(newBlockchain)
-      val data = db.loadBlockchain(newBlockchain.address)
 
-      assertNotNull("DB response should not be null", data)
-      assertEquals("DB response should include the correct address", newBlockchain.address, data!!.address)
+      // does it need to have a tx to run loadBlock??
+      val pair = generateAddressPair()
+      val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
+
+      // try using mintTokens
+
+//      val transaction1 = createTransaction(1000, pair.address, null)
+//      val block1 = createBlock(blockchain, transaction1, pair.keyPair.private)
+//      println("block1 index is ${block1.index}")
+//      // Must update blockchain so we know there's a block there now
+//      val transaction2 = createTransaction(2000, pair.address, null)
+//      val block2 = createBlock(blockchain, transaction2, pair.keyPair.private)
+//      println("block2 index is ${block2.index}")
+
+      db.saveBlockchain(blockchain)
+      db.saveBlock(block1)
+      db.saveTransaction(transaction1)
+      db.saveBlock(block2)
+      db.saveTransaction(transaction2)
+
+      val blockchainData = db.loadBlockchain(blockchain.address)
+      println("blockchain data: $blockchainData")
+
+      assertNotNull("DB response should not be null", blockchainData)
+      assertEquals("DB response should include the correct address", blockchain.address, blockchainData!!.address)
     }
 
     it("can save and load a block") {
       val pair = generateAddressPair()
-      val newBlockchain =  createNewBlockchain(pair.address, pair.keyPair.public)
-      val updatedBlockchain = mintTokens(newBlockchain, 1000)
-      val block = updatedBlockchain.blocks.first()
+      val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
+      val transaction = createTransaction(1000, pair.address, null)
+      val block = createBlock(blockchain, transaction, pair.keyPair.private)
 
-      db.saveBlockchain(updatedBlockchain)
+      db.saveBlockchain(blockchain)
       db.saveBlock(block)
-      val data = db.loadBlock(block.index)
+      db.saveTransaction(transaction)
+      val blockData = db.loadBlock(block.index)
 
-      assertNotNull("DB response should not be null", data)
-      assertEquals("DB response should include the correct hash", block.hash, data!!.hash)
-      assertEquals("DB response should include the correct address", block.address, data!!.address)
+      assertNotNull("DB response should not be null", blockData)
+      assertEquals("DB response should include the correct hash", block.hash, blockData!!.hash)
+      assertEquals("DB response should include the correct address", block.address, blockData!!.address)
     }
 
     it("can save and load a transaction") {
       val pair = generateAddressPair()
+      val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
       val transaction = createTransaction(1000, pair.address, null)
+      val block = createBlock(blockchain, transaction, pair.keyPair.private)
 
+      db.saveBlockchain(blockchain)
+      db.saveBlock(block)
       db.saveTransaction(transaction)
-      val data = db.loadTransaction(transaction.hash)
 
-      assertNotNull("DB response should not be null", data)
-      assertEquals("DB response should include the correct hash", transaction.hash, data!!.hash)
-      assertEquals("DB response should include the correct address", transaction.to, data!!.to)
+      val transactionData = db.loadTransaction(transaction.hash)
+
+      assertNotNull("DB response should not be null", transactionData)
+      assertEquals("DB response should include the correct hash", transaction.hash, transactionData!!.hash)
+      assertEquals("DB response should include the correct address", transaction.to, transactionData!!.to)
     }
 
   }
