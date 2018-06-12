@@ -18,7 +18,15 @@ data class BlockData(
   val hash: String,
   val index: Long,
   val address: String,
+  val transaction: TransactionData,
   val createdAt: DateTime
+)
+
+data class TransactionData(
+  val hash: String,
+  val value: String,
+  val to: String,
+  val from: String?
 )
 
 object Blockchains : Table() {
@@ -32,6 +40,7 @@ object Blocks : Table() {
   val hash = varchar("hash", 64)
   val index = long("index").primaryKey()
   val address = (varchar("address", 40) references Blockchains.address)
+  val transactionHash = varchar("transactionHash", 64)
   val previousBlock = long("previousBlock").nullable()
   val createdAt = datetime("createdAt")
   val created = datetime("created")
@@ -40,8 +49,8 @@ object Blocks : Table() {
 
 object Transactions : Table() {
   val id = integer("id").autoIncrement().uniqueIndex()
-  val hash = varchar("hash", 64)
-  val value = long("value")
+  val hash = (varchar("hash", 64).primaryKey() references Blocks.transactionHash)
+  val value = text("value")
   val to = varchar("to", 40)
   val from = varchar("from", 40).nullable()
   val created = datetime("created")
@@ -82,6 +91,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadBlockchain(address: Address): BlockchainData? {
+
     val blockList = transaction {
       logger.addLogger(StdOutSqlLogger)
 
@@ -90,7 +100,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
             it[Blocks.hash],
             it[Blocks.index],
             it[Blocks.address],
-            DateTime.parse(it[Blocks.createdAt].toString())
+            it[Blocks.createdAt]
         )
       }
     }
@@ -122,6 +132,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
         it[hash] = block.hash
         it[index] = block.index
         it[address] = block.address
+        it[transactionHash] = block.transaction.hash
         it[previousBlock] = if (block.previousBlock != null) block.previousBlock!!.index else null
         it[createdAt] = DateTime.parse(block.createdAt.toString())
         it[created] = DateTime.now()
@@ -131,17 +142,38 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadBlock(index: Long): BlockData? {
+    // Use join statement to get block and transaction data
+
     val block = transaction {
       logger.addLogger(StdOutSqlLogger)
 
-      Blocks.select { Blocks.index eq index }.map {
-        BlockData(
-            it[Blocks.hash],
-            it[Blocks.index],
-            it[Blocks.address],
-            DateTime.parse(it[Blocks.createdAt].toString())
-        )
+      (Blocks innerJoin Transactions).slice(
+          Blocks.hash,
+          Blocks.index,
+          Blocks.address,
+          Blocks.createdAt,
+          Transactions.hash,
+          Transactions.value,
+          Transactions.to,
+          Transactions.from
+          ).select { Blocks.index.eq(index) and Blocks.transactionHash.eq(Transactions.hash) }.forEach {
+//        if (it[Users.cityId] != null) {
+//          println("${it[Users.name]} lives in ${it[Cities.name]}")
+//        }
+//        else {
+//          println("${it[Users.name]} lives nowhere")
+//        }
       }
+
+//      Blocks.select { Blocks.index eq index }.map {
+//        BlockData(
+//            it[Blocks.hash],
+//            it[Blocks.index],
+//            it[Blocks.address],
+//            TRANSACTION,
+//            it[Blocks.createdAt]
+//        )
+//      }
     }
 
     if (block.isEmpty()) {
@@ -158,13 +190,33 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
       Transactions.insert {
         it[hash] = transaction.hash
-        it[value] = transaction.value
+        it[value] = transaction.value.toString()
         it[to] = transaction.to
-        it[to] = transaction.from
+        it[from] = transaction.from
         it[created] = DateTime.now()
         it[modified] = DateTime.now()
       }
     }
+  }
+
+  fun loadTransaction(hash: String): TransactionData? {
+    val transaction = transaction {
+      logger.addLogger(StdOutSqlLogger)
+
+      Transactions.select { Transactions.hash eq hash }.map {
+        TransactionData(
+            it[Transactions.hash],
+            it[Transactions.value],
+            it[Transactions.to],
+            it[Transactions.from]
+        )
+      }
+    }
+
+    if (transaction.isEmpty()) {
+      return null
+    }
+    return transaction.first()
   }
 
 }
