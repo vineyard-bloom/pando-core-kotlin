@@ -91,8 +91,6 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadBlockchain(address: Address): BlockchainData? {
-
-    // Grab list of blockIndexes for all Blocks.address that match Blockchain.address
     val blockIndexes = transaction {
       logger.addLogger(StdOutSqlLogger)
 
@@ -100,23 +98,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
         it[Blocks.index]
       }
     }
-
-    // Map through blockIndexes and run loadBlock on each
     val blockList = blockIndexes.map { index -> loadBlock(index) }
-    println("the block list is: $blockList")
-
-
-//      Blocks.select { Blocks.address eq address }.map {
-//        BlockData(
-//            it[Blocks.hash],
-//            it[Blocks.index],
-//            it[Blocks.address],
-//            TransactionData(
-//
-//            ),
-//            it[Blocks.createdAt]
-//        )
-//      }
 
     val blockchain = transaction {
       logger.addLogger(StdOutSqlLogger)
