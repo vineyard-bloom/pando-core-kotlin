@@ -111,7 +111,7 @@ class AppWindow : Application() {
       val directory = File(keyDirectory);
       if (!directory.exists())
         directory.mkdir()
-
+      data.add(Address(blockchain.address, newKeys.publicKey, newKeys.privateKey))
       saveJson(newKeys, keyDirectory + "/" + blockchain.address)
     }
 
