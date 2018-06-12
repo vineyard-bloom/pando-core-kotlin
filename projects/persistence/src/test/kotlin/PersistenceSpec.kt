@@ -20,78 +20,47 @@ class PersistenceSpec : Spek({
     val db = PandoDatabase(appConfig.database)
     db.fixtureInit()
 
+    // Generate some data
+    val pair = generateAddressPair()
+    val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
+    val updatedBlockchain = mintTokens(blockchain, 1000)
+    val newestBlockchain = mintTokens(updatedBlockchain, 2000)
+
+    // Save the data
+    db.saveBlockchain(newestBlockchain)
+    newestBlockchain.blocks.map { block -> db.saveBlock(block) }
+    newestBlockchain.blocks.map { block -> db.saveTransaction(block.transaction) }
+
     it("returns null when trying to load nonexistent data") {
       val blockchainData = db.loadBlockchain("Fake address")
       assertNull("Should return null when there is no matching blockchain", blockchainData)
 
-      val blockData = db.loadBlock(5392)
+      val blockData = db.loadBlock(1337)
       assertNull("Should return null when there is no matching block", blockData)
 
       val transactionData = db.loadTransaction("07F1896758704287DA11FCB8BB70350020A357ADCB9C441D3CE9C900F2E8C6E5")
       assertNull("Should return null when there is no matching blockchain", transactionData)
     }
 
-
-    it("can save and load a blockchain") {
-
-      // does it need to have a tx to run loadBlock??
-      val pair = generateAddressPair()
-      val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
-
-      // try using mintTokens
-
-//      val transaction1 = createTransaction(1000, pair.address, null)
-//      val block1 = createBlock(blockchain, transaction1, pair.keyPair.private)
-//      println("block1 index is ${block1.index}")
-//      // Must update blockchain so we know there's a block there now
-//      val transaction2 = createTransaction(2000, pair.address, null)
-//      val block2 = createBlock(blockchain, transaction2, pair.keyPair.private)
-//      println("block2 index is ${block2.index}")
-
-      db.saveBlockchain(blockchain)
-      db.saveBlock(block1)
-      db.saveTransaction(transaction1)
-      db.saveBlock(block2)
-      db.saveTransaction(transaction2)
-
-      val blockchainData = db.loadBlockchain(blockchain.address)
-      println("blockchain data: $blockchainData")
-
+    it("can load a blockchain") {
+      val blockchainData = db.loadBlockchain(newestBlockchain.address)
       assertNotNull("DB response should not be null", blockchainData)
-      assertEquals("DB response should include the correct address", blockchain.address, blockchainData!!.address)
+      assertEquals("DB response should include the correct address", newestBlockchain.address, blockchainData!!.address)
+      assertEquals("Blockchain should be associated with two blocks", 2, blockchainData!!.blocks.size)
     }
 
     it("can save and load a block") {
-      val pair = generateAddressPair()
-      val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
-      val transaction = createTransaction(1000, pair.address, null)
-      val block = createBlock(blockchain, transaction, pair.keyPair.private)
-
-      db.saveBlockchain(blockchain)
-      db.saveBlock(block)
-      db.saveTransaction(transaction)
-      val blockData = db.loadBlock(block.index)
-
+      val blockData = db.loadBlock(newestBlockchain.blocks.first().index)
       assertNotNull("DB response should not be null", blockData)
-      assertEquals("DB response should include the correct hash", block.hash, blockData!!.hash)
-      assertEquals("DB response should include the correct address", block.address, blockData!!.address)
+      assertEquals("DB response should include the correct hash", newestBlockchain.blocks.first().hash, blockData!!.hash)
+      assertEquals("DB response should include the correct address", newestBlockchain.blocks.first().address, blockData!!.address)
     }
 
     it("can save and load a transaction") {
-      val pair = generateAddressPair()
-      val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
-      val transaction = createTransaction(1000, pair.address, null)
-      val block = createBlock(blockchain, transaction, pair.keyPair.private)
-
-      db.saveBlockchain(blockchain)
-      db.saveBlock(block)
-      db.saveTransaction(transaction)
-
-      val transactionData = db.loadTransaction(transaction.hash)
-
+      val transactionData = db.loadTransaction(updatedBlockchain.blocks.first().transaction.hash)
       assertNotNull("DB response should not be null", transactionData)
-      assertEquals("DB response should include the correct hash", transaction.hash, transactionData!!.hash)
-      assertEquals("DB response should include the correct address", transaction.to, transactionData!!.to)
+      assertEquals("DB response should include the correct hash", updatedBlockchain.blocks.first().transaction.hash, transactionData!!.hash)
+      assertEquals("DB response should include the correct 'to'", updatedBlockchain.blocks.first().transaction.to, transactionData!!.to)
     }
 
   }
