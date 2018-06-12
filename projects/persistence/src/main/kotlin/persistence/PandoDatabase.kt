@@ -10,24 +10,29 @@ import org.joda.time.DateTime
 import pando.*
 
 data class BlockchainData(
-  val address: String,
-  val blocks: List<BlockData?>
+    val address: String,
+    // publicKey: PublicKey,
+    val blocks: List<BlockData?>
 )
 
 data class BlockData(
-  val hash: String,
-  val index: Long,
-  val address: String,
-  val transaction: TransactionData,
-  val createdAt: DateTime
+    val hash: String,
+    val index: Long,
+    val address: String,
+    val transaction: TransactionData,
+    val createdAt: DateTime
 )
 
 data class TransactionData(
-  val hash: String,
-  val value: String,
-  val to: String,
-  val from: String?
+    val hash: String,
+    val value: String,
+    val to: String,
+    val from: String?
 )
+
+//data class BlockSignatureData(
+//
+//)
 
 object Blockchains : Table() {
   val id = integer("id").autoIncrement().uniqueIndex()
@@ -90,6 +95,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
     }
   }
 
+  // Eventually would like to return Blockchain? type
   fun loadBlockchain(address: Address): BlockchainData? {
     val blockIndexes = transaction {
       logger.addLogger(StdOutSqlLogger)
@@ -136,6 +142,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
     }
   }
 
+  // Eventually would like to return Block? type
   fun loadBlock(index: Long): BlockData? {
     val block = transaction {
       logger.addLogger(StdOutSqlLogger)
@@ -188,6 +195,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
     }
   }
 
+  // Eventually would like to return Transaction? type
   fun loadTransaction(hash: String): TransactionData? {
     val transaction = transaction {
       logger.addLogger(StdOutSqlLogger)
@@ -207,6 +215,20 @@ class PandoDatabase(private val config: DatabaseConfig) {
     }
     return transaction.first()
   }
+
+//  fun saveSignature(signature: Signature) {
+//    Database.connect(source)
+//
+//    transaction {
+//      logger.addLogger(StdOutSqlLogger)
+//
+//      Signatures.insert {
+//        it[address] = blockchain.address
+//        it[created] = DateTime.now()
+//        it[modified] = DateTime.now()
+//      }
+//    }
+//  }
 
 }
 
