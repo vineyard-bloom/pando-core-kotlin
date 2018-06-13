@@ -7,6 +7,13 @@ import java.security.KeyFactory
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 import java.util.*
+import java.util.Base64.getDecoder
+import java.io.IOException
+import java.security.GeneralSecurityException
+//import com.sun.tools.corba.se.idl.InterfaceState.Public
+import java.security.PublicKey
+import java.security.spec.EncodedKeySpec
+import java.security.PrivateKey
 
 fun generateRandomString(size: Int): String {
   val array = ByteArray(size)
@@ -20,14 +27,6 @@ fun hash256(privateKey: String): String {
 
 fun keyToString(publicKey: PublicKey): String = Base64.getEncoder().encodeToString(publicKey.encoded)
 fun keyToString(privateKey: PrivateKey): String = Base64.getEncoder().encodeToString(privateKey.encoded)
-
-//fun stringToKey(publicKey: String): PublicKey {
-//  val keyBytes: ByteArray = Base64.encode(publicKey, Base64.getEncoder())
-//  val spec = X509EncodedKeySpec(keyBytes)
-//  val keyFactory = KeyFactory.getInstance("RSA")
-//
-//  return keyFactory.generatePublic(spec)
-//}
 
 fun stringToPublicKey(value: String): PublicKey {
   val bytes = Base64.getDecoder().decode(value)
