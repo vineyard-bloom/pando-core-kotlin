@@ -5,14 +5,22 @@ import grounded.createDataSource
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.SchemaUtils.drop
+import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
+import pando.Address
+import pando.Block
+import pando.Blockchain
+import java.sql.Connection
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
 import pando.*
 
 data class BlockchainData(
-    val address: String,
-    // publicKey: PublicKey,
-    val blocks: List<BlockData?>
+  val address: String,
+  val publicKey: String,
+  val blocks: List<BlockData?>
 )
 
 data class BlockData(
@@ -39,15 +47,15 @@ data class BlockSignatureData(
 )
 
 object Blockchains : Table() {
-  val id = integer("id").autoIncrement().uniqueIndex()
   val address = varchar("address", 40).primaryKey()
+  val publicKey = varchar("publicKey", 375)
   val created = datetime("created")
   val modified = datetime("modified")
 }
 
 object Blocks : Table() {
-  val hash = varchar("hash", 64)
-  val index = long("index").uniqueIndex().primaryKey()
+  val hash = varchar("hash", 64).primaryKey()
+  val index = long("index")
   val address = (varchar("address", 40) references Blockchains.address)
   val transactionHash = varchar("transactionHash", 64).uniqueIndex()
   val previousBlock = long("previousBlock").nullable()
@@ -80,6 +88,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
   fun fixtureInit() {
     Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
     transaction {
       logger.addLogger(StdOutSqlLogger)
@@ -98,12 +107,14 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
   fun saveBlockchain(blockchain: Blockchain) {
     Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
     transaction {
       logger.addLogger(StdOutSqlLogger)
 
       Blockchains.insert {
         it[address] = blockchain.address
+        it[publicKey] = blockchain.publicKey.toString()
         it[created] = DateTime.now()
         it[modified] = DateTime.now()
       }
@@ -112,21 +123,18 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
   // Eventually would like to return Blockchain? type
   fun loadBlockchain(address: Address): BlockchainData? {
-    val blockIndexes = transaction {
+    val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+    val blocks = transaction {
       logger.addLogger(StdOutSqlLogger)
 
-      Blocks.select { Blocks.address eq address }.map {
-        it[Blocks.index]
-      }
+      Blocks.select { Blocks.address eq address }.toList()
     }
-    val blockList = blockIndexes.map { index -> loadBlock(index) }
 
     val blockchain = transaction {
-      logger.addLogger(StdOutSqlLogger)
-
       Blockchains.select { Blockchains.address eq address }.map {
         BlockchainData(
             it[Blockchains.address],
+            it[Blockchains.publicKey],
             blockList
         )
       }
@@ -140,6 +148,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
   fun saveBlock(block: Block) {
     Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
     transaction {
       logger.addLogger(StdOutSqlLogger)
@@ -179,6 +188,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
             it[Blocks.hash],
             it[Blocks.index],
             it[Blocks.address],
+            LocalDateTime.parse(it[Blocks.createdAt].toString(), DateTimeFormatter.ISO_OFFSET_DATE_TIME),
             TransactionData(
                 it[Transactions.hash],
                 it[Transactions.value],
