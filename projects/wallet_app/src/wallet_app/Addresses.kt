@@ -2,6 +2,7 @@ package wallet_app
 
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
+import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.event.EventHandler
 import javafx.scene.Scene
@@ -18,6 +19,30 @@ import pando.*
 import wallet_app.Client
 import java.io.File
 
+data class Keys(
+  val publicKey: String,
+  val privateKey: String
+)
+
+
+class Address constructor(address: String) {
+  private val address: SimpleStringProperty
+
+  init {
+    this.address = SimpleStringProperty(address)
+  }
+
+  fun getAddress(): String {
+    return address.get()
+  }
+
+  fun setAddress(fName: String) {
+    address.set(fName)
+  }
+
+}
+val keyDirectory = "out/bin/addresses"
+
 fun addressesScene(client: Client): Scene {
   val root = VBox()
 
@@ -27,8 +52,6 @@ fun addressesScene(client: Client): Scene {
   val tableView = TableView<Address>()
   addressCol.setCellValueFactory(PropertyValueFactory<Address, String>("address"))
 
-
-  tableView.getSelectionModel().setCellSelectionEnabled(true)
 
   val data = FXCollections.observableArrayList<Address>()
 
@@ -54,11 +77,6 @@ fun addressesScene(client: Client): Scene {
     saveJson(newKeys, keyDirectory + "/" + blockchain.address)
   }
 
-  val newTransaction = Button()
-  newTransaction.text = "New Transaction"
-  newTransaction.onAction = EventHandler {
-    client.sendTransaction(client)
-  }
 
   File(keyDirectory).walk().forEach {
     if (it.extension == "json") {
@@ -70,14 +88,13 @@ fun addressesScene(client: Client): Scene {
     }
   }
 
-  val updater = Timeline(KeyFrame(Duration.seconds(1.0), EventHandler {
-  }))
-  updater.cycleCount = Timeline.INDEFINITE
-  updater.play()
+  tableView.getSelectionModel().selectedItemProperty().addListener({ row, oldSelection, newSelection ->
+    val address = newSelection.getAddress()
+    client.goToAddressScene(client, address)
+  })
 
   root.children.add(tableView)
   root.children.add(newBlockchain)
-  root.children.add(newTransaction)
 
   return addressScene
 }
