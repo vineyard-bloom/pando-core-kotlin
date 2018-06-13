@@ -26,7 +26,7 @@ fun hash256(privateKey: String): String {
 }
 
 fun keyToString(publicKey: PublicKey): String = Base64.getEncoder().encodeToString(publicKey.encoded)
-fun keyToString(privateKey: PrivateKey): String = Base64.getEncoder().encodeToString(privateKey.encoded)
+fun privateKeyToString(privateKey: PrivateKey): String = Base64.getEncoder().encodeToString(privateKey.encoded)
 
 fun stringToPublicKey(value: String): PublicKey {
   val bytes = Base64.getDecoder().decode(value)
@@ -43,7 +43,6 @@ fun stringToPrivateKey(value: String): PrivateKey {
 }
 
 fun byteArrayToString(signature: ByteArray): String = String(signature, Charset.forName("UTF-8"))
-
 
 data class AddressKeyPair(
     val address: Address,

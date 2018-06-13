@@ -12,14 +12,13 @@ import pando.Address
 import pando.Block
 import pando.Blockchain
 import java.sql.Connection
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.text.SimpleDateFormat
 import pando.*
+import java.security.PublicKey
 
 data class BlockchainData(
   val address: String,
-  val publicKey: String,
+  val publicKey: PublicKey,
   val blocks: List<BlockData?>
 )
 
@@ -42,7 +41,7 @@ data class TransactionData(
 
 data class BlockSignatureData(
     val signer: String,
-    // val publicKey: PublicKey,
+    val publicKey: PublicKey,
     val signature: ByteArray
 )
 
@@ -54,8 +53,8 @@ object Blockchains : Table() {
 }
 
 object Blocks : Table() {
-  val hash = varchar("hash", 64)
-  val index = long("index").uniqueIndex().primaryKey()
+  val hash = varchar("hash", 64).primaryKey()
+  val index = long("index")
   val address = (varchar("address", 40) references Blockchains.address)
   val transactionHash = varchar("transactionHash", 64).uniqueIndex()
   val previousBlock = long("previousBlock").nullable()
@@ -65,7 +64,6 @@ object Blocks : Table() {
 }
 
 object Transactions : Table() {
-  val id = integer("id").autoIncrement().uniqueIndex()
   val hash = (varchar("hash", 64).primaryKey() references Blocks.transactionHash)
   val value = long("value")
   val to = varchar("to", 40)
@@ -76,9 +74,9 @@ object Transactions : Table() {
 
 object Signatures: Table() {
   val signer = varchar("signer", 40).primaryKey()
-  // val publicKey: PublicKey,
-  val signature = binary("signature", 128)
-  val blockIndex = (long("blockIndex") references Blocks.index)
+  val publicKey = varchar("publicKey", 375)
+  val signature = text("signature")
+  val blockHash = (varchar("hash", 64) references Blocks.hash)
   val created = datetime("created")
   val modified = datetime("modified")
 }
@@ -114,38 +112,36 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
       Blockchains.insert {
         it[address] = blockchain.address
-        it[publicKey] = blockchain.publicKey.toString()
+        it[publicKey] = keyToString(blockchain.publicKey)
         it[created] = DateTime.now()
         it[modified] = DateTime.now()
       }
     }
   }
 
-  // Eventually would like to return Blockchain? type
   fun loadBlockchain(address: Address): BlockchainData? {
-    val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
 
-//    New code from CJ
+//    New example code
 //    val blocks = transaction {
 //      logger.addLogger(StdOutSqlLogger)
 //
 //      Blocks.select { Blocks.address eq address }.toList()
 //    }
 
-    val blockIndexes = transaction {
+    val blockHashes = transaction {
       logger.addLogger(StdOutSqlLogger)
 
       Blocks.select { Blocks.address eq address }.map {
-        it[Blocks.index]
+        it[Blocks.hash]
       }
     }
-    val blockList = blockIndexes.map { index -> loadBlock(index) }
+    val blockList = blockHashes.map { hash -> loadBlock(hash) }
 
     val blockchain = transaction {
       Blockchains.select { Blockchains.address eq address }.map {
         BlockchainData(
             it[Blockchains.address],
-            it[Blockchains.publicKey],
+            stringToPublicKey(it[Blockchains.publicKey]),
             blockList
         )
       }
@@ -177,8 +173,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
     }
   }
 
-  // Eventually would like to return Block? type
-  fun loadBlock(index: Long): BlockData? {
+  fun loadBlock(hash: String): BlockData? {
 
     val block = transaction {
       logger.addLogger(StdOutSqlLogger)
@@ -194,7 +189,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
           Transactions.value,
           Transactions.to,
           Transactions.from
-      ).select { Blocks.index.eq(index) and Blocks.transactionHash.eq(Transactions.hash) }.map {
+      ).select { Blocks.hash.eq(hash) and Blocks.transactionHash.eq(Transactions.hash) }.map {
         BlockData(
             it[Blocks.hash],
             it[Blocks.index],
@@ -233,7 +228,6 @@ class PandoDatabase(private val config: DatabaseConfig) {
     }
   }
 
-  // Eventually would like to return Transaction? type
   fun loadTransaction(hash: String): TransactionData? {
     val transaction = transaction {
       logger.addLogger(StdOutSqlLogger)
@@ -262,23 +256,26 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
       Signatures.insert {
         it[signer] = blockSignature.signer
-        it[signature] = blockSignature.signature
-        it[blockIndex] = block.index
+        it[publicKey] = keyToString(blockSignature.publicKey)
+        // byte array conversion causing issues
+        it[signature] = blockSignature.signature.toString()
+        it[blockHash] = block.hash
         it[created] = DateTime.now()
         it[modified] = DateTime.now()
       }
     }
   }
 
-  // Eventually would like to return BlockSignature? type
-  fun loadSignatures(blockIndex: Long): List<BlockSignatureData?> {
+  fun loadSignatures(blockHash: String): List<BlockSignatureData?> {
     val signatureList = transaction {
       logger.addLogger(StdOutSqlLogger)
 
-      Signatures.select { Signatures.blockIndex eq blockIndex }.map {
+      Signatures.select { Signatures.blockHash eq blockHash }.map {
         BlockSignatureData(
             it[Signatures.signer],
-            it[Signatures.signature]
+            stringToPublicKey(it[Signatures.publicKey]),
+            // byte array conversion causing issues
+            it[Signatures.signature].toByteArray()
         )
       }
     }
