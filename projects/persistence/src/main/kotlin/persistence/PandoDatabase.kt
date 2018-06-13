@@ -22,7 +22,7 @@ data class BlockData(
     val transaction: TransactionData,
     // previousBlock: Block?
     val createdAt: DateTime
-    // val blockSignatures: List<BlockSignature>
+//    val blockSignatures: List<BlockSignatureData>
 )
 
 data class TransactionData(
@@ -159,8 +159,11 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
   // Eventually would like to return Block? type
   fun loadBlock(index: Long): BlockData? {
+
     val block = transaction {
       logger.addLogger(StdOutSqlLogger)
+
+      // call loadTransactions
 
       (Blocks innerJoin Transactions).slice(
           Blocks.hash,
