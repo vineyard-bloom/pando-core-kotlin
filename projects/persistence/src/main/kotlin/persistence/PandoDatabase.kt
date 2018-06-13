@@ -8,28 +8,8 @@ import org.jetbrains.exposed.sql.SchemaUtils.drop
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
-import pando.Address
-import pando.Block
-import pando.Blockchain
 import java.sql.Connection
 import pando.*
-import java.security.PublicKey
-
-data class BlockchainData(
-  val address: String,
-  val publicKey: PublicKey,
-  val blocks: List<BlockData?>
-)
-
-data class BlockData(
-    val hash: String,
-    val index: Long,
-    val address: String,
-    val transaction: BaseTransaction,
-    val previousBlock: Block?,
-    val createdAt: DateTime,
-    val blockSignatures: List<BlockSignature>
-)
 
 object Blockchains : Table() {
   val address = varchar("address", 40).primaryKey()
@@ -105,7 +85,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
     }
   }
 
-  fun loadBlockchain(address: Address): BlockchainData? {
+  fun loadBlockchain(address: Address): Blockchain? {
 
 //    New example code
 //    val blocks = transaction {
@@ -125,7 +105,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
     val blockchain = transaction {
       Blockchains.select { Blockchains.address eq address }.map {
-        BlockchainData(
+        Blockchain(
             it[Blockchains.address],
             stringToPublicKey(it[Blockchains.publicKey]),
             blockList
@@ -152,16 +132,14 @@ class PandoDatabase(private val config: DatabaseConfig) {
         it[address] = block.address
         it[transactionHash] = block.transaction.hash
         it[previousBlock] = if (block.previousBlock != null) block.previousBlock!!.hash else null
-        it[createdAt] = DateTime.parse(block.createdAt.toString())
+        it[createdAt] = block.createdAt
         it[created] = DateTime.now()
         it[modified] = DateTime.now()
       }
     }
   }
 
-  fun loadBlock(hash: String): BlockData? {
-    val signatureList = loadSignatures(hash)
-
+  fun loadBlock(hash: String): Block? {
     val block = transaction {
       logger.addLogger(StdOutSqlLogger)
 
@@ -175,21 +153,23 @@ class PandoDatabase(private val config: DatabaseConfig) {
           Transactions.to,
           Transactions.from
       ).select { Blocks.hash.eq(hash) and Blocks.transactionHash.eq(Transactions.hash) }.map {
-        BlockData(
+        Block(
             it[Blocks.hash],
-            it[Blocks.index],
-            it[Blocks.address],
-            BaseTransaction(
-                it[Transactions.hash],
-                TransactionContent(
-                    it[Transactions.value],
-                    it[Transactions.to],
-                    it[Transactions.from]
-                )
+            BlockContents(
+                it[Blocks.index],
+                it[Blocks.address],
+                BaseTransaction(
+                    it[Transactions.hash],
+                    TransactionContent(
+                        it[Transactions.value],
+                        it[Transactions.to],
+                        it[Transactions.from]
+                    )
+                ),
+                loadBlock(Blocks.previousBlock.toString()),
+                it[Blocks.createdAt]
             ),
-            previousBlock,
-            it[Blocks.createdAt],
-            signatureList
+            loadSignatures(hash)
         )
       }
     }
@@ -258,7 +238,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadSignatures(blockHash: String): List<BlockSignature> {
-    val signatureList = transaction {
+    return transaction {
       logger.addLogger(StdOutSqlLogger)
 
       Signatures.select { Signatures.blockHash eq blockHash }.map {
@@ -270,9 +250,6 @@ class PandoDatabase(private val config: DatabaseConfig) {
         )
       }
     }
-
-    return signatureList
   }
 
 }
-

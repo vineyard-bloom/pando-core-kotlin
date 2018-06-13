@@ -30,9 +30,9 @@ class PersistenceSpec : Spek({
 
     // Save the data
     db.saveBlockchain(newestBlockchain)
-    newestBlockchain.blocks.map { block -> db.saveBlock(block) }
-    newestBlockchain.blocks.map { block -> db.saveTransaction(block.transaction) }
-    db.saveSignature(blockSignature, updatedBlockchain.blocks.first())
+    newestBlockchain.blocks.map { block -> db.saveBlock(block!!) }
+    newestBlockchain.blocks.map { block -> db.saveTransaction(block!!.transaction) }
+    db.saveSignature(blockSignature, updatedBlockchain.blocks.first()!!)
 
     it("returns null when trying to load nonexistent data") {
       val blockchainData = db.loadBlockchain("Fake address")
@@ -54,23 +54,23 @@ class PersistenceSpec : Spek({
     }
 
     it("can load a block") {
-      val blockData = db.loadBlock(newestBlockchain.blocks.first().hash)
+      val blockData = db.loadBlock(newestBlockchain.blocks.first()!!.hash)
       assertNotNull("DB response should not be null", blockData)
       assertNotNull("DB response should include a signatures list that is not empty", blockData!!.blockSignatures.first())
-      assertEquals("DB response should include the correct hash", newestBlockchain.blocks.first().hash, blockData!!.hash)
-      assertEquals("DB response should include the correct address", newestBlockchain.blocks.first().address, blockData!!.address)
-//      assertEquals("DB response should include the correct signature data", blockSignature, blockData!!.blockSignatures.first())
+      assertEquals("DB response should include the correct hash", newestBlockchain.blocks.first()!!.hash, blockData!!.hash)
+      assertEquals("DB response should include the correct address", newestBlockchain.blocks.first()!!.address, blockData!!.address)
+//      assertEquals("DB response should include the correct signature data", blockSignature, blockData!!.blockSignatures.first()
     }
 
     it("can load a transaction") {
-      val transactionData = db.loadTransaction(updatedBlockchain.blocks.first().transaction.hash)
+      val transactionData = db.loadTransaction(updatedBlockchain.blocks.first()!!.transaction.hash)
       assertNotNull("DB response should not be null", transactionData)
-      assertEquals("DB response should include the correct hash", updatedBlockchain.blocks.first().transaction.hash, transactionData!!.hash)
-      assertEquals("DB response should include the correct 'to'", updatedBlockchain.blocks.first().transaction.to, transactionData!!.to)
+      assertEquals("DB response should include the correct hash", updatedBlockchain.blocks.first()!!.transaction.hash, transactionData!!.hash)
+      assertEquals("DB response should include the correct 'to'", updatedBlockchain.blocks.first()!!.transaction.to, transactionData!!.to)
     }
 
     it("can save and load a signature") {
-      val signatureData = db.loadSignatures(updatedBlockchain.blocks.first().hash)
+      val signatureData = db.loadSignatures(updatedBlockchain.blocks.first()!!.hash)
 
       assertNotNull("DB response should not be null", signatureData)
       assertEquals("DB response should include the correct signer", blockSignature.signer, signatureData.first()!!.signer)

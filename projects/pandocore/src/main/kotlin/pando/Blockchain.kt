@@ -6,7 +6,7 @@ import java.security.PublicKey
 data class Blockchain(
     val address: Address,
     val publicKey: PublicKey,
-    val blocks: List<Block>
+    val blocks: List<Block?>
 )
 
 fun createNewBlockchain(address: Address, publicKey: PublicKey) =
@@ -21,7 +21,7 @@ fun getLastBlock(blockchain: Blockchain): Block? =
 fun getBalance(blockchain: Blockchain): Long {
   var balance = 0L
   for (block in blockchain.blocks) {
-    if (block.transaction.from == blockchain.address)
+    if (block!!.transaction.from == blockchain.address)
       balance -= block.transaction.value as Long
     else
       balance += block.transaction.value as Long
