@@ -54,8 +54,8 @@ object Blockchains : Table() {
 }
 
 object Blocks : Table() {
-  val hash = varchar("hash", 64).primaryKey()
-  val index = long("index")
+  val hash = varchar("hash", 64)
+  val index = long("index").uniqueIndex().primaryKey()
   val address = (varchar("address", 40) references Blockchains.address)
   val transactionHash = varchar("transactionHash", 64).uniqueIndex()
   val previousBlock = long("previousBlock").nullable()
@@ -124,11 +124,22 @@ class PandoDatabase(private val config: DatabaseConfig) {
   // Eventually would like to return Blockchain? type
   fun loadBlockchain(address: Address): BlockchainData? {
     val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
-    val blocks = transaction {
+
+//    New code from CJ
+//    val blocks = transaction {
+//      logger.addLogger(StdOutSqlLogger)
+//
+//      Blocks.select { Blocks.address eq address }.toList()
+//    }
+
+    val blockIndexes = transaction {
       logger.addLogger(StdOutSqlLogger)
 
-      Blocks.select { Blocks.address eq address }.toList()
+      Blocks.select { Blocks.address eq address }.map {
+        it[Blocks.index]
+      }
     }
+    val blockList = blockIndexes.map { index -> loadBlock(index) }
 
     val blockchain = transaction {
       Blockchains.select { Blockchains.address eq address }.map {
@@ -188,7 +199,6 @@ class PandoDatabase(private val config: DatabaseConfig) {
             it[Blocks.hash],
             it[Blocks.index],
             it[Blocks.address],
-            LocalDateTime.parse(it[Blocks.createdAt].toString(), DateTimeFormatter.ISO_OFFSET_DATE_TIME),
             TransactionData(
                 it[Transactions.hash],
                 it[Transactions.value],
