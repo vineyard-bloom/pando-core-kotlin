@@ -11,6 +11,10 @@ import javafx.scene.control.TextField
 import javafx.scene.control.cell.PropertyValueFactory
 import javafx.scene.layout.VBox
 import javafx.scene.text.Text
+import com.sun.tools.corba.se.idl.Util.getAbsolutePath
+import java.io.File
+
+
 
 
 fun newTransactionScene(client: Client,  address: String): Scene {
@@ -18,7 +22,6 @@ fun newTransactionScene(client: Client,  address: String): Scene {
   val transactionScene = Scene(root, 800.0, 500.0)
   val sendQty = TextField()
   val fromAddress = Text("Address: $address")
-
 
   val data = FXCollections.observableArrayList<String>()
   data.add(address)

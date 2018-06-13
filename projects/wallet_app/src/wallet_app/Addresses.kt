@@ -41,7 +41,7 @@ class Address constructor(address: String) {
   }
 
 }
-val keyDirectory = "out/bin/addresses"
+val keyDirectory = "addresses"
 
 fun addressesScene(client: Client): Scene {
   val root = VBox()
