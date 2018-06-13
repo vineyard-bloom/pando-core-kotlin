@@ -29,8 +29,8 @@ import java.io.File
 fun newTransactionScene(client: Client,  address: String): Scene {
   val root = GridPane()
   root.padding = Insets(0.0, 10.0, 10.0, 10.0)
-  root.hgap = 5.0
-  root.vgap = 5.0
+  root.hgap = 10.0
+  root.vgap = 10.0
 
   val columnOneConstraints = ColumnConstraints(100.0, 100.0, Double.MAX_VALUE)
   columnOneConstraints.halignment = HPos.RIGHT
