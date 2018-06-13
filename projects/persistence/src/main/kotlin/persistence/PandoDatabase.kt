@@ -20,19 +20,23 @@ data class BlockData(
     val index: Long,
     val address: String,
     val transaction: TransactionData,
+    // previousBlock: Block?
     val createdAt: DateTime
+    // val blockSignatures: List<BlockSignature>
 )
 
 data class TransactionData(
     val hash: String,
-    val value: String,
+    val value: Long,
     val to: String,
     val from: String?
 )
 
-//data class BlockSignatureData(
-//
-//)
+data class BlockSignatureData(
+    val signer: String,
+    // val publicKey: PublicKey,
+    val signature: ByteArray
+)
 
 object Blockchains : Table() {
   val id = integer("id").autoIncrement().uniqueIndex()
@@ -55,9 +59,18 @@ object Blocks : Table() {
 object Transactions : Table() {
   val id = integer("id").autoIncrement().uniqueIndex()
   val hash = (varchar("hash", 64).primaryKey() references Blocks.transactionHash)
-  val value = text("value")
+  val value = long("value")
   val to = varchar("to", 40)
   val from = varchar("from", 40).nullable()
+  val created = datetime("created")
+  val modified = datetime("modified")
+}
+
+object Signatures: Table() {
+  val signer = varchar("signer", 40).primaryKey()
+  // val publicKey: PublicKey,
+  val signature = binary("signature", 128)
+  val blockIndex = (long("blockIndex") references Blocks.index)
   val created = datetime("created")
   val modified = datetime("modified")
 }
@@ -71,6 +84,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
     transaction {
       logger.addLogger(StdOutSqlLogger)
 
+      drop(Signatures)
       drop(Transactions)
       drop(Blocks)
       drop(Blockchains)
@@ -78,6 +92,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
       create(Blockchains)
       create(Blocks)
       create(Transactions)
+      create(Signatures)
     }
   }
 
@@ -186,7 +201,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
       Transactions.insert {
         it[hash] = transaction.hash
-        it[value] = transaction.value.toString()
+        it[value] = transaction.value as Long
         it[to] = transaction.to
         it[from] = transaction.from
         it[created] = DateTime.now()
@@ -216,19 +231,37 @@ class PandoDatabase(private val config: DatabaseConfig) {
     return transaction.first()
   }
 
-//  fun saveSignature(signature: Signature) {
-//    Database.connect(source)
-//
-//    transaction {
-//      logger.addLogger(StdOutSqlLogger)
-//
-//      Signatures.insert {
-//        it[address] = blockchain.address
-//        it[created] = DateTime.now()
-//        it[modified] = DateTime.now()
-//      }
-//    }
-//  }
+  fun saveSignature(blockSignature: BlockSignature, block: Block) {
+    Database.connect(source)
+
+    transaction {
+      logger.addLogger(StdOutSqlLogger)
+
+      Signatures.insert {
+        it[signer] = blockSignature.signer
+        it[signature] = blockSignature.signature
+        it[blockIndex] = block.index
+        it[created] = DateTime.now()
+        it[modified] = DateTime.now()
+      }
+    }
+  }
+
+  // Eventually would like to return BlockSignature? type
+  fun loadSignatures(blockIndex: Long): List<BlockSignatureData?> {
+    val signatureList = transaction {
+      logger.addLogger(StdOutSqlLogger)
+
+      Signatures.select { Signatures.blockIndex eq blockIndex }.map {
+        BlockSignatureData(
+            it[Signatures.signer],
+            it[Signatures.signature]
+        )
+      }
+    }
+
+    return signatureList
+  }
 
 }
 

@@ -49,18 +49,30 @@ class PersistenceSpec : Spek({
       assertEquals("Blockchain should be associated with two blocks", 2, blockchainData!!.blocks.size)
     }
 
-    it("can save and load a block") {
+    it("can load a block") {
       val blockData = db.loadBlock(newestBlockchain.blocks.first().index)
       assertNotNull("DB response should not be null", blockData)
       assertEquals("DB response should include the correct hash", newestBlockchain.blocks.first().hash, blockData!!.hash)
       assertEquals("DB response should include the correct address", newestBlockchain.blocks.first().address, blockData!!.address)
     }
 
-    it("can save and load a transaction") {
+    it("can load a transaction") {
       val transactionData = db.loadTransaction(updatedBlockchain.blocks.first().transaction.hash)
       assertNotNull("DB response should not be null", transactionData)
       assertEquals("DB response should include the correct hash", updatedBlockchain.blocks.first().transaction.hash, transactionData!!.hash)
       assertEquals("DB response should include the correct 'to'", updatedBlockchain.blocks.first().transaction.to, transactionData!!.to)
+    }
+
+    it("can load a signature") {
+      val signature = sign(pair.keyPair.private, "Some random data")
+      val blockSignature = BlockSignature(pair.address, pair.keyPair.public, signature)
+
+      db.saveSignature(blockSignature, updatedBlockchain.blocks.first())
+      val signatureData = db.loadSignatures(updatedBlockchain.blocks.first().index)
+
+      assertNotNull("DB response should not be null", signatureData)
+      assertEquals("DB response should include the correct signer", blockSignature.signer, signatureData.first()!!.signer)
+      assertEquals("DB response should include the correct signature", signature, signatureData.first()!!.signature)
     }
 
   }
