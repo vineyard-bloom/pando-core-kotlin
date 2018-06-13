@@ -25,11 +25,14 @@ class PersistenceSpec : Spek({
     val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
     val updatedBlockchain = mintTokens(blockchain, 1000)
     val newestBlockchain = mintTokens(updatedBlockchain, 2000)
+    val signature = sign(pair.keyPair.private, "Some random data")
+    val blockSignature = BlockSignature(pair.address, pair.keyPair.public, signature)
 
     // Save the data
     db.saveBlockchain(newestBlockchain)
     newestBlockchain.blocks.map { block -> db.saveBlock(block) }
     newestBlockchain.blocks.map { block -> db.saveTransaction(block.transaction) }
+    db.saveSignature(blockSignature, updatedBlockchain.blocks.first())
 
     it("returns null when trying to load nonexistent data") {
       val blockchainData = db.loadBlockchain("Fake address")
@@ -53,8 +56,10 @@ class PersistenceSpec : Spek({
     it("can load a block") {
       val blockData = db.loadBlock(newestBlockchain.blocks.first().hash)
       assertNotNull("DB response should not be null", blockData)
+      assertNotNull("DB response should include a signatures list that is not empty", blockData!!.blockSignatures.first())
       assertEquals("DB response should include the correct hash", newestBlockchain.blocks.first().hash, blockData!!.hash)
       assertEquals("DB response should include the correct address", newestBlockchain.blocks.first().address, blockData!!.address)
+//      assertEquals("DB response should include the correct signature data", blockSignature, blockData!!.blockSignatures.first())
     }
 
     it("can load a transaction") {
@@ -65,10 +70,6 @@ class PersistenceSpec : Spek({
     }
 
     it("can save and load a signature") {
-      val signature = sign(pair.keyPair.private, "Some random data")
-      val blockSignature = BlockSignature(pair.address, pair.keyPair.public, signature)
-
-      db.saveSignature(blockSignature, updatedBlockchain.blocks.first())
       val signatureData = db.loadSignatures(updatedBlockchain.blocks.first().hash)
 
       assertNotNull("DB response should not be null", signatureData)
