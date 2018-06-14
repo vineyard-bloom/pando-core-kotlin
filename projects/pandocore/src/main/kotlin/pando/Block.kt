@@ -1,8 +1,8 @@
 package pando
 
+import org.joda.time.DateTime
 import java.security.PrivateKey
 import java.security.PublicKey
-import java.time.LocalDateTime
 
 typealias BlockIndex = Long
 
@@ -11,7 +11,7 @@ data class BlockContents(
     val address: Address,
     val transaction: BaseTransaction,
     val previousBlock: Block?,
-    val createdAt: LocalDateTime
+    val createdAt: DateTime
 )
 
 data class BlockSignature(
@@ -29,7 +29,7 @@ data class Block(
   val address: Address get() = contents.address
   val transaction: BaseTransaction get() = contents.transaction
   val previousBlock: Block? get() = contents.previousBlock
-  val createdAt: LocalDateTime get() = contents.createdAt
+  val createdAt: DateTime get() = contents.createdAt
 }
 
 data class ValidatedBlock(
@@ -44,7 +44,7 @@ fun getBlockHash(block: Block?) =
 
 fun createBlock(blockchain: Blockchain, transaction: BaseTransaction, privateKey: PrivateKey): Block {
   val previousBlock = getLastBlock(blockchain)
-  val createdAt = LocalDateTime.now()
+  val createdAt = DateTime.now()
   val hash = hashBlock(BlockHashContents(
       address = blockchain.address,
       valueType = ValueType.long, // blockchain.valueType,

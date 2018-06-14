@@ -1,13 +1,13 @@
 package pando
 
-import java.time.LocalDateTime
+import org.joda.time.DateTime
 
 data class BlockHashContents(
     val address: Address,
     val valueType: ValueType,
     val transactionHashes: Hash,
     val previousBlock: Hash?,
-    val createdAt: LocalDateTime
+    val createdAt: DateTime
 )
 
 fun hashTransaction(value: Value, to: Address, from: Address?): String {
