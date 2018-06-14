@@ -1,7 +1,5 @@
 package wallet_app
 
-import javafx.animation.KeyFrame
-import javafx.animation.Timeline
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.event.EventHandler
@@ -12,13 +10,13 @@ import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
 import javafx.scene.control.cell.PropertyValueFactory
 import javafx.scene.layout.GridPane
-import javafx.scene.layout.VBox
-import javafx.util.Duration
+import javafx.scene.text.Font
+import javafx.scene.text.FontPosture
+import javafx.scene.text.Text
 import jsoning.parseJsonFile
 import jsoning.saveJson
 import networking.primitiveBlockchain
 import pando.*
-import wallet_app.Client
 import java.io.File
 
 data class Keys(
@@ -51,6 +49,11 @@ fun addressesScene(client: Client): Scene {
   val addressScene = Scene(root, 800.0, 500.0)
 
   val addressCol = TableColumn<Address, String>("Address")
+
+  val addresses = Text("My Addresses")
+  addresses.setFont(Font.font("Arial", FontPosture.REGULAR, 16.0))
+  GridPane.setHalignment(addresses, HPos.CENTER)
+
   val tableView = TableView<Address>()
   addressCol.setCellValueFactory(PropertyValueFactory<Address, String>("address"))
 
@@ -96,8 +99,9 @@ fun addressesScene(client: Client): Scene {
     client.goToAddressScene(client, address)
   })
 
-  root.add(tableView, 0, 0, 2, 1)
-  root.add(newBlockchain, 0, 2, 2, 1)
+  root.add(addresses, 0, 0, 4, 1)
+  root.add(tableView, 0, 1, 4, 1)
+  root.add(newBlockchain, 0, 2, 4, 1)
 
   return addressScene
 }

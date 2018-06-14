@@ -20,19 +20,19 @@ fun addressScene(client: Client, address: String): Scene {
   GridPane.setHalignment(addressText, HPos.CENTER)
   GridPane.setMargin(addressText, Insets(20.0, 0.0,20.0,0.0))
   val newTransaction = Button()
-  GridPane.setHalignment(newTransaction, HPos.LEFT)
+  GridPane.setHalignment(newTransaction, HPos.CENTER)
   newTransaction.text = "New Transaction"
   newTransaction.onAction = EventHandler {
     client.sendTransaction(client, address)
   }
   val back = Button()
-  GridPane.setHalignment(back, HPos.RIGHT)
+  GridPane.setHalignment(back, HPos.CENTER)
   back.text = "Back"
   back.onAction = EventHandler {
     client.goToMainScene(client)
   }
-  root.add(addressText, 0, 0, 2, 1)
+  root.add(addressText, 0, 0, 4, 1)
   root.add(newTransaction, 1, 2, 2, 1)
-  root.add(back, 0,2)
+  root.add(back, 2,2)
   return addressScene
 }

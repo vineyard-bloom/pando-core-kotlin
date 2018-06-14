@@ -64,14 +64,14 @@ fun newTransactionScene(client: Client,  address: String): Scene {
     println(newValue)
   })
 
-  root.add(header, 0, 0, 2, 1)
-  root.add(fromLabel, 0, 1)
-  root.add(fromAddress, 1, 1)
-  root.add(sendLabel, 0, 2)
-  root.add(sendQty, 1,2)
-  root.add(toLabel, 0, 3)
-  root.add(toDropdown, 1, 3)
-  root.add(send, 0, 4)
-  root.add(cancel, 1, 4)
+  root.add(header, 0, 0, 4, 1)
+  root.add(fromLabel, 0, 1, 2, 1)
+  root.add(fromAddress, 2, 1)
+  root.add(sendLabel, 0, 2, 2, 1)
+  root.add(sendQty, 2,2)
+  root.add(toLabel, 0, 3, 2, 1)
+  root.add(toDropdown, 2, 3)
+  root.add(send, 1, 4)
+  root.add(cancel, 2, 4)
   return transactionScene
  }

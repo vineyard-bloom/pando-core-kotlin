@@ -53,6 +53,10 @@ fun getRoot():GridPane {
   columnOneConstraints.halignment = HPos.RIGHT
   val columnTwoConstraints = ColumnConstraints(200.0, 200.0, Double.MAX_VALUE)
   columnTwoConstraints.hgrow = Priority.ALWAYS
-  root.getColumnConstraints().addAll(columnOneConstraints, columnTwoConstraints)
+  val columnThreeConstraints = ColumnConstraints(100.0, 100.0, Double.MAX_VALUE)
+  columnThreeConstraints.hgrow = Priority.ALWAYS
+  val columnFourConstraints = ColumnConstraints(200.0, 200.0, Double.MAX_VALUE)
+  columnFourConstraints.hgrow = Priority.ALWAYS
+  root.getColumnConstraints().addAll(columnOneConstraints, columnTwoConstraints, columnThreeConstraints, columnFourConstraints)
   return root
 }
