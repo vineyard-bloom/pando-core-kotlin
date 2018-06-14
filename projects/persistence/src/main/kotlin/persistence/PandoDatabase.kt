@@ -2,6 +2,7 @@ package persistence
 
 import grounded.DatabaseConfig
 import grounded.createDataSource
+import jsoning.loadJsonFile
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.SchemaUtils.drop
@@ -48,6 +49,11 @@ object Signatures: Table() {
   val modified = datetime("modified")
 }
 
+data class AppConfig(
+  val database: DatabaseConfig
+)
+
+
 class PandoDatabase(private val config: DatabaseConfig) {
   private val source = createDataSource(config)
 
@@ -87,6 +93,8 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadBlockchain(address: Address): Blockchain? {
+    Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
 //    New example code
 //    val blocks = transaction {

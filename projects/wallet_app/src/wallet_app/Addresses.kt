@@ -17,7 +17,9 @@ import jsoning.parseJsonFile
 import jsoning.saveJson
 import networking.primitiveBlockchain
 import pando.*
+import persistence.PandoDatabase
 import java.io.File
+import persistence.PandoDatabase.*
 
 data class Keys(
   val publicKey: String,
@@ -25,30 +27,33 @@ data class Keys(
 )
 
 
-class Address constructor(address: String) {
+class Address constructor(address: String, balance: String) {
   private val address: SimpleStringProperty
+  private val balance: SimpleStringProperty
 
   init {
     this.address = SimpleStringProperty(address)
+    this.balance = SimpleStringProperty(balance)
   }
 
   fun getAddress(): String {
     return address.get()
   }
-
-  fun setAddress(fName: String) {
-    address.set(fName)
+  fun getBalance(): String {
+    return balance.get()
   }
+
 
 }
 val keyDirectory = "addresses"
 
-fun addressesScene(client: Client): Scene {
+fun addressesScene(client: Client, db: PandoDatabase): Scene {
   val root = getRoot()
 
   val addressScene = Scene(root, 800.0, 500.0)
 
   val addressCol = TableColumn<Address, String>("Address")
+  val balanceCol = TableColumn<Address, String>("Balance")
 
   val addresses = Text("My Addresses")
   addresses.setFont(Font.font("Arial", FontPosture.REGULAR, 16.0))
@@ -56,11 +61,12 @@ fun addressesScene(client: Client): Scene {
 
   val tableView = TableView<Address>()
   addressCol.setCellValueFactory(PropertyValueFactory<Address, String>("address"))
+  balanceCol.setCellValueFactory(PropertyValueFactory<Address, String>("balance"))
 
 
   val data = FXCollections.observableArrayList<Address>()
 
-  tableView.getColumns().addAll(addressCol)
+  tableView.getColumns().addAll(addressCol, balanceCol)
 
   tableView.setItems(data);
 
@@ -70,8 +76,8 @@ fun addressesScene(client: Client): Scene {
   newBlockchain.onAction = EventHandler {
     val pair = generateAddressPair()
     val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
+    db.saveBlockchain(blockchain)
     val primitiveBlockchain = primitiveBlockchain(blockchain)
-
     val newKeys = Keys(
       primitiveBlockchain.publicKey,
       privateKeyToString(pair.keyPair.private)
@@ -79,7 +85,8 @@ fun addressesScene(client: Client): Scene {
     val directory = File(keyDirectory);
     if (!directory.exists())
       directory.mkdir()
-    data.add(Address(blockchain.address))
+    val balance = getBalance(blockchain).toString()
+    data.add(Address(blockchain.address, balance))
     saveJson(newKeys, keyDirectory + "/" + blockchain.address)
   }
 
@@ -90,13 +97,19 @@ fun addressesScene(client: Client): Scene {
       val keys = parseJsonFile<Keys>(it)
       val publicKey = stringToPublicKey(keys.publicKey)
       val privateKey = stringToPrivateKey(keys.privateKey)
-      data.add(Address(address))
+      val blockchain = db.loadBlockchain(address)
+//
+      if (blockchain?.address == address) {
+        val balance = getBalance(blockchain).toString()
+        data.add(Address(address, balance))
+      }
+
     }
   }
 
   tableView.getSelectionModel().selectedItemProperty().addListener({ row, oldSelection, newSelection ->
     val address = newSelection.getAddress()
-    client.goToAddressScene(client, address)
+    client.goToAddressScene(client, address, db)
   })
 
   root.add(addresses, 0, 0, 4, 1)

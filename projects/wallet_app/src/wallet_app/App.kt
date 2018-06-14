@@ -1,5 +1,6 @@
 package wallet_app
 
+import grounded.DatabaseConfig
 import javafx.application.Application
 import javafx.geometry.HPos
 import javafx.geometry.Insets
@@ -9,6 +10,10 @@ import javafx.scene.layout.GridPane
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
+import jsoning.loadJsonFile
+import org.jetbrains.exposed.sql.Database
+import persistence.AppConfig
+import persistence.PandoDatabase
 
 class AppWindow : Application() {
 
@@ -20,9 +25,11 @@ class AppWindow : Application() {
 
     val client = Client(primaryStage)
 
+    val db = initDatabase()
+
     primaryStage.show()
 
-    client.goToMainScene(client)
+    client.goToMainScene(client, db)
 
   }
 
@@ -59,4 +66,15 @@ fun getRoot():GridPane {
   columnFourConstraints.hgrow = Priority.ALWAYS
   root.getColumnConstraints().addAll(columnOneConstraints, columnTwoConstraints, columnThreeConstraints, columnFourConstraints)
   return root
+}
+
+fun loadAppConfig(path: String): AppConfig =
+  loadJsonFile<AppConfig>(path)
+
+fun initDatabase(): PandoDatabase {
+  val appConfig = loadAppConfig("../../config/config.json")
+  val db = PandoDatabase(appConfig.database)
+//  if ()
+//  db.fixtureInit()
+  return db
 }
