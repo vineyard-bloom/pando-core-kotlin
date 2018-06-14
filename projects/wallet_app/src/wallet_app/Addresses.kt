@@ -46,7 +46,7 @@ class Address constructor(address: String) {
 val keyDirectory = "addresses"
 
 fun addressesScene(client: Client): Scene {
-  val root = VBox()
+  val root = getRoot()
 
   val addressScene = Scene(root, 800.0, 500.0)
 
@@ -62,6 +62,7 @@ fun addressesScene(client: Client): Scene {
   tableView.setItems(data);
 
   val newBlockchain = Button()
+  GridPane.setHalignment(newBlockchain, HPos.CENTER)
   newBlockchain.text = "Create Address"
   newBlockchain.onAction = EventHandler {
     val pair = generateAddressPair()
@@ -95,8 +96,8 @@ fun addressesScene(client: Client): Scene {
     client.goToAddressScene(client, address)
   })
 
-  root.children.add(tableView)
-  root.children.add(newBlockchain)
+  root.add(tableView, 0, 0, 2, 1)
+  root.add(newBlockchain, 0, 2, 2, 1)
 
   return addressScene
 }

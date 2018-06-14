@@ -27,17 +27,8 @@ import java.io.File
 
 
 fun newTransactionScene(client: Client,  address: String): Scene {
-  val root = GridPane()
-  root.padding = Insets(0.0, 10.0, 10.0, 10.0)
-  root.hgap = 10.0
-  root.vgap = 10.0
 
-  val columnOneConstraints = ColumnConstraints(100.0, 100.0, Double.MAX_VALUE)
-  columnOneConstraints.halignment = HPos.RIGHT
-  val columnTwoConstraints = ColumnConstraints(200.0, 200.0, Double.MAX_VALUE)
-  columnTwoConstraints.hgrow = Priority.ALWAYS
-  root.getColumnConstraints().addAll(columnOneConstraints, columnTwoConstraints)
-
+  val root = getRoot()
   val transactionScene = Scene(root, 800.0, 500.0)
 
   val header = Label("New Transaction")
