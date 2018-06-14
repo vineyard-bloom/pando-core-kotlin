@@ -39,10 +39,10 @@ object Transactions : Table() {
 }
 
 object Signatures: Table() {
-  val signer = varchar("signer", 40).primaryKey()
+  val signer = varchar("signer", 40)
   val publicKey = varchar("publicKey", 375)
   val signature = text("signature")
-  val blockHash = (varchar("hash", 64) references Blocks.hash)
+  val blockHash = (varchar("hash", 64).primaryKey() references Blocks.hash)
   val created = datetime("created")
   val modified = datetime("modified")
 }
@@ -87,6 +87,12 @@ class PandoDatabase(private val config: DatabaseConfig) {
         it[created] = DateTime.now()
         it[modified] = DateTime.now()
       }
+    }
+
+    blockchain.blocks.map { saveBlock(it!!) }
+    blockchain.blocks.map { saveTransaction(it!!.transaction) }
+    blockchain.blocks.map {
+      block -> block!!.blockSignatures.map { signature -> saveSignature(signature, block) }
     }
   }
 

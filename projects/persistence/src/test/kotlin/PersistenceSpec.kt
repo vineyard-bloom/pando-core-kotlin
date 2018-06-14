@@ -30,9 +30,6 @@ class PersistenceSpec : Spek({
 
     // Save the data
     db.saveBlockchain(newestBlockchain)
-    newestBlockchain.blocks.map { block -> db.saveBlock(block!!) }
-    newestBlockchain.blocks.map { block -> db.saveTransaction(block!!.transaction) }
-    db.saveSignature(blockSignature, updatedBlockchain.blocks.first()!!)
 
     it("returns null when trying to load nonexistent data") {
       val blockchainData = db.loadBlockchain("Fake address")
@@ -67,6 +64,7 @@ class PersistenceSpec : Spek({
       assertNotNull("DB response should not be null", transactionData)
       assertEquals("DB response should include the correct hash", updatedBlockchain.blocks.first()!!.transaction.hash, transactionData!!.hash)
       assertEquals("DB response should include the correct 'to'", updatedBlockchain.blocks.first()!!.transaction.to, transactionData!!.to)
+      assertEquals("Should include correct value", 1000L, transactionData.value)
     }
 
     it("can save and load a signature") {
@@ -87,10 +85,6 @@ class PersistenceSpec : Spek({
       val blockSignature2 = BlockSignature(pair2.address, pair2.keyPair.public, signature2)
 
       db.saveBlockchain(newestBlockchain2)
-      newestBlockchain2.blocks.map { block -> db.saveBlock(block!!) }
-      newestBlockchain2.blocks.map { block -> db.saveTransaction(block!!.transaction) }
-      db.saveSignature(blockSignature2, updatedBlockchain2.blocks.first()!!)
-
       val blockchains = db.loadBlockchains()
 
       assertEquals("There should be two blockchains", 2, blockchains.size)
