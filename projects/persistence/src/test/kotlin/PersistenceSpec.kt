@@ -79,17 +79,17 @@ class PersistenceSpec : Spek({
     }
 
     it("can load all the blockchains in the DB") {
-      val newPair = generateAddressPair()
-      val newBlockchain = createNewBlockchain(newPair.address, newPair.keyPair.public)
-      val newUpdatedBlockchain = mintTokens(newBlockchain, 1000)
-      val newNewestBlockchain = mintTokens(newUpdatedBlockchain, 2000)
-      val newSignature = sign(pair.keyPair.private, "Some random data")
-      val newBlockSignature = BlockSignature(newPair.address, newPair.keyPair.public, newSignature)
+      val pair2 = generateAddressPair()
+      val blockchain2 = createNewBlockchain(pair2.address, pair2.keyPair.public)
+      val updatedBlockchain2 = mintTokens(blockchain2, 1000)
+      val newestBlockchain2 = mintTokens(updatedBlockchain2, 2000)
+      val signature2 = sign(pair.keyPair.private, "Some random data")
+      val blockSignature2 = BlockSignature(pair2.address, pair2.keyPair.public, signature2)
 
-      db.saveBlockchain(newNewestBlockchain)
-      newNewestBlockchain.blocks.map { block -> db.saveBlock(block!!) }
-      newNewestBlockchain.blocks.map { block -> db.saveTransaction(block!!.transaction) }
-      db.saveSignature(newBlockSignature, newUpdatedBlockchain.blocks.first()!!)
+      db.saveBlockchain(newestBlockchain2)
+      newestBlockchain2.blocks.map { block -> db.saveBlock(block!!) }
+      newestBlockchain2.blocks.map { block -> db.saveTransaction(block!!.transaction) }
+      db.saveSignature(blockSignature2, updatedBlockchain2.blocks.first()!!)
 
       val blockchains = db.loadBlockchains()
 
