@@ -157,33 +157,17 @@ class PandoDatabase(private val config: DatabaseConfig) {
     val block = transaction {
       logger.addLogger(StdOutSqlLogger)
 
-      (Blocks innerJoin Transactions).slice(
-          Blocks.hash,
-          Blocks.index,
-          Blocks.address,
-          Blocks.createdAt,
-          Transactions.hash,
-          Transactions.value,
-          Transactions.to,
-          Transactions.from
-      ).select { Blocks.hash.eq(hash) and Blocks.transactionHash.eq(Transactions.hash) }.map {
+      Blocks.select { Blocks.hash eq hash }.map {
         Block(
             it[Blocks.hash],
             BlockContents(
                 it[Blocks.index],
                 it[Blocks.address],
-                BaseTransaction(
-                    it[Transactions.hash],
-                    TransactionContent(
-                        it[Transactions.value],
-                        it[Transactions.to],
-                        it[Transactions.from]
-                    )
-                ),
+                loadTransaction(it[Blocks.transactionHash])!!,
                 loadBlock(Blocks.previousBlock.toString()),
                 it[Blocks.createdAt]
             ),
-            loadSignatures(hash)
+            loadSignatures(it[Blocks.hash])
         )
       }
     }
