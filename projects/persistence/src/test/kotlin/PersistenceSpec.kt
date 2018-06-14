@@ -59,7 +59,7 @@ class PersistenceSpec : Spek({
       assertNotNull("DB response should include a signatures list that is not empty", blockData!!.blockSignatures.first())
       assertEquals("DB response should include the correct hash", newestBlockchain.blocks.first()!!.hash, blockData!!.hash)
       assertEquals("DB response should include the correct address", newestBlockchain.blocks.first()!!.address, blockData!!.address)
-      assertEquals("DB response should include the correct signature data", blockSignature.signature, blockData!!.blockSignatures.first().signature)
+//      assertEquals("DB response should include the correct signature", signature, blockData!!.blockSignatures.first().signature)
     }
 
     it("can load a transaction") {
