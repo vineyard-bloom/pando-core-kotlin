@@ -25,7 +25,7 @@ class Transaction constructor(to: String, from: String, value: String) {
   init {
     this.to = SimpleStringProperty(to)
     this.from = SimpleStringProperty(from)
-    this.value = SimpleStringProperty(from)
+    this.value = SimpleStringProperty(value)
   }
 
   fun getTo(): String {
@@ -34,7 +34,7 @@ class Transaction constructor(to: String, from: String, value: String) {
   fun getFrom(): String {
     return from.get()
   }
-  fun getValue(): String {
+  fun getValue(): Any {
     return value.get()
   }
 
@@ -68,7 +68,7 @@ fun addressScene(client: Client, address: String, db: PandoDatabase): Scene {
   val blockchain = db.loadBlockchain(address)
 
   blockchain!!.blocks.forEach {
-    data.add(Transaction(it!!.transaction.to, it!!.transaction.from.toString(), it!!.transaction.value.toString()))
+    data.add(Transaction(it!!.transaction.to, it.transaction.from.toString(), it.transaction.value.toString()))
   }
 
   val newTransaction = Button()

@@ -99,7 +99,6 @@ fun addressesScene(client: Client, db: PandoDatabase): Scene {
       val publicKey = stringToPublicKey(keys.publicKey)
       val privateKey = stringToPrivateKey(keys.privateKey)
       val blockchain = db.loadBlockchain(address)
-
       if (blockchain?.address == address) {
         val balance = getBalance(blockchain).toString()
         data.add(Address(address, balance))
