@@ -74,7 +74,7 @@ fun addressesScene(client: Client): Scene {
 
     val newKeys = Keys(
       primitiveBlockchain.publicKey,
-      keyToString(pair.keyPair.private)
+      privateKeyToString(pair.keyPair.private)
     )
     val directory = File(keyDirectory);
     if (!directory.exists())

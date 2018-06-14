@@ -31,7 +31,7 @@ fun addressScene(client: Client, address: String): Scene {
   back.onAction = EventHandler {
     client.goToMainScene(client)
   }
-  
+
   root.add(addressText, 0, 0, 4, 1)
   root.add(newTransaction, 1, 2, 2, 1)
   root.add(back, 2,2)
