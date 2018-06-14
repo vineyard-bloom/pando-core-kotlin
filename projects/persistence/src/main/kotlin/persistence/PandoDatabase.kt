@@ -2,7 +2,6 @@ package persistence
 
 import grounded.DatabaseConfig
 import grounded.createDataSource
-import jsoning.loadJsonFile
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.SchemaUtils.drop
@@ -11,7 +10,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import java.sql.Connection
 import pando.*
-import kotlin.math.log
 
 object Blockchains : Table() {
   val address = varchar("address", 40).primaryKey()
@@ -96,28 +94,14 @@ class PandoDatabase(private val config: DatabaseConfig) {
     Database.connect(source)
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
-//    New example code
-//    val blocks = transaction {
-//      logger.addLogger(StdOutSqlLogger)
-//
-//      Blocks.select { Blocks.address eq address }.toList()
-//    }
-
-    val blockHashes = transaction {
+    val blockchain = transaction {
       logger.addLogger(StdOutSqlLogger)
 
-      Blocks.select { Blocks.address eq address }.map {
-        it[Blocks.hash]
-      }
-    }
-    val blockList = blockHashes.map { hash -> loadBlock(hash) }
-
-    val blockchain = transaction {
       Blockchains.select { Blockchains.address eq address }.map {
         Blockchain(
             it[Blockchains.address],
             stringToPublicKey(it[Blockchains.publicKey]),
-            blockList
+            loadBlocks(address)
         )
       }
     }
@@ -129,6 +113,9 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadBlockchains(): List<Blockchain?> {
+    Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
+
     return transaction {
       logger.addLogger(StdOutSqlLogger)
 
@@ -163,36 +150,23 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadBlock(hash: String): Block? {
+    Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
+
     val block = transaction {
       logger.addLogger(StdOutSqlLogger)
 
-      (Blocks innerJoin Transactions).slice(
-          Blocks.hash,
-          Blocks.index,
-          Blocks.address,
-          Blocks.createdAt,
-          Transactions.hash,
-          Transactions.value,
-          Transactions.to,
-          Transactions.from
-      ).select { Blocks.hash.eq(hash) and Blocks.transactionHash.eq(Transactions.hash) }.map {
+      Blocks.select { Blocks.hash eq hash }.map {
         Block(
             it[Blocks.hash],
             BlockContents(
                 it[Blocks.index],
                 it[Blocks.address],
-                BaseTransaction(
-                    it[Transactions.hash],
-                    TransactionContent(
-                        it[Transactions.value],
-                        it[Transactions.to],
-                        it[Transactions.from]
-                    )
-                ),
+                loadTransaction(it[Blocks.transactionHash])!!,
                 loadBlock(Blocks.previousBlock.toString()),
                 it[Blocks.createdAt]
             ),
-            loadSignatures(hash)
+            loadSignatures(it[Blocks.hash])
         )
       }
     }
@@ -204,6 +178,9 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadBlocks(address: Address): List<Block?> {
+    Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
+
     return Blocks.select { Blocks.address eq address }.map {
       loadBlock(it[Blocks.hash])
     }
@@ -228,6 +205,9 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadTransaction(hash: String): BaseTransaction? {
+    Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
+
     val transaction = transaction {
       logger.addLogger(StdOutSqlLogger)
 
@@ -269,6 +249,9 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadSignatures(blockHash: String): List<BlockSignature> {
+    Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
+
     return transaction {
       logger.addLogger(StdOutSqlLogger)
 
