@@ -17,15 +17,17 @@ import javafx.scene.text.FontPosture
 import javafx.scene.text.Text
 import persistence.PandoDatabase
 
-class Transaction constructor(to: String, from: String, value: String) {
+class Transaction constructor(to: String, from: String, value: String, createdAt: String) {
   private val to: SimpleStringProperty
   private val from: SimpleStringProperty
   private val value: SimpleStringProperty
+  private val createdAt: SimpleStringProperty
 
   init {
     this.to = SimpleStringProperty(to)
     this.from = SimpleStringProperty(from)
     this.value = SimpleStringProperty(value)
+    this.createdAt = SimpleStringProperty(createdAt)
   }
 
   fun getTo(): String {
@@ -36,6 +38,9 @@ class Transaction constructor(to: String, from: String, value: String) {
   }
   fun getValue(): Any {
     return value.get()
+  }
+  fun getCreatedAt(): Any {
+    return createdAt.get()
   }
 
 
@@ -53,22 +58,24 @@ fun addressScene(client: Client, address: String, db: PandoDatabase): Scene {
   val toCol = TableColumn<Transaction, String>("To")
   val fromCol = TableColumn<Transaction, String>("From")
   val valueCol = TableColumn<Transaction, String>("Value")
+  val createdAtCol = TableColumn<Transaction, String>("Created At")
   val tableView = TableView<Transaction>()
 
   toCol.setCellValueFactory(PropertyValueFactory<Transaction, String>("to"))
   fromCol.setCellValueFactory(PropertyValueFactory<Transaction, String>("from"))
   valueCol.setCellValueFactory(PropertyValueFactory<Transaction, String>("value"))
+  createdAtCol.setCellValueFactory(PropertyValueFactory<Transaction, String>("createdAt"))
 
   val data = FXCollections.observableArrayList<Transaction>()
 
-  tableView.getColumns().addAll(toCol, fromCol, valueCol)
+  tableView.getColumns().addAll(toCol, fromCol, valueCol, createdAtCol)
 
   tableView.setItems(data)
 
   val blockchain = db.loadBlockchain(address)
 
   blockchain!!.blocks.forEach {
-    data.add(Transaction(it!!.transaction.to, it.transaction.from.toString(), it.transaction.value.toString()))
+    data.add(Transaction(it!!.transaction.to, it.transaction.from.toString(), it.transaction.value.toString(), it.createdAt.toString()))
   }
 
   val newTransaction = Button()
