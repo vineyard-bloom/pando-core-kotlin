@@ -182,6 +182,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
   fun saveTransaction(transaction: BaseTransaction) {
     Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
     transaction {
       logger.addLogger(StdOutSqlLogger)
@@ -221,6 +222,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
   fun saveSignature(blockSignature: BlockSignature, block: Block) {
     Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
     transaction {
       logger.addLogger(StdOutSqlLogger)
