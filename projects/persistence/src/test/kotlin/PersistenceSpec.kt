@@ -78,5 +78,26 @@ class PersistenceSpec : Spek({
       assertEquals("DB response should include the correct publicKey", blockSignature.publicKey, signatureData.first()!!.publicKey)
     }
 
+    it("can load all the blockchains in the DB") {
+      val newPair = generateAddressPair()
+      val newBlockchain = createNewBlockchain(newPair.address, newPair.keyPair.public)
+      val newUpdatedBlockchain = mintTokens(newBlockchain, 1000)
+      val newNewestBlockchain = mintTokens(newUpdatedBlockchain, 2000)
+      val newSignature = sign(pair.keyPair.private, "Some random data")
+      val newBlockSignature = BlockSignature(newPair.address, newPair.keyPair.public, newSignature)
+
+      db.saveBlockchain(newNewestBlockchain)
+      newNewestBlockchain.blocks.map { block -> db.saveBlock(block!!) }
+      newNewestBlockchain.blocks.map { block -> db.saveTransaction(block!!.transaction) }
+      db.saveSignature(newBlockSignature, newUpdatedBlockchain.blocks.first()!!)
+
+      val blockchains = db.loadBlockchains()
+
+      assertEquals("There should be two blockchains", 2, blockchains.size)
+      assertEquals("First blockchain should contain 2 blocks", 2, blockchains.first()!!.blocks.size)
+      assertNotNull("A block should contain a transaction", blockchains.first()!!.blocks.first()!!.transaction)
+      assertEquals("The first transaction should contain the proper hash", newestBlockchain.blocks.first()!!.transaction.hash, blockchains.first()!!.blocks.first()!!.transaction.hash)
+    }
+
   }
 })
