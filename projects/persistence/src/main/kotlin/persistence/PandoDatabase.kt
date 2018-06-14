@@ -2,7 +2,6 @@ package persistence
 
 import grounded.DatabaseConfig
 import grounded.createDataSource
-import jsoning.loadJsonFile
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.SchemaUtils.drop
@@ -241,7 +240,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
         it[signer] = blockSignature.signer
         it[publicKey] = keyToString(blockSignature.publicKey)
         // byte array conversion causing issues
-        it[signature] = blockSignature.signature.toString()
+        it[signature] = String(blockSignature.signature, Charsets.ISO_8859_1)
         it[blockHash] = block.hash
         it[created] = DateTime.now()
         it[modified] = DateTime.now()
@@ -261,7 +260,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
             it[Signatures.signer],
             stringToPublicKey(it[Signatures.publicKey]),
             // byte array conversion causing issues
-            it[Signatures.signature].toByteArray()
+            it[Signatures.signature]
         )
       }
     }
