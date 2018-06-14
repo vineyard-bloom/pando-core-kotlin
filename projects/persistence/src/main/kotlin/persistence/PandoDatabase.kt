@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import java.sql.Connection
 import pando.*
+import kotlin.math.log
 
 object Blockchains : Table() {
   val address = varchar("address", 40).primaryKey()
@@ -125,6 +126,20 @@ class PandoDatabase(private val config: DatabaseConfig) {
     return blockchain.first()
   }
 
+  fun loadBlockchains(): List<Blockchain?> {
+    return transaction {
+      logger.addLogger(StdOutSqlLogger)
+
+      Blockchains.selectAll().map {
+        Blockchain(
+            it[Blockchains.address],
+            stringToPublicKey(it[Blockchains.publicKey]),
+            loadBlocks(it[Blockchains.address])
+        )
+      }
+    }
+  }
+
   fun saveBlock(block: Block) {
     Database.connect(source)
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
@@ -184,6 +199,12 @@ class PandoDatabase(private val config: DatabaseConfig) {
       return null
     }
     return block.first()
+  }
+
+  fun loadBlocks(address: Address): List<Block?> {
+    return Blocks.select { Blocks.address eq address }.map {
+      loadBlock(it[Blocks.hash])
+    }
   }
 
   fun saveTransaction(transaction: BaseTransaction) {
