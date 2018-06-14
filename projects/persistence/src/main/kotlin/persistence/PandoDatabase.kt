@@ -70,7 +70,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun saveBlockchain(blockchain: Blockchain) {
-//    Database.connect(source)
+    Database.connect(source)
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
     transaction {
@@ -86,6 +86,9 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadBlockchain(address: Address): Blockchain? {
+    Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
+
     val blockchain = transaction {
       logger.addLogger(StdOutSqlLogger)
 
@@ -105,6 +108,9 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadBlockchains(): List<Blockchain?> {
+    Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
+
     return transaction {
       logger.addLogger(StdOutSqlLogger)
 
@@ -119,7 +125,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun saveBlock(block: Block) {
-//    Database.connect(source)
+    Database.connect(source)
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
     transaction {
@@ -139,6 +145,9 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadBlock(hash: String): Block? {
+    Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
+
     val block = transaction {
       logger.addLogger(StdOutSqlLogger)
 
@@ -180,13 +189,16 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadBlocks(address: Address): List<Block?> {
+    Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
+
     return Blocks.select { Blocks.address eq address }.map {
       loadBlock(it[Blocks.hash])
     }
   }
 
   fun saveTransaction(transaction: BaseTransaction) {
-//    Database.connect(source)
+    Database.connect(source)
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
     transaction {
@@ -204,6 +216,9 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadTransaction(hash: String): BaseTransaction? {
+    Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
+
     val transaction = transaction {
       logger.addLogger(StdOutSqlLogger)
 
@@ -226,7 +241,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun saveSignature(blockSignature: BlockSignature, block: Block) {
-//    Database.connect(source)
+    Database.connect(source)
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
     transaction {
@@ -245,6 +260,9 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadSignatures(blockHash: String): List<BlockSignature> {
+    Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
+
     return transaction {
       logger.addLogger(StdOutSqlLogger)
 
