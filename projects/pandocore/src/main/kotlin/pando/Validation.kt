@@ -46,5 +46,5 @@ fun validateBlock(block: Block, publicKey: PublicKey, blockchain: Blockchain): P
 }
 
 fun validateBlockchain(blockchain: Blockchain): ValidationErrors {
-  return blockchain.blocks.flatMap { validateBlock(it, blockchain.publicKey, blockchain).second }
+  return blockchain.blocks.flatMap { validateBlock(it!!, blockchain.publicKey, blockchain).second }
 }
