@@ -1,24 +1,75 @@
 package wallet_app
 
 
+import javafx.beans.property.SimpleStringProperty
+import javafx.collections.FXCollections
 import javafx.event.EventHandler
 import javafx.geometry.HPos
 import javafx.geometry.Insets
 import javafx.scene.Scene
 import javafx.scene.control.Button
+import javafx.scene.control.TableColumn
+import javafx.scene.control.TableView
+import javafx.scene.control.cell.PropertyValueFactory
 import javafx.scene.layout.GridPane
 import javafx.scene.text.Font
 import javafx.scene.text.FontPosture
 import javafx.scene.text.Text
 import persistence.PandoDatabase
 
+class Transaction constructor(to: String, from: String, value: String) {
+  private val to: SimpleStringProperty
+  private val from: SimpleStringProperty
+  private val value: SimpleStringProperty
+
+  init {
+    this.to = SimpleStringProperty(to)
+    this.from = SimpleStringProperty(from)
+    this.value = SimpleStringProperty(from)
+  }
+
+  fun getTo(): String {
+    return to.get()
+  }
+  fun getFrom(): String {
+    return from.get()
+  }
+  fun getValue(): String {
+    return value.get()
+  }
+
+
+}
+
 
 fun addressScene(client: Client, address: String, db: PandoDatabase): Scene {
   val root = getRoot()
   val addressScene = Scene(root, 800.0, 500.0)
+
   val addressText = Text("Address: $address")
   addressText.setFont(Font.font("Arial", FontPosture.REGULAR, 16.0))
   GridPane.setHalignment(addressText, HPos.CENTER)
+
+  val toCol = TableColumn<Transaction, String>("To")
+  val fromCol = TableColumn<Transaction, String>("From")
+  val valueCol = TableColumn<Transaction, String>("Value")
+  val tableView = TableView<Transaction>()
+
+  toCol.setCellValueFactory(PropertyValueFactory<Transaction, String>("to"))
+  fromCol.setCellValueFactory(PropertyValueFactory<Transaction, String>("from"))
+  valueCol.setCellValueFactory(PropertyValueFactory<Transaction, String>("value"))
+
+  val data = FXCollections.observableArrayList<Transaction>()
+
+  tableView.getColumns().addAll(toCol, fromCol, valueCol)
+
+  tableView.setItems(data)
+
+  val blockchain = db.loadBlockchain(address)
+
+  blockchain!!.blocks.forEach {
+    data.add(Transaction(it!!.transaction.to, it!!.transaction.from.toString(), it!!.transaction.value.toString()))
+  }
 
   val newTransaction = Button()
   GridPane.setHalignment(newTransaction, HPos.CENTER)
@@ -34,6 +85,7 @@ fun addressScene(client: Client, address: String, db: PandoDatabase): Scene {
   }
 
   root.add(addressText, 0, 0, 4, 1)
+  root.add(tableView, 0, 1, 4, 1)
   root.add(newTransaction, 1, 2, 2, 1)
   root.add(back, 2,2)
   return addressScene

@@ -68,7 +68,7 @@ fun addressesScene(client: Client, db: PandoDatabase): Scene {
 
   tableView.getColumns().addAll(addressCol, balanceCol)
 
-  tableView.setItems(data);
+  tableView.setItems(data)
 
   val newBlockchain = Button()
   GridPane.setHalignment(newBlockchain, HPos.CENTER)
@@ -77,6 +77,7 @@ fun addressesScene(client: Client, db: PandoDatabase): Scene {
     val pair = generateAddressPair()
     val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
     db.saveBlockchain(blockchain)
+
     val primitiveBlockchain = primitiveBlockchain(blockchain)
     val newKeys = Keys(
       primitiveBlockchain.publicKey,
@@ -98,7 +99,7 @@ fun addressesScene(client: Client, db: PandoDatabase): Scene {
       val publicKey = stringToPublicKey(keys.publicKey)
       val privateKey = stringToPrivateKey(keys.privateKey)
       val blockchain = db.loadBlockchain(address)
-//
+
       if (blockchain?.address == address) {
         val balance = getBalance(blockchain).toString()
         data.add(Address(address, balance))

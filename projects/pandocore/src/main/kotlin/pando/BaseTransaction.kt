@@ -1,7 +1,5 @@
 package pando
 
-import java.security.PrivateKey
-
 data class TransactionContent(
     val value: Value,
     val to: Address,
