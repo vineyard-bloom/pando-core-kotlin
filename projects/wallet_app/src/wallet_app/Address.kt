@@ -10,9 +10,10 @@ import javafx.scene.layout.GridPane
 import javafx.scene.text.Font
 import javafx.scene.text.FontPosture
 import javafx.scene.text.Text
+import persistence.PandoDatabase
 
 
-fun addressScene(client: Client, address: String): Scene {
+fun addressScene(client: Client, address: String, db: PandoDatabase): Scene {
   val root = getRoot()
   val addressScene = Scene(root, 800.0, 500.0)
   val addressText = Text("Address: $address")
@@ -23,13 +24,13 @@ fun addressScene(client: Client, address: String): Scene {
   GridPane.setHalignment(newTransaction, HPos.CENTER)
   newTransaction.text = "New Transaction"
   newTransaction.onAction = EventHandler {
-    client.sendTransaction(client, address)
+    client.sendTransaction(client, address, db)
   }
   val back = Button()
   GridPane.setHalignment(back, HPos.CENTER)
   back.text = "Back"
   back.onAction = EventHandler {
-//    client.goToMainScene(client)
+    client.goToMainScene(client, db)
   }
 
   root.add(addressText, 0, 0, 4, 1)

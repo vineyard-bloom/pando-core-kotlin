@@ -21,12 +21,13 @@ import javafx.scene.layout.Priority
 import javafx.scene.text.Font
 import javafx.scene.text.FontPosture
 import javafx.scene.text.FontWeight
+import persistence.PandoDatabase
 import java.io.File
 
 
 
 
-fun newTransactionScene(client: Client,  address: String): Scene {
+fun newTransactionScene(client: Client,  address: String, db: PandoDatabase): Scene {
 
   val root = getRoot()
   val transactionScene = Scene(root, 800.0, 500.0)
@@ -54,12 +55,12 @@ fun newTransactionScene(client: Client,  address: String): Scene {
   GridPane.setHalignment(send, HPos.RIGHT)
   send.text = "Send"
   send.onAction = EventHandler {
-//   client.goToMainScene(client)
+   client.goToMainScene(client, db)
   }
   val cancel = Button()
   cancel.text = "Cancel"
   cancel.onAction = EventHandler {
-//   client.goToMainScene(client)
+   client.goToMainScene(client, db)
   }
 
   sendQty.textProperty().addListener({observable, oldValue, newValue ->

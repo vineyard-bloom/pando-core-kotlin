@@ -93,6 +93,8 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun loadBlockchain(address: Address): Blockchain? {
+    Database.connect(source)
+    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
 //    New example code
 //    val blocks = transaction {
