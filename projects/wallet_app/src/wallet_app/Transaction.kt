@@ -47,6 +47,8 @@ fun newTransactionScene(client: Client,  address: String): Scene {
 
   val toLabel = Label("To Address: ")
   val toDropdown = ComboBox<String>(data)
+  GridPane.setMargin(toDropdown, Insets(0.0, 0.0,20.0,0.0))
+  GridPane.setMargin(toLabel, Insets(0.0, 0.0,20.0,0.0))
 
   val send = Button()
   GridPane.setHalignment(send, HPos.RIGHT)

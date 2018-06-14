@@ -18,7 +18,7 @@ fun addressScene(client: Client, address: String): Scene {
   val addressText = Text("Address: $address")
   addressText.setFont(Font.font("Arial", FontPosture.REGULAR, 16.0))
   GridPane.setHalignment(addressText, HPos.CENTER)
-  GridPane.setMargin(addressText, Insets(20.0, 0.0,20.0,0.0))
+
   val newTransaction = Button()
   GridPane.setHalignment(newTransaction, HPos.CENTER)
   newTransaction.text = "New Transaction"
@@ -31,6 +31,7 @@ fun addressScene(client: Client, address: String): Scene {
   back.onAction = EventHandler {
     client.goToMainScene(client)
   }
+  
   root.add(addressText, 0, 0, 4, 1)
   root.add(newTransaction, 1, 2, 2, 1)
   root.add(back, 2,2)
