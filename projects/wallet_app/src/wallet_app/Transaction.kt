@@ -54,12 +54,12 @@ fun newTransactionScene(client: Client,  address: String): Scene {
   GridPane.setHalignment(send, HPos.RIGHT)
   send.text = "Send"
   send.onAction = EventHandler {
-   client.goToMainScene(client)
+//   client.goToMainScene(client)
   }
   val cancel = Button()
   cancel.text = "Cancel"
   cancel.onAction = EventHandler {
-   client.goToMainScene(client)
+//   client.goToMainScene(client)
   }
 
   sendQty.textProperty().addListener({observable, oldValue, newValue ->

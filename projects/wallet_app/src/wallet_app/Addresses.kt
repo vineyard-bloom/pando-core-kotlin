@@ -17,7 +17,9 @@ import jsoning.parseJsonFile
 import jsoning.saveJson
 import networking.primitiveBlockchain
 import pando.*
+import persistence.PandoDatabase
 import java.io.File
+import persistence.PandoDatabase.*
 
 data class Keys(
   val publicKey: String,
@@ -43,7 +45,7 @@ class Address constructor(address: String) {
 }
 val keyDirectory = "addresses"
 
-fun addressesScene(client: Client): Scene {
+fun addressesScene(client: Client, db: PandoDatabase): Scene {
   val root = getRoot()
 
   val addressScene = Scene(root, 800.0, 500.0)
@@ -70,8 +72,8 @@ fun addressesScene(client: Client): Scene {
   newBlockchain.onAction = EventHandler {
     val pair = generateAddressPair()
     val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
+    db.saveBlockchain(blockchain)
     val primitiveBlockchain = primitiveBlockchain(blockchain)
-
     val newKeys = Keys(
       primitiveBlockchain.publicKey,
       privateKeyToString(pair.keyPair.private)

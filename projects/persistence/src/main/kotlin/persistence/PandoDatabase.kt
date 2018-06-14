@@ -2,6 +2,7 @@ package persistence
 
 import grounded.DatabaseConfig
 import grounded.createDataSource
+import jsoning.loadJsonFile
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.SchemaUtils.drop
@@ -46,6 +47,11 @@ object Signatures: Table() {
   val created = datetime("created")
   val modified = datetime("modified")
 }
+
+data class AppConfig(
+  val database: DatabaseConfig
+)
+
 
 class PandoDatabase(private val config: DatabaseConfig) {
   private val source = createDataSource(config)

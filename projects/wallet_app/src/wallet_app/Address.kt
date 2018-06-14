@@ -29,7 +29,7 @@ fun addressScene(client: Client, address: String): Scene {
   GridPane.setHalignment(back, HPos.CENTER)
   back.text = "Back"
   back.onAction = EventHandler {
-    client.goToMainScene(client)
+//    client.goToMainScene(client)
   }
 
   root.add(addressText, 0, 0, 4, 1)
