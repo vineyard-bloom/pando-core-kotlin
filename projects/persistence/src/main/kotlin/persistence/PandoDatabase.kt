@@ -42,7 +42,7 @@ object Signatures: Table() {
   val signer = varchar("signer", 40)
   val publicKey = varchar("publicKey", 375)
   val signature = text("signature")
-  val blockHash = (varchar("hash", 64).primaryKey() references Blocks.hash)
+  val blockHash = (varchar("blockHash", 64).primaryKey() references Blocks.hash)
   val created = datetime("created")
   val modified = datetime("modified")
 }

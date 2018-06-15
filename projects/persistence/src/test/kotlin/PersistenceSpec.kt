@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.databind.ser.std.ByteArraySerializer
 import grounded.DatabaseConfig
 import jsoning.loadJsonFile
 import junit.framework.TestCase.*
@@ -6,6 +7,7 @@ import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import pando.*
 import persistence.PandoDatabase
+import java.util.*
 
 data class AppConfig(
   val database: DatabaseConfig
@@ -91,6 +93,13 @@ class PersistenceSpec : Spek({
       assertEquals("First blockchain should contain 2 blocks", 2, blockchains.first()!!.blocks.size)
       assertNotNull("A block should contain a transaction", blockchains.first()!!.blocks.first()!!.transaction)
       assertEquals("The first transaction should contain the proper hash", newestBlockchain.blocks.first()!!.transaction.hash, blockchains.first()!!.blocks.first()!!.transaction.hash)
+    }
+
+    it("should convert a byte array to a string and back") {
+      val encoded = Base64.getEncoder().encode(signature)
+      val decoded = Base64.getDecoder().decode(encoded)
+
+      assertEquals("Byte array should be the same after conversion", signature, decoded)
     }
 
   }
