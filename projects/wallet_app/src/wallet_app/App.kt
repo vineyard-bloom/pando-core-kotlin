@@ -74,7 +74,9 @@ fun loadAppConfig(path: String): AppConfig =
 fun initDatabase(): PandoDatabase {
   val appConfig = loadAppConfig("../../config/config.json")
   val db = PandoDatabase(appConfig.database)
-//  if ()
-//  db.fixtureInit()
+  println(db.checkDatabase())
+  if (!db.checkDatabase()) {
+    db.fixtureInit()
+  }
   return db
 }

@@ -9,12 +9,12 @@ enum class Dialect {
 }
 
 data class DatabaseConfig(
-    val host: String,
-    val database: String,
-    val username: String,
-    val password: String,
-    val dialect: Dialect,
-    val port: Int?
+  val host: String,
+  val database: String,
+  val username: String,
+  val password: String,
+  val dialect: Dialect,
+  val port: Int?
 )
 
 fun createDataSource(config: DatabaseConfig): DataSource {

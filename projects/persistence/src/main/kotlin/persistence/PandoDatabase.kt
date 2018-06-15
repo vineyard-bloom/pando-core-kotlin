@@ -8,6 +8,7 @@ import org.jetbrains.exposed.sql.SchemaUtils.drop
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
+import org.sqlite.SQLiteException
 import java.sql.Connection
 import pando.*
 
@@ -74,6 +75,16 @@ class PandoDatabase(private val config: DatabaseConfig) {
     }
   }
 
+  fun checkDatabase(): Boolean {
+    try {
+      loadBlockchains()
+    }
+    catch(e: SQLiteException) {
+      return false
+    }
+    return true
+  }
+
   fun saveBlockchain(blockchain: Blockchain) {
     Database.connect(source)
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
@@ -105,9 +116,9 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
       Blockchains.select { Blockchains.address eq address }.map {
         Blockchain(
-            it[Blockchains.address],
-            stringToPublicKey(it[Blockchains.publicKey]),
-            loadBlocks(address)
+          it[Blockchains.address],
+          stringToPublicKey(it[Blockchains.publicKey]),
+          loadBlocks(address)
         )
       }
     }
@@ -127,9 +138,9 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
       Blockchains.selectAll().map {
         Blockchain(
-            it[Blockchains.address],
-            stringToPublicKey(it[Blockchains.publicKey]),
-            loadBlocks(it[Blockchains.address])
+          it[Blockchains.address],
+          stringToPublicKey(it[Blockchains.publicKey]),
+          loadBlocks(it[Blockchains.address])
         )
       }
     }
@@ -164,15 +175,15 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
       Blocks.select { Blocks.hash eq hash }.map {
         Block(
-            it[Blocks.hash],
-            BlockContents(
-                it[Blocks.index],
-                it[Blocks.address],
-                loadTransaction(it[Blocks.transactionHash])!!,
-                loadBlock(Blocks.previousBlock.toString()),
-                it[Blocks.createdAt]
-            ),
-            loadSignatures(it[Blocks.hash])
+          it[Blocks.hash],
+          BlockContents(
+            it[Blocks.index],
+            it[Blocks.address],
+            loadTransaction(it[Blocks.transactionHash])!!,
+            loadBlock(Blocks.previousBlock.toString()),
+            it[Blocks.createdAt]
+          ),
+          loadSignatures(it[Blocks.hash])
         )
       }
     }
@@ -219,12 +230,12 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
       Transactions.select { Transactions.hash eq hash }.map {
         BaseTransaction(
-            it[Transactions.hash],
-            TransactionContent(
-                it[Transactions.value],
-                it[Transactions.to],
-                it[Transactions.from]
-            )
+          it[Transactions.hash],
+          TransactionContent(
+            it[Transactions.value],
+            it[Transactions.to],
+            it[Transactions.from]
+          )
         )
       }
     }
@@ -263,10 +274,10 @@ class PandoDatabase(private val config: DatabaseConfig) {
 
       Signatures.select { Signatures.blockHash eq blockHash }.map {
         BlockSignature(
-            it[Signatures.signer],
-            stringToPublicKey(it[Signatures.publicKey]),
-            // byte array conversion causing issues
-            it[Signatures.signature].toByteArray()
+          it[Signatures.signer],
+          stringToPublicKey(it[Signatures.publicKey]),
+          // byte array conversion causing issues
+          it[Signatures.signature].toByteArray()
         )
       }
     }

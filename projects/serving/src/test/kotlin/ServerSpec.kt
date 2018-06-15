@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit
 import jsoning.parseJson
 import networking.BlockchainData
 import clienting.getBlockchain
+//import serving.recieveBlockchain
+
 
 
 class ServerSpec : Spek({
@@ -25,6 +27,15 @@ class ServerSpec : Spek({
 
 
       assertEquals(blockchain.address, res.address)
+    }
+
+    it("can save a blockchain") {
+      val pair = generateAddressPair()
+      val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
+      val source = { address: Address -> blockchain }
+      val server = createServer(source)
+//      recieveBlockchain(blockchain)
+      server.stop(1000, 30, TimeUnit.SECONDS)
     }
 
   }
