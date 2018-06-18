@@ -1,4 +1,5 @@
 package serving
+
 import io.ktor.application.call
 import io.ktor.response.respondText
 import io.ktor.routing.get
@@ -7,18 +8,24 @@ import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
 import jsoning.jsonify
-
+import networking.BlockchainData
 import networking.primitiveBlockchain
-import pando.*
-import networking.*
-import java.time.LocalDateTime
-import pando.*
+import pando.Address
+import pando.BlockchainSource
+import pando.createNewBlockchain
+import pando.generateAddressPair
+import java.util.concurrent.TimeUnit
 
+data class Server(private val engine: ApplicationEngine) {
 
+  fun stop(gracePeriod: Long, timeout: Long, timeUnit: TimeUnit) {
+    engine.stop(gracePeriod, timeout, timeUnit)
+  }
+}
 
-fun createServer(source: BlockchainSource): ApplicationEngine {
+fun createServer(source: BlockchainSource): Server {
 
-  return embeddedServer(CIO, port = 8080) {
+  val engine = embeddedServer(CIO, port = 8080) {
     routing {
       get("/") {
         call.respondText("hey")
@@ -38,6 +45,8 @@ fun createServer(source: BlockchainSource): ApplicationEngine {
       }
     }
   }.start(wait = false)
+
+  return Server(engine)
 }
 
 fun main(args: Array<String>) {
