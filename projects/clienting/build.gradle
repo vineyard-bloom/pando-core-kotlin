@@ -1,6 +1,6 @@
 apply from: "$rootProject.projectDir/build_kotlin.gradle"
 
-requires 'pandocore', 'serving', 'jsoning'
+requires 'pandocore', 'serving'
 
 //testRequires 'clienting'
 
@@ -14,7 +14,6 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
-
 
 apply plugin: 'java'
 apply plugin: 'kotlin'

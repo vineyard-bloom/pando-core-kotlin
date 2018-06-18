@@ -1,7 +1,6 @@
 apply from: "$rootProject.projectDir/build_kotlin.gradle"
 
-requires 'pandocore', 'clienting', 'jsoning'
-
+requires 'pandocore'
 
 buildscript {
     ext.ktor_version = '0.9.2'
