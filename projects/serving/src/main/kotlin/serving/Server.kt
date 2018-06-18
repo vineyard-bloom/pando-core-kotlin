@@ -3,6 +3,7 @@ package serving
 import io.ktor.application.call
 import io.ktor.response.respondText
 import io.ktor.routing.get
+import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
@@ -43,8 +44,11 @@ fun createServer(source: BlockchainSource): Server {
           call.respondText("No blockchain found at address: ${call.parameters["address"]}")
         }
       }
+      post("/blockchain") {
+        call.respondText("worked")
+      }
     }
-  }.start(wait = false)
+  }.start(wait = true)
 
   return Server(engine)
 }

@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit
 import jsoning.parseJson
 import networking.BlockchainData
 import clienting.getBlockchain
+import clienting.postBlockchain
 
 
 class ServerSpec : Spek({
@@ -25,6 +26,19 @@ class ServerSpec : Spek({
 
 
       assertEquals(blockchain.address, res.address)
+    }
+
+    it("can post blockchain") {
+
+      val pair = generateAddressPair()
+      val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
+//      val source = { address: Address -> blockchain }
+//      val server = createServer(source)
+      val res = postBlockchain(blockchain)
+//      server.stop(1000, 30, TimeUnit.SECONDS) // Not needed but a nicety
+
+
+      assert(true)
     }
 
   }
