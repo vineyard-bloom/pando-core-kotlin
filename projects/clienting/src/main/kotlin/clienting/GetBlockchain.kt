@@ -10,14 +10,12 @@ import pando.Blockchain
 import java.io.BufferedWriter
 import java.net.HttpURLConnection
 import java.net.URL
-import com.sun.xml.internal.ws.streaming.XMLStreamWriterUtil.getOutputStream
 import java.io.OutputStreamWriter
 import io.ktor.client.*
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.post
 import io.ktor.client.request.url
 import kotlinx.coroutines.experimental.runBlocking
-import io.ktor.client.engine.apache.*
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
@@ -31,7 +29,7 @@ fun getBlockchain(address: Address):BlockchainData {
 
 fun postBlockchain(blockchain: Blockchain) {
   runBlocking {
-    val client = HttpClient(Apache)
+    val client = HttpClient(CIO)
     val primitiveBlockchain = primitiveBlockchain(blockchain)
     val json = jsonify<BlockchainData?>(primitiveBlockchain)
     val message = client.post<String> {

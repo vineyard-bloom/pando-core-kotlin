@@ -24,7 +24,6 @@ class ServerSpec : Spek({
       val res = getBlockchain(blockchain.address)
       server.stop(1000, 30, TimeUnit.SECONDS) // Not needed but a nicety
 
-
       assertEquals(blockchain.address, res.address)
     }
 
@@ -32,11 +31,10 @@ class ServerSpec : Spek({
 
       val pair = generateAddressPair()
       val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
-//      val source = { address: Address -> blockchain }
-//      val server = createServer(source)
+      val source = { address: Address -> blockchain }
+      val server = createServer(source)
       val res = postBlockchain(blockchain)
-//      server.stop(1000, 30, TimeUnit.SECONDS) // Not needed but a nicety
-
+      server.stop(1000, 30, TimeUnit.SECONDS) // Not needed but a nicety
 
       assert(true)
     }

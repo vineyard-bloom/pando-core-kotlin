@@ -48,7 +48,7 @@ fun createServer(source: BlockchainSource): Server {
         call.respondText("worked")
       }
     }
-  }.start(wait = true)
+  }.start(wait = false)
 
   return Server(engine)
 }
