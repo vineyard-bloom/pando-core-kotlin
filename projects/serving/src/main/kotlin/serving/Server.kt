@@ -24,7 +24,11 @@ data class Server(private val engine: ApplicationEngine) {
   }
 }
 
-fun createServer(source: BlockchainSource): Server {
+data class ServerConfig(
+    val waiting: Boolean = false
+)
+
+fun createServer(source: BlockchainSource, config: ServerConfig = ServerConfig()): Server {
 
   val engine = embeddedServer(CIO, port = 8080) {
     routing {
@@ -48,7 +52,7 @@ fun createServer(source: BlockchainSource): Server {
         call.respondText("worked")
       }
     }
-  }.start(wait = false)
+  }.start(wait = config.waiting)
 
   return Server(engine)
 }
