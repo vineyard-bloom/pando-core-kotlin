@@ -1,5 +1,6 @@
 package serving
 
+import io.ktor.application.ApplicationStarted
 import io.ktor.application.call
 import io.ktor.response.respondText
 import io.ktor.routing.get
@@ -52,7 +53,14 @@ fun createServer(source: BlockchainSource, config: ServerConfig = ServerConfig()
         call.respondText("worked")
       }
     }
-  }.start(wait = config.waiting)
+  }
+  var listening = false
+  engine.environment.monitor.subscribe(ApplicationStarted) { listening = true }
+
+  engine.start(wait = config.waiting)
+  while(!listening) {
+    Thread.sleep(100)
+  }
 
   return Server(engine)
 }
