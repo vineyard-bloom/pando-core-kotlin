@@ -1,19 +1,23 @@
 package serving
 
+import io.ktor.application.ApplicationStarted
 import io.ktor.application.call
+import io.ktor.features.ContentNegotiation
+import io.ktor.features.ContentNegotiation.Feature.install
+import io.ktor.request.receiveText
+import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.get
+import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
 import jsoning.jsonify
+import jsoning.parseJson
 import networking.BlockchainData
 import networking.primitiveBlockchain
-import pando.Address
-import pando.BlockchainSource
-import pando.createNewBlockchain
-import pando.generateAddressPair
+import pando.*
 import java.util.concurrent.TimeUnit
 
 data class Server(private val engine: ApplicationEngine) {
@@ -23,7 +27,11 @@ data class Server(private val engine: ApplicationEngine) {
   }
 }
 
-fun createServer(source: BlockchainSource): Server {
+data class ServerConfig(
+    val waiting: Boolean = false
+)
+
+fun createServer(source: BlockchainSource, config: ServerConfig = ServerConfig()): Server {
 
   val engine = embeddedServer(CIO, port = 8080) {
     routing {
@@ -43,8 +51,20 @@ fun createServer(source: BlockchainSource): Server {
           call.respondText("No blockchain found at address: ${call.parameters["address"]}")
         }
       }
+      post("/blockchain") {
+        val blockchainString = call.receiveText()
+        val json = parseJson<BlockchainData>(blockchainString)
+        call.respondText("Blockchain received")
+      }
     }
-  }.start(wait = false)
+  }
+  var listening = false
+  engine.environment.monitor.subscribe(ApplicationStarted) { listening = true }
+
+  engine.start(wait = config.waiting)
+  while(!listening) {
+    Thread.sleep(100)
+  }
 
   return Server(engine)
 }
