@@ -5,6 +5,7 @@ import io.ktor.application.call
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.ContentNegotiation.Feature.install
 import io.ktor.request.receiveText
+import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.post
@@ -13,12 +14,10 @@ import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
 import jsoning.jsonify
+import jsoning.parseJson
 import networking.BlockchainData
 import networking.primitiveBlockchain
-import pando.Address
-import pando.BlockchainSource
-import pando.createNewBlockchain
-import pando.generateAddressPair
+import pando.*
 import java.util.concurrent.TimeUnit
 
 data class Server(private val engine: ApplicationEngine) {
@@ -53,8 +52,9 @@ fun createServer(source: BlockchainSource, config: ServerConfig = ServerConfig()
         }
       }
       post("/blockchain") {
-        val json = call.receiveText()
-        call.respondText(json)
+        val blockchainString = call.receiveText()
+        val json = parseJson<BlockchainData>(blockchainString)
+        call.respondText("Blockchain received")
       }
     }
   }

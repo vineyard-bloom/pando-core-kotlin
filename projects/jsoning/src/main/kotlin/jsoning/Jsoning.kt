@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.readValue
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.file.Files
@@ -48,3 +49,4 @@ inline fun <reified Class, String> saveJson(obj: Class, path: String): Boolean {
   mapper.writerWithDefaultPrettyPrinter().writeValue(File("" + path + ".json"), obj)
   return true
 }
+
