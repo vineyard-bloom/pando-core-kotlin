@@ -2,8 +2,8 @@ package serving
 
 import io.ktor.application.ApplicationStarted
 import io.ktor.application.call
-import io.ktor.http.Parameters
-import io.ktor.request.receive
+import io.ktor.features.ContentNegotiation
+import io.ktor.features.ContentNegotiation.Feature.install
 import io.ktor.request.receiveText
 import io.ktor.response.respondText
 import io.ktor.routing.get
@@ -54,8 +54,7 @@ fun createServer(source: BlockchainSource, config: ServerConfig = ServerConfig()
       }
       post("/blockchain") {
         val json = call.receiveText()
-
-        call.respondText(call.receiveText())
+        call.respondText(json)
       }
     }
   }
