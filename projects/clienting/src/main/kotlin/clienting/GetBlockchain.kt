@@ -35,8 +35,8 @@ fun postBlockchain(blockchain: Blockchain) {
     val json = jsonify<BlockchainData?>(primitiveBlockchain)
     val message = client.post<String> {
       url(URL("http://0.0.0.0:8080/blockchain/"))
-//      contentType(ContentType.Application.Json)
-//      body = json
+      contentType(ContentType.Application.Json)
+      body = json
     }
 
     println("CLIENT: Message from the server: $message")

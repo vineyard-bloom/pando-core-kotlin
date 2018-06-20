@@ -34,6 +34,7 @@ class ServerSpec : Spek({
       val source = { address: Address -> blockchain }
       val server = createServer(source)
       val res = postBlockchain(blockchain)
+
       assert(true)
     }
 
