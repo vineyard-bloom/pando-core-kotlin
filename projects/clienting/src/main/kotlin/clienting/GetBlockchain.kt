@@ -12,6 +12,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.io.OutputStreamWriter
 import io.ktor.client.*
+import io.ktor.client.engine.apache.Apache
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.post
 import io.ktor.client.request.url
@@ -29,7 +30,7 @@ fun getBlockchain(address: Address):BlockchainData {
 
 fun postBlockchain(blockchain: Blockchain) {
   runBlocking {
-    val client = HttpClient(CIO)
+    val client = HttpClient(Apache)
     val primitiveBlockchain = primitiveBlockchain(blockchain)
     val json = jsonify<BlockchainData?>(primitiveBlockchain)
     val message = client.post<String> {

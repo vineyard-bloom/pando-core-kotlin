@@ -34,8 +34,6 @@ class ServerSpec : Spek({
       val source = { address: Address -> blockchain }
       val server = createServer(source)
       val res = postBlockchain(blockchain)
-      server.stop(1000, 30, TimeUnit.SECONDS) // Not needed but a nicety
-
       assert(true)
     }
 
