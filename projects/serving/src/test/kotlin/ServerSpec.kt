@@ -10,18 +10,30 @@ import jsoning.parseJson
 import networking.BlockchainData
 import clienting.getBlockchain
 import clienting.postBlockchain
+import jsoning.loadJsonFile
+import persistence.AppConfig
+import persistence.PandoDatabase
 import serving.Server
 
 
 class ServerSpec : Spek({
 
+  fun loadAppConfig(path: String): AppConfig =
+    loadJsonFile<AppConfig>(path)
+
+  fun initDatabase(): BlockchainSource {
+    val appConfig = loadAppConfig("../../config/config.json")
+    val db = PandoDatabase(appConfig.database)
+    db.fixtureInit()
+    val source = { address:Address -> db.loadBlockchain(address) }
+    return source
+  }
+
   fun fullTest(blockchains: BlockchainSource): Server {
     val server = createServer(blockchains)
     return server
   }
-  fun fullTestWithDb(blockchains: BlockchainSource): Server {
-    
-  }
+
   describe("server requests") {
 
     it("can get blockchain from address") {
@@ -43,7 +55,32 @@ class ServerSpec : Spek({
       val source = { address: Address -> null }
       fullTest(source)
       val res = postBlockchain(blockchain)
+      assertEquals(blockchain.address, res.address)
+    }
 
+  }
+
+  describe("server requests with persistance") {
+
+    it("can get blockchain from address") {
+
+      val pair = generateAddressPair()
+      val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
+      val source = initDatabase()
+      val server = fullTest(source)
+      val res = getBlockchain(blockchain.address)
+      server.stop(1000, 30, TimeUnit.SECONDS) // Not needed but a nicety
+
+      assertEquals(blockchain.address, res.address)
+    }
+
+    it("can post blockchain") {
+
+      val pair = generateAddressPair()
+      val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
+      val source = { address: Address -> null }
+      fullTest(source)
+      val res = postBlockchain(blockchain)
       assertEquals(blockchain.address, res.address)
     }
 

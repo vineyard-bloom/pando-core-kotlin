@@ -43,57 +43,41 @@ data class TransactionContentData(
 )
 
 fun blockchainToPrimitve(blockchain: Blockchain):BlockchainData {
-  val primitiveBlockchain = BlockchainData(
+  return BlockchainData(
     blockchain.address,
     keyToString(blockchain.publicKey),
-    blockchain.blocks.map { BlockData(
-      it!!.hash,
+    blockchain.blocks.map { blockToPrimitive(it) }
+  )
+}
+
+fun blockToPrimitive(block: Block?): BlockData {
+  return BlockData(
+      block!!.hash,
       BlockContentsData(
-        it.contents.index,
-        it.contents.address,
+        block.contents.index,
+        block.contents.address,
         BaseTransactionData(
-          it.contents.transaction.hash,
+          block.contents.transaction.hash,
           TransactionContentData(
-            it.contents.transaction.value,
-            it.contents.transaction.to,
-            it.contents.transaction.from
+            block.contents.transaction.value,
+            block.contents.transaction.to,
+            block.contents.transaction.from
           )
         ),
-        it.previousBlock,
-        it.createdAt
+        block.previousBlock,
+        block.createdAt
       ),
-      signaturesToPrimitive(it.blockSignatures)
-    )}
-  )
-  return primitiveBlockchain
+      signaturesToPrimitive(block.blockSignatures)
+    )
 }
 
 fun signaturesToPrimitive(signatures: List<BlockSignature>):List<BlockSignatureData>{
-  val primitiveSignatures = signatures.map {
+  return signatures.map {
     BlockSignatureData(
       it.signer,
       keyToString(it.publicKey),
       byteArrayToString(it.signature)
     )
   }
-  return primitiveSignatures
+
 }
-
-
-
-//fun primitiveToBlockcain(blockchainData: BlockchainData):Blockchain {
-//  val blockchain = Blockchain(
-//          blockchainData.address,
-//          stringToPublicKey(blockchainData.publicKey),
-//          blockchainData.blocks.map { Block(
-//            it.hash,
-//            BlockContents(
-//              it.index,
-//              it.address,
-//              it.createdAt
-//
-//            )
-//          ) }
-//  )
-//  return blockchain
-//}
