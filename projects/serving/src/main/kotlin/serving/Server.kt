@@ -28,7 +28,7 @@ data class ServerConfig(
     val waiting: Boolean = false
 )
 
-fun createServer(source: BlockchainSource, config: ServerConfig = ServerConfig()): Server {
+fun createServer(source: BlockchainSource, consumer: BlockchainConsumer, config: ServerConfig = ServerConfig()): Server {
 
   val engine = embeddedServer(CIO, port = 8080) {
     routing {
@@ -72,6 +72,7 @@ fun main(args: Array<String>) {
   val pair = generateAddressPair()
   val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
   val source = { address: Address -> blockchain }
+  val consumer = { blockchain: Blockchain -> Unit }
 
-  createServer(source)
+  createServer(source, consumer)
 }
