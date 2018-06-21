@@ -19,6 +19,9 @@ class ServerSpec : Spek({
     val server = createServer(blockchains)
     return server
   }
+  fun fullTestWithDb(blockchains: BlockchainSource): Server {
+    
+  }
   describe("server requests") {
 
     it("can get blockchain from address") {
