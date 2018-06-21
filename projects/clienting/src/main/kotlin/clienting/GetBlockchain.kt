@@ -34,7 +34,6 @@ fun postBlockchain(blockchain: Blockchain):BlockchainData {
       contentType(ContentType.Application.Json)
       body = json
     }
-//    println("CLIENT: Message from the server: $message")
   }
   val resBlock = parseJson<BlockchainData>(res)
   return resBlock
