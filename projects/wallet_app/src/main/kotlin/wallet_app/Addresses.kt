@@ -15,11 +15,10 @@ import javafx.scene.text.FontPosture
 import javafx.scene.text.Text
 import jsoning.parseJsonFile
 import jsoning.saveJson
-import networking.primitiveBlockchain
+import networking.blockchainToPrimitve
 import pando.*
 import persistence.PandoDatabase
 import java.io.File
-import persistence.PandoDatabase.*
 
 data class Keys(
   val publicKey: String,
@@ -78,7 +77,7 @@ fun addressesScene(client: Client, db: PandoDatabase): Scene {
     val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
     db.saveBlockchain(blockchain)
 
-    val primitiveBlockchain = primitiveBlockchain(blockchain)
+    val primitiveBlockchain = blockchainToPrimitve(blockchain)
     val newKeys = Keys(
       primitiveBlockchain.publicKey,
       privateKeyToString(pair.keyPair.private)

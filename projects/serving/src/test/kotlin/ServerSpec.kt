@@ -10,9 +10,15 @@ import jsoning.parseJson
 import networking.BlockchainData
 import clienting.getBlockchain
 import clienting.postBlockchain
+import serving.Server
 
 
 class ServerSpec : Spek({
+
+  fun fullTest(blockchains: BlockchainSource): Server {
+    val server = createServer(blockchains)
+    return server
+  }
   describe("server requests") {
 
     it("can get blockchain from address") {
@@ -20,7 +26,7 @@ class ServerSpec : Spek({
       val pair = generateAddressPair()
       val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
       val source = { address: Address -> blockchain }
-      val server = createServer(source)
+      val server = fullTest(source)
       val res = getBlockchain(blockchain.address)
       server.stop(1000, 30, TimeUnit.SECONDS) // Not needed but a nicety
 
@@ -31,11 +37,11 @@ class ServerSpec : Spek({
 
       val pair = generateAddressPair()
       val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
-      val source = { address: Address -> blockchain }
-      val server = createServer(source)
+      val source = { address: Address -> null }
+      fullTest(source)
       val res = postBlockchain(blockchain)
 
-      assert(true)
+      assertEquals(blockchain.address, res.address)
     }
 
   }

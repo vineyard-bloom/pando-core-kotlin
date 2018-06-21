@@ -2,10 +2,7 @@ package serving
 
 import io.ktor.application.ApplicationStarted
 import io.ktor.application.call
-import io.ktor.features.ContentNegotiation
-import io.ktor.features.ContentNegotiation.Feature.install
 import io.ktor.request.receiveText
-import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.post
@@ -16,7 +13,7 @@ import io.ktor.server.engine.embeddedServer
 import jsoning.jsonify
 import jsoning.parseJson
 import networking.BlockchainData
-import networking.primitiveBlockchain
+import networking.blockchainToPrimitve
 import pando.*
 import java.util.concurrent.TimeUnit
 
@@ -42,7 +39,7 @@ fun createServer(source: BlockchainSource, config: ServerConfig = ServerConfig()
 
         if (source(call.parameters["address"]!!)!!.address == call.parameters["address"]) {
 
-          val primitiveBlockchain = primitiveBlockchain(source(call.parameters["address"]!!)!!)
+          val primitiveBlockchain = blockchainToPrimitve(source(call.parameters["address"]!!)!!)
 
           val json = jsonify<BlockchainData?>(primitiveBlockchain)
           call.respondText(json)
@@ -53,8 +50,10 @@ fun createServer(source: BlockchainSource, config: ServerConfig = ServerConfig()
       }
       post("/blockchain") {
         val blockchainString = call.receiveText()
-        val json = parseJson<BlockchainData>(blockchainString)
-        call.respondText("Blockchain received")
+        val blockchainData = parseJson<BlockchainData>(blockchainString)
+        val json = jsonify<BlockchainData?>(blockchainData)
+
+        call.respondText(json)
       }
     }
   }
