@@ -22,7 +22,7 @@ class ServerSpec : Spek({
     val appConfig = loadAppConfig("config/config.json")
     val db = PandoDatabase(appConfig.database)
     db.fixtureInit()
-    val source = Pair({ address:Address -> db.loadBlockchain(address) }, { blockchain: Blockchain -> Unit })
+    val source = Pair({ address:Address -> db.loadBlockchain(address) }, { blockchain: Blockchain -> db.saveBlockchain(blockchain) })
     return source
   }
 
