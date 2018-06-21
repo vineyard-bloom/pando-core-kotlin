@@ -36,14 +36,14 @@ data class ValidatedBlock(
     val block: Block
 )
 
-fun getBlockHash(block: Block?) =
-    if (block != null)
-      block.hash
-    else
-      null
+//fun getBlockHash(block: Block?) =
+//    if (block != null)
+//      block.hash
+//    else
+//      null
 
 fun createBlock(blockchain: Blockchain, transaction: BaseTransaction, privateKey: PrivateKey): Block {
-  val previousBlock = getLastBlock(blockchain)!!.hash
+  val previousBlock = getLastBlock(blockchain)?.hash
   val createdAt = DateTime.now()
   val hash = hashBlock(BlockHashContents(
       address = blockchain.address,

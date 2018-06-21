@@ -69,24 +69,31 @@ fun blockchainToPrimitve(blockchain: Blockchain):BlockchainData {
 }
 
 fun signaturesToPrimitive(signatures: List<BlockSignature>):List<BlockSignatureData>{
-  signatures.map
+  val primitiveSignatures = signatures.map {
+    BlockSignatureData(
+      it.signer,
+      keyToString(it.publicKey),
+      byteArrayToString(it.signature)
+    )
+  }
+  return primitiveSignatures
 }
 
 
 
-fun primitiveToBlockcain(blockchainData: BlockchainData):Blockchain {
-  val blockchain = Blockchain(
-          blockchainData.address,
-          stringToPublicKey(blockchainData.publicKey),
-          blockchainData.blocks.map { Block(
-            it.hash,
-            BlockContents(
-              it.index,
-              it.address,
-              it.createdAt
-
-            )
-          ) }
-  )
-  return blockchain
-}
+//fun primitiveToBlockcain(blockchainData: BlockchainData):Blockchain {
+//  val blockchain = Blockchain(
+//          blockchainData.address,
+//          stringToPublicKey(blockchainData.publicKey),
+//          blockchainData.blocks.map { Block(
+//            it.hash,
+//            BlockContents(
+//              it.index,
+//              it.address,
+//              it.createdAt
+//
+//            )
+//          ) }
+//  )
+//  return blockchain
+//}
