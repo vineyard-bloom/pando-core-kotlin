@@ -11,8 +11,10 @@ import io.ktor.client.*
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.request.post
 import io.ktor.client.request.url
+import io.ktor.client.response.HttpResponse
 import kotlinx.coroutines.experimental.runBlocking
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 
 
@@ -23,18 +25,20 @@ fun getBlockchain(address: Address):BlockchainData {
   return resBlock
 }
 
-fun postBlockchain(blockchain: Blockchain):BlockchainData {
+fun postBlockchain(blockchain: Blockchain):HttpStatusCode {
   val client = HttpClient(Apache)
   val primitiveBlockchain = blockchainToPrimitve(blockchain)
   val json = jsonify<BlockchainData?>(primitiveBlockchain)
   val res = runBlocking {
 
-    client.post<String> {
+    client.post<HttpResponse> {
       url(URL("http://0.0.0.0:8080/blockchain/"))
       contentType(ContentType.Application.Json)
       body = json
     }
   }
-  val resBlock = parseJson<BlockchainData>(res)
-  return resBlock
+
+//  val resBlock = parseJson<BlockchainData>(res)
+  println("Response: ${res.status}")
+  return res.status
 }

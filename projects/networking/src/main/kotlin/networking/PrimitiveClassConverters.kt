@@ -81,3 +81,44 @@ fun signaturesToPrimitive(signatures: List<BlockSignature>):List<BlockSignatureD
   }
 
 }
+
+
+fun primitiveToBlockchain(blockchain: BlockchainData):Blockchain {
+  return Blockchain(
+    blockchain.address,
+    stringToPublicKey(blockchain.publicKey),
+    blockchain.blocks.map { primitiveToBlock(it) }
+  )
+}
+
+fun primitiveToBlock(block: BlockData?): Block {
+  return Block(
+    block!!.hash,
+    BlockContents(
+      block.contents.index,
+      block.contents.address,
+      BaseTransaction(
+        block.contents.transaction.hash,
+        TransactionContent(
+          block.contents.transaction.content.value,
+          block.contents.transaction.content.to,
+          block.contents.transaction.content.from
+        )
+      ),
+      block.contents.previousBlock,
+      block.contents.createdAt
+    ),
+    primitiveToSignature(block.blockSignatures)
+  )
+}
+
+fun primitiveToSignature(signatures: List<BlockSignatureData>):List<BlockSignature>{
+  return signatures.map {
+    BlockSignature(
+      it.signer,
+      stringToPublicKey(it.publicKey),
+      it.signature.toByteArray()
+    )
+  }
+
+}
