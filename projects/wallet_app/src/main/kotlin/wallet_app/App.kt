@@ -72,7 +72,7 @@ fun loadAppConfig(path: String): AppConfig =
   loadJsonFile<AppConfig>(path)
 
 fun initDatabase(): PandoDatabase {
-  val appConfig = loadAppConfig("../../config/config.json")
+  val appConfig = loadAppConfig("config/config.json")
   val db = PandoDatabase(appConfig.database)
 //  if ()
 //  db.fixtureInit()
