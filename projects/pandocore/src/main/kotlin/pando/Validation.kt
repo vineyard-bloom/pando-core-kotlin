@@ -9,7 +9,7 @@ fun validateBlockHash(block: Block): ValidationErrors =
             address = block.contents.address,
             valueType = ValueType.long,
             transactionHashes = block.contents.transaction.hash,
-            previousBlock = getBlockHash(block.contents.previousBlock),
+            previousBlock = block.contents.previousBlock,
             createdAt = block.contents.createdAt
         )) == block.hash)
       listOf()

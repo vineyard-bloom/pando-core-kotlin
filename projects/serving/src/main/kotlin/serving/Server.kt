@@ -2,8 +2,7 @@ package serving
 
 import io.ktor.application.ApplicationStarted
 import io.ktor.application.call
-import io.ktor.features.ContentNegotiation
-import io.ktor.features.ContentNegotiation.Feature.install
+import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveText
 import io.ktor.response.respond
 import io.ktor.response.respondText
@@ -16,7 +15,8 @@ import io.ktor.server.engine.embeddedServer
 import jsoning.jsonify
 import jsoning.parseJson
 import networking.BlockchainData
-import networking.primitiveBlockchain
+import networking.blockchainToPrimitve
+import networking.primitiveToBlockchain
 import pando.*
 import java.util.concurrent.TimeUnit
 
@@ -31,7 +31,7 @@ data class ServerConfig(
     val waiting: Boolean = false
 )
 
-fun createServer(source: BlockchainSource, config: ServerConfig = ServerConfig()): Server {
+fun createServer(source: BlockchainSource, consumer: BlockchainConsumer, config: ServerConfig = ServerConfig()): Server {
 
   val engine = embeddedServer(CIO, port = 8080) {
     routing {
@@ -42,7 +42,7 @@ fun createServer(source: BlockchainSource, config: ServerConfig = ServerConfig()
 
         if (source(call.parameters["address"]!!)!!.address == call.parameters["address"]) {
 
-          val primitiveBlockchain = primitiveBlockchain(source(call.parameters["address"]!!)!!)
+          val primitiveBlockchain = blockchainToPrimitve(source(call.parameters["address"]!!)!!)
 
           val json = jsonify<BlockchainData?>(primitiveBlockchain)
           call.respondText(json)
@@ -53,8 +53,11 @@ fun createServer(source: BlockchainSource, config: ServerConfig = ServerConfig()
       }
       post("/blockchain") {
         val blockchainString = call.receiveText()
-        val json = parseJson<BlockchainData>(blockchainString)
-        call.respondText("Blockchain received")
+        val blockchainData = parseJson<BlockchainData>(blockchainString)
+        val blockchain = primitiveToBlockchain(blockchainData)
+        val res = consumer(blockchain)
+
+        call.respond(HttpStatusCode.OK)
       }
     }
   }
@@ -73,6 +76,7 @@ fun main(args: Array<String>) {
   val pair = generateAddressPair()
   val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
   val source = { address: Address -> blockchain }
+  val consumer = { blockchain: Blockchain -> Unit }
 
-  createServer(source)
+  createServer(source, consumer)
 }

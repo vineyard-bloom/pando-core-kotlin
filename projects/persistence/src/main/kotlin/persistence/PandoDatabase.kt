@@ -147,7 +147,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
         it[index] = block.index
         it[address] = block.address
         it[transactionHash] = block.transaction.hash
-        it[previousBlock] = if (block.previousBlock != null) block.previousBlock!!.hash else null
+        it[previousBlock] = if (block.previousBlock != null) block.previousBlock else null
         it[createdAt] = block.createdAt
         it[created] = DateTime.now()
         it[modified] = DateTime.now()
@@ -169,7 +169,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
                 it[Blocks.index],
                 it[Blocks.address],
                 loadTransaction(it[Blocks.transactionHash])!!,
-                loadBlock(Blocks.previousBlock.toString()),
+                it[Blocks.previousBlock],
                 it[Blocks.createdAt]
             ),
             loadSignatures(it[Blocks.hash])
