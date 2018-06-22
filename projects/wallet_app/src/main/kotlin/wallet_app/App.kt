@@ -1,6 +1,7 @@
 package wallet_app
 
 import grounded.DatabaseConfig
+import grounded.Dialect
 import javafx.application.Application
 import javafx.geometry.HPos
 import javafx.geometry.Insets
@@ -68,12 +69,17 @@ fun getRoot():GridPane {
   return root
 }
 
-fun loadAppConfig(path: String): AppConfig =
-  loadJsonFile<AppConfig>(path)
 
 fun initDatabase(): PandoDatabase {
-  val appConfig = loadAppConfig("config/config.json")
-  val db = PandoDatabase(appConfig.database)
+  val appConfig = DatabaseConfig(
+    "",
+    "pando",
+    "",
+    "",
+    Dialect.sqlite,
+    null
+  )
+  val db = PandoDatabase(appConfig)
 //  if ()
 //  db.fixtureInit()
   return db
