@@ -47,7 +47,7 @@ class Address constructor(address: String, balance: String) {
 
 
 }
-val keyDirectory = "addresses"
+val keyDirectory = "out/bin/addresses"
 
 fun addressesScene(client: Client, db: PandoDatabase): Scene {
   val root = getRoot()

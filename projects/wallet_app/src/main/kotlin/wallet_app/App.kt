@@ -77,7 +77,7 @@ fun getRoot():GridPane {
 fun initDatabase(): PandoDatabase {
   val appConfig = DatabaseConfig(
     "",
-    "pando",
+    "out/bin/pando",
     "",
     "",
     Dialect.sqlite,
@@ -85,6 +85,6 @@ fun initDatabase(): PandoDatabase {
   )
   val db = PandoDatabase(appConfig)
 //  if ()
-//  db.fixtureInit()
+  db.fixtureInit()
   return db
 }
