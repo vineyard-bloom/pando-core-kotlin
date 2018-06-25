@@ -1,6 +1,7 @@
 package wallet_app
 
 
+import getMenu
 import javafx.collections.FXCollections
 import javafx.event.EventHandler
 import javafx.scene.Scene
@@ -30,6 +31,8 @@ import java.io.File
 fun newTransactionScene(client: Client,  address: String, db: PandoDatabase): Scene {
 
   val root = getRoot()
+  getMenu(root)
+
   val transactionScene = Scene(root, 800.0, 500.0)
 
   val header = Label("New Transaction")

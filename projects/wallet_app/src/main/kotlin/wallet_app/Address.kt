@@ -1,6 +1,7 @@
 package wallet_app
 
 
+import getMenu
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.event.EventHandler
@@ -50,6 +51,8 @@ class Transaction constructor(to: String, from: String, value: String, createdAt
 fun addressScene(client: Client, address: String, db: PandoDatabase): Scene {
   val root = getRoot()
   val addressScene = Scene(root, 800.0, 500.0)
+  getMenu(root)
+
 
   val addressText = Text("Address: $address")
   addressText.setFont(Font.font("Arial", FontPosture.REGULAR, 16.0))
