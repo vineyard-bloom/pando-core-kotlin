@@ -10,7 +10,7 @@ import persistence.PandoDatabase
 
 fun registerScene(client: Client, address: String,  db: PandoDatabase):Scene {
   val root = getRoot()
-  getMenu(root)
+  getMenu(root, client)
 
   val registerScene = Scene(root, 800.0, 500.0)
 

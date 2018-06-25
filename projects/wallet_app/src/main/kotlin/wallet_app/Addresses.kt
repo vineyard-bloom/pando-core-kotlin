@@ -52,7 +52,7 @@ val keyDirectory = "addresses"
 fun addressesScene(client: Client, db: PandoDatabase): Scene {
   val root = getRoot()
 
-  getMenu(root)
+  getMenu(root, client)
 
   val addressScene = Scene(root, 800.0, 500.0)
 

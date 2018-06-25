@@ -31,7 +31,7 @@ import java.io.File
 fun newTransactionScene(client: Client,  address: String, db: PandoDatabase): Scene {
 
   val root = getRoot()
-  getMenu(root)
+  getMenu(root, client)
 
   val transactionScene = Scene(root, 800.0, 500.0)
 

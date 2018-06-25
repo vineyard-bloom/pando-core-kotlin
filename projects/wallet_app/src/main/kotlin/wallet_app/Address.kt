@@ -51,7 +51,7 @@ class Transaction constructor(to: String, from: String, value: String, createdAt
 fun addressScene(client: Client, address: String, db: PandoDatabase): Scene {
   val root = getRoot()
   val addressScene = Scene(root, 800.0, 500.0)
-  getMenu(root)
+  getMenu(root, client)
 
 
   val addressText = Text("Address: $address")
