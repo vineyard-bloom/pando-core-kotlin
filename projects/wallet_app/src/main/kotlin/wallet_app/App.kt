@@ -85,6 +85,6 @@ fun initDatabase(): PandoDatabase {
   )
   val db = PandoDatabase(appConfig)
 //  if ()
-  db.fixtureInit()
+//  db.fixtureInit()
   return db
 }

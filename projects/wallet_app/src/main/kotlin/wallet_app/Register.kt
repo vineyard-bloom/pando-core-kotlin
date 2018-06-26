@@ -1,6 +1,5 @@
 package wallet_app
 
-import getMenu
 import javafx.event.EventHandler
 import javafx.geometry.HPos
 import javafx.scene.Scene
@@ -18,7 +17,7 @@ fun registerScene(client: Client, address: String,  db: PandoDatabase):Scene {
   GridPane.setHalignment(back, HPos.CENTER)
   back.text = "Back"
   back.onAction = EventHandler {
-    client.goToAddressScene(client, address, db)
+    client.goToMainScene(client, db)
   }
 
   root.add(back, 3, 1)

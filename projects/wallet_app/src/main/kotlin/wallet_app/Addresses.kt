@@ -1,6 +1,5 @@
 package wallet_app
 
-import getMenu
 import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections

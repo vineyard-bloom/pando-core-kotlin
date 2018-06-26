@@ -18,8 +18,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 
 
-fun getBlockchain(address: Address):BlockchainData {
-  val res = URL("http://0.0.0.0:8080/blockchain/${address}").readText()
+fun getBlockchain(url: String, address: Address):BlockchainData {
+  val res = URL("$url/blockchain/$address").readText()
   val resBlock = parseJson<BlockchainData>(res)
 
   return resBlock
