@@ -42,10 +42,10 @@ fun createServer(source: BlockchainSource, consumer: BlockchainConsumer, config:
         call.respondText("hey")
       }
       get("/blockchain/{address}") {
+        val blockchain = source(call.parameters["address"]!!)
 
-        if (source(call.parameters["address"]!!)!!.address == call.parameters["address"]) {
-
-          val primitiveBlockchain = blockchainToPrimitve(source(call.parameters["address"]!!)!!)
+        if (blockchain!!.address == call.parameters["address"]) {
+          val primitiveBlockchain = blockchainToPrimitve(blockchain)
 
           val json = jsonify<BlockchainData?>(primitiveBlockchain)
           call.respondText(json)
@@ -58,7 +58,7 @@ fun createServer(source: BlockchainSource, consumer: BlockchainConsumer, config:
         val blockchainString = call.receiveText()
         val blockchainData = parseJson<BlockchainData>(blockchainString)
         val blockchain = primitiveToBlockchain(blockchainData)
-        val res = consumer(blockchain)
+        consumer(blockchain)
 
         call.respond(HttpStatusCode.OK)
       }

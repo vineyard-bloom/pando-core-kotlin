@@ -20,9 +20,8 @@ import io.ktor.http.contentType
 
 fun getBlockchain(url: String, address: Address):BlockchainData {
   val res = URL("$url/blockchain/$address").readText()
-  val resBlock = parseJson<BlockchainData>(res)
 
-  return resBlock
+  return parseJson<BlockchainData>(res)
 }
 
 fun postBlockchain(blockchain: Blockchain):HttpStatusCode {

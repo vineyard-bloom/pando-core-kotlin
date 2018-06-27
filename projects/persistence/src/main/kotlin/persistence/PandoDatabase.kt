@@ -8,8 +8,10 @@ import org.jetbrains.exposed.sql.SchemaUtils.drop
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import java.sql.Connection
 import pando.*
+
 
 object Blockchains : Table() {
   val address = varchar("address", 40).primaryKey()
@@ -75,24 +77,32 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun saveBlockchain(blockchain: Blockchain) {
-    Database.connect(source)
-    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
+    if (loadBlockchain(blockchain.address) == null) {
+      Database.connect(source)
+      TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
+      transaction {
+        logger.addLogger(StdOutSqlLogger)
 
-    transaction {
-      logger.addLogger(StdOutSqlLogger)
-
-      Blockchains.insert {
-        it[address] = blockchain.address
-        it[publicKey] = keyToString(blockchain.publicKey)
-        it[created] = DateTime.now()
-        it[modified] = DateTime.now()
+        Blockchains.insert {
+          it[address] = blockchain.address
+          it[publicKey] = keyToString(blockchain.publicKey)
+          it[created] = DateTime.now()
+          it[modified] = DateTime.now()
+        }
       }
     }
+    saveBlocks(blockchain.blocks, blockchain.address)
+  }
 
-    blockchain.blocks.map { saveBlock(it!!) }
-    blockchain.blocks.map { saveTransaction(it!!.transaction) }
-    blockchain.blocks.map {
-      block -> block!!.blockSignatures.map { signature -> saveSignature(signature, block) }
+  fun saveBlocks(blocks: List<Block?>, address: Address) {
+    if (loadBlockchain(address)!!.blocks.size != blocks.size) {
+      val diff = (blocks.size - loadBlockchain(address)!!.blocks.size)
+      val (oldBlocks, newBlocks) = blocks.partition { it!!.index >= diff}
+      for (block in newBlocks) {
+        saveBlock(block!!)
+        saveTransaction(block.transaction)
+        block.blockSignatures.map {saveSignature(it, block)}
+      }
     }
   }
 
@@ -117,6 +127,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
     }
     return blockchain.first()
   }
+
 
   fun loadBlockchains(): List<Blockchain?> {
     Database.connect(source)
@@ -166,11 +177,11 @@ class PandoDatabase(private val config: DatabaseConfig) {
         Block(
             it[Blocks.hash],
             BlockContents(
-                it[Blocks.index],
-                it[Blocks.address],
-                loadTransaction(it[Blocks.transactionHash])!!,
-                it[Blocks.previousBlock],
-                it[Blocks.createdAt]
+              it[Blocks.index],
+              it[Blocks.address],
+              loadTransaction(it[Blocks.transactionHash])!!,
+              it[Blocks.previousBlock],
+              it[Blocks.createdAt]
             ),
             loadSignatures(it[Blocks.hash])
         )

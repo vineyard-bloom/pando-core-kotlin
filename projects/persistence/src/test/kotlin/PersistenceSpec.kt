@@ -20,7 +20,7 @@ class PersistenceSpec : Spek({
     val db = PandoDatabase(appConfig.database)
     db.fixtureInit()
 
-    // Generate some data
+    // Generate some dataZ`
     val pair = generateAddressPair()
     val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
     val updatedBlockchain = mintTokens(blockchain, 1000)

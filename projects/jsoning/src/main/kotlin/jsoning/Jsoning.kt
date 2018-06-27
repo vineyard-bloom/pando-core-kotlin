@@ -3,6 +3,7 @@ package jsoning
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.joda.JodaModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.io.File
@@ -39,6 +40,7 @@ inline fun <reified T> parseJsonFile(file: File): T {
 inline fun <reified T> jsonify(obj: T?): String {
   val mapper = ObjectMapper()
   mapper.registerModule(KotlinModule())
+  mapper.registerModule(JodaModule())
   val json = mapper.writeValueAsString(obj)
   return json
 }

@@ -2,6 +2,7 @@ package wallet_app
 
 
 import clienting.getBlockchain
+import clienting.postBlockchain
 import javafx.collections.FXCollections
 import javafx.event.EventHandler
 import javafx.scene.Scene
@@ -72,8 +73,9 @@ fun newTransactionScene(client: Client,  address: String, db: PandoDatabase): Sc
                 val (fromBlock, errors) = validateBlock(send.first(), fromBlockchain.publicKey, fromBlockchain)
                 val (toBlock, _) = validateBlock(send.last(), fromBlockchain.publicKey, fromBlockchain)
                 val newSend = addBlockWithoutValidation(toBlockchain, toBlock!!)
-                val newFrom = addBlockWithoutValidation(toBlockchain, fromBlock!!)
-                println("SEND TOKENS: $fromBlock")
+                val newFrom = addBlockWithoutValidation(fromBlockchain, fromBlock!!)
+                postBlockchain(newSend)
+                postBlockchain(newFrom)
               }
             }
           }
