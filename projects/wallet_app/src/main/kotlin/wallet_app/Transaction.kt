@@ -70,7 +70,7 @@ fun newTransactionScene(client: Client,  address: String, db: PandoDatabase): Sc
               if (fileAddress == address) {
                 val privateKey = stringToPrivateKey(keys.privateKey)
                 val send = sendTokens(toBlockchain, fromBlockchain, sendQty.text.toLong(), privateKey)
-                val (fromBlock, errors) = validateBlock(send.first(), fromBlockchain.publicKey, fromBlockchain)
+                val (fromBlock, _) = validateBlock(send.first(), fromBlockchain.publicKey, fromBlockchain)
                 val (toBlock, _) = validateBlock(send.last(), fromBlockchain.publicKey, fromBlockchain)
                 val newSend = addBlockWithoutValidation(toBlockchain, toBlock!!)
                 val newFrom = addBlockWithoutValidation(fromBlockchain, fromBlock!!)

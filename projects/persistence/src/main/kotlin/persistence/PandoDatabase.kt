@@ -24,7 +24,7 @@ object Blocks : Table() {
   val hash = varchar("hash", 64).primaryKey()
   val index = long("index")
   val address = (varchar("address", 40) references Blockchains.address)
-  val transactionHash = varchar("transactionHash", 64).uniqueIndex()
+  val transactionHash = (varchar("transactionHash", 64)references Transactions.hash)
   val previousBlock = varchar("previousBlock", 64).nullable()
   val createdAt = datetime("createdAt")
   val created = datetime("created")
@@ -32,7 +32,7 @@ object Blocks : Table() {
 }
 
 object Transactions : Table() {
-  val hash = (varchar("hash", 64).primaryKey() references Blocks.transactionHash)
+  val hash = (varchar("hash", 64).primaryKey())
   val value = long("value")
   val to = varchar("to", 40)
   val from = varchar("from", 40).nullable()
@@ -65,13 +65,13 @@ class PandoDatabase(private val config: DatabaseConfig) {
       logger.addLogger(StdOutSqlLogger)
 
       drop(Signatures)
-      drop(Transactions)
       drop(Blocks)
+      drop(Transactions)
       drop(Blockchains)
 
       create(Blockchains)
-      create(Blocks)
       create(Transactions)
+      create(Blocks)
       create(Signatures)
     }
   }
@@ -99,8 +99,10 @@ class PandoDatabase(private val config: DatabaseConfig) {
       val diff = (blocks.size - loadBlockchain(address)!!.blocks.size)
       val (oldBlocks, newBlocks) = blocks.partition { it!!.index >= diff}
       for (block in newBlocks) {
-        saveBlock(block!!)
-        saveTransaction(block.transaction)
+        if (loadTransaction(block!!.transaction.hash) == null) {
+          saveTransaction(block.transaction)
+        }
+        saveBlock(block)
         block.blockSignatures.map {saveSignature(it, block)}
       }
     }
