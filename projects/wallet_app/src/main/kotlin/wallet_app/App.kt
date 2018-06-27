@@ -1,26 +1,31 @@
 package wallet_app
 
 import grounded.DatabaseConfig
+import grounded.Dialect
 import javafx.application.Application
+import javafx.application.Platform
 import javafx.geometry.HPos
 import javafx.geometry.Insets
 import javafx.scene.Scene
-import javafx.scene.layout.ColumnConstraints
-import javafx.scene.layout.GridPane
-import javafx.scene.layout.Priority
-import javafx.scene.layout.VBox
+import javafx.scene.control.Menu
+import javafx.scene.control.MenuBar
+import javafx.scene.control.MenuItem
 import javafx.stage.Stage
 import jsoning.loadJsonFile
 import org.jetbrains.exposed.sql.Database
 import persistence.AppConfig
 import persistence.PandoDatabase
+import javafx.scene.control.SeparatorMenuItem
+import javafx.scene.layout.*
+
 
 class AppWindow : Application() {
 
   override fun start(primaryStage: Stage) {
     primaryStage.title = "Pando Wallet"
 
-    val root = VBox()
+    val root = BorderPane()
+
     primaryStage.scene = Scene(root, 800.0, 500.0)
 
     val client = Client(primaryStage)
@@ -68,12 +73,17 @@ fun getRoot():GridPane {
   return root
 }
 
-fun loadAppConfig(path: String): AppConfig =
-  loadJsonFile<AppConfig>(path)
 
 fun initDatabase(): PandoDatabase {
-  val appConfig = loadAppConfig("../../config/config.json")
-  val db = PandoDatabase(appConfig.database)
+  val appConfig = DatabaseConfig(
+    "",
+    "out/bin/pando",
+    "",
+    "",
+    Dialect.sqlite,
+    null
+  )
+  val db = PandoDatabase(appConfig)
 //  if ()
 //  db.fixtureInit()
   return db

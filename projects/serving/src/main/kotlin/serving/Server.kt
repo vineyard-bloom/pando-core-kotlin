@@ -13,11 +13,14 @@ import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
 import jsoning.jsonify
+import jsoning.loadJsonFile
 import jsoning.parseJson
 import networking.BlockchainData
 import networking.blockchainToPrimitve
 import networking.primitiveToBlockchain
 import pando.*
+import persistence.AppConfig
+import persistence.PandoDatabase
 import java.util.concurrent.TimeUnit
 
 data class Server(private val engine: ApplicationEngine) {
@@ -28,7 +31,7 @@ data class Server(private val engine: ApplicationEngine) {
 }
 
 data class ServerConfig(
-    val waiting: Boolean = false
+    val waiting: Boolean = true
 )
 
 fun createServer(source: BlockchainSource, consumer: BlockchainConsumer, config: ServerConfig = ServerConfig()): Server {
@@ -39,10 +42,10 @@ fun createServer(source: BlockchainSource, consumer: BlockchainConsumer, config:
         call.respondText("hey")
       }
       get("/blockchain/{address}") {
+        val blockchain = source(call.parameters["address"]!!)
 
-        if (source(call.parameters["address"]!!)!!.address == call.parameters["address"]) {
-
-          val primitiveBlockchain = blockchainToPrimitve(source(call.parameters["address"]!!)!!)
+        if (blockchain!!.address == call.parameters["address"]) {
+          val primitiveBlockchain = blockchainToPrimitve(blockchain)
 
           val json = jsonify<BlockchainData?>(primitiveBlockchain)
           call.respondText(json)
@@ -55,7 +58,7 @@ fun createServer(source: BlockchainSource, consumer: BlockchainConsumer, config:
         val blockchainString = call.receiveText()
         val blockchainData = parseJson<BlockchainData>(blockchainString)
         val blockchain = primitiveToBlockchain(blockchainData)
-        val res = consumer(blockchain)
+        consumer(blockchain)
 
         call.respond(HttpStatusCode.OK)
       }
@@ -71,12 +74,19 @@ fun createServer(source: BlockchainSource, consumer: BlockchainConsumer, config:
 
   return Server(engine)
 }
+fun loadAppConfig(path: String): AppConfig =
+  loadJsonFile<AppConfig>(path)
+
+fun initSources(): Pair<BlockchainSource, BlockchainConsumer> {
+  val appConfig = loadAppConfig("config/config.json")
+  val db = PandoDatabase(appConfig.database)
+//  db.fixtureInit()
+  val source = Pair({ address:Address -> db.loadBlockchain(address) }, { blockchain: Blockchain -> db.saveBlockchain(blockchain) })
+  return source
+}
 
 fun main(args: Array<String>) {
-  val pair = generateAddressPair()
-  val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
-  val source = { address: Address -> blockchain }
-  val consumer = { blockchain: Blockchain -> Unit }
+  val source = initSources()
 
-  createServer(source, consumer)
+  createServer(source.first, source.second)
 }

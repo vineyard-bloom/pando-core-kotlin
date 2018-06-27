@@ -50,6 +50,8 @@ class Transaction constructor(to: String, from: String, value: String, createdAt
 fun addressScene(client: Client, address: String, db: PandoDatabase): Scene {
   val root = getRoot()
   val addressScene = Scene(root, 800.0, 500.0)
+  getMenu(root, client)
+
 
   val addressText = Text("Address: $address")
   addressText.setFont(Font.font("Arial", FontPosture.REGULAR, 16.0))
@@ -78,8 +80,15 @@ fun addressScene(client: Client, address: String, db: PandoDatabase): Scene {
     data.add(Transaction(it!!.transaction.to, it.transaction.from.toString(), it.transaction.value.toString(), it.createdAt.toString()))
   }
 
+  val register = Button()
+  GridPane.setHalignment(register, HPos.RIGHT)
+  register.text = "Register Address"
+  register.onAction = EventHandler {
+    client.goToRegisterScene(client, address, db)
+  }
+
   val newTransaction = Button()
-  GridPane.setHalignment(newTransaction, HPos.CENTER)
+  GridPane.setHalignment(newTransaction, HPos.LEFT)
   newTransaction.text = "New Transaction"
   newTransaction.onAction = EventHandler {
     client.sendTransaction(client, address, db)
@@ -91,9 +100,11 @@ fun addressScene(client: Client, address: String, db: PandoDatabase): Scene {
     client.goToMainScene(client, db)
   }
 
+
   root.add(addressText, 0, 0, 4, 1)
   root.add(tableView, 0, 1, 4, 1)
-  root.add(newTransaction, 1, 2, 2, 1)
-  root.add(back, 2,2)
+  root.add(register, 1, 2)
+  root.add(newTransaction, 2, 2, 2, 1)
+  root.add(back, 3,2)
   return addressScene
 }

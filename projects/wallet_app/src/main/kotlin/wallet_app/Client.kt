@@ -17,5 +17,9 @@ class Client(private val stage: Stage) {
     stage.scene = addressScene(client, address, db)
   }
 
+  fun goToRegisterScene(client: Client, address: String, db: PandoDatabase) {
+    stage.scene = registerScene(client, address, db)
+  }
+
 
 }

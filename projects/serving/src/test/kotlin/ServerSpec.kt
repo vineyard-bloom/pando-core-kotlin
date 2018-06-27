@@ -41,7 +41,8 @@ class ServerSpec : Spek({
       val source = { address: Address -> blockchain }
       val consumer = { blockchain: Blockchain -> Unit }
       val server = fullTest(source, consumer)
-      val res = getBlockchain(blockchain.address)
+      val url = "http://0.0.0.0:8080"
+      val res = getBlockchain(url, blockchain.address)
       server.stop(1000, 30, TimeUnit.SECONDS) // Not needed but a nicety
 
       assertEquals(blockchain.address, res.address)
@@ -68,7 +69,8 @@ class ServerSpec : Spek({
       val source = initSources()
       source.second(blockchain)
       val server = fullTest(source.first, source.second)
-      val res = getBlockchain(blockchain.address)
+      val url = "http://0.0.0.0:8080"
+      val res = getBlockchain(url, blockchain.address)
       server.stop(1000, 30, TimeUnit.SECONDS) // Not needed but a nicety
 
       assertEquals(blockchain.address, res.address)

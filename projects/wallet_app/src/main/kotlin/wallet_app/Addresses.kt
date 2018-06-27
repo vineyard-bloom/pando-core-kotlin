@@ -1,13 +1,12 @@
 package wallet_app
 
+import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.event.EventHandler
 import javafx.geometry.HPos
 import javafx.scene.Scene
-import javafx.scene.control.Button
-import javafx.scene.control.TableColumn
-import javafx.scene.control.TableView
+import javafx.scene.control.*
 import javafx.scene.control.cell.PropertyValueFactory
 import javafx.scene.layout.GridPane
 import javafx.scene.text.Font
@@ -19,6 +18,9 @@ import networking.blockchainToPrimitve
 import pando.*
 import persistence.PandoDatabase
 import java.io.File
+import javafx.scene.layout.VBox
+
+
 
 data class Keys(
   val publicKey: String,
@@ -44,10 +46,12 @@ class Address constructor(address: String, balance: String) {
 
 
 }
-val keyDirectory = "addresses"
+val keyDirectory = "out/bin/addresses"
 
 fun addressesScene(client: Client, db: PandoDatabase): Scene {
   val root = getRoot()
+
+  getMenu(root, client)
 
   val addressScene = Scene(root, 800.0, 500.0)
 
