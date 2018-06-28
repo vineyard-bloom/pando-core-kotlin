@@ -77,7 +77,7 @@ class PandoDatabase(private val config: DatabaseConfig) {
   }
 
   fun saveBlockchain(blockchain: Blockchain) {
-    if (loadBlockchain(blockchain.address) == null) {
+    if (loadBlockchain(blockchain.address) !is Blockchain) {
       Database.connect(source)
       TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
       transaction {
