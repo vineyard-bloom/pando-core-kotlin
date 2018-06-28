@@ -60,7 +60,7 @@ fun newTransactionScene(client: Client,  address: String, db: PandoDatabase): Sc
       if (it.extension == "json") {
         val config = parseJsonFile<PublisherConfig>(it)
         val url = config.publisherUrl
-        val toBlockchain = primitiveToBlockchain(getBlockchain(url, toAddress.text))
+        val toBlockchain = primitiveToBlockchain(getBlockchain(url, toAddress.text.toString()))
         val fromBlockchain = db.loadBlockchain(address)
         if (fromBlockchain is Blockchain) {
           File(keyDirectory).walk().forEach {
@@ -69,13 +69,15 @@ fun newTransactionScene(client: Client,  address: String, db: PandoDatabase): Sc
               val keys = parseJsonFile<Keys>(it)
               if (fileAddress == address) {
                 val privateKey = stringToPrivateKey(keys.privateKey)
-                val send = sendTokens(toBlockchain, fromBlockchain, sendQty.text.toLong(), privateKey)
-                val (fromBlock, errors) = validateBlock(send.first(), fromBlockchain.publicKey, fromBlockchain)
+                val send = sendTokens(fromBlockchain, toBlockchain, sendQty.text.toLong(), privateKey)
+                val (fromBlock, _) = validateBlock(send.first(), fromBlockchain.publicKey, fromBlockchain)
                 val (toBlock, _) = validateBlock(send.last(), fromBlockchain.publicKey, fromBlockchain)
                 val newSend = addBlockWithoutValidation(toBlockchain, toBlock!!)
                 val newFrom = addBlockWithoutValidation(fromBlockchain, fromBlock!!)
                 postBlockchain(newSend)
                 postBlockchain(newFrom)
+//                db.saveBlockchain(newFrom)
+
               }
             }
           }

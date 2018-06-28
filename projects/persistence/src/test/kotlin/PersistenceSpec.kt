@@ -6,6 +6,7 @@ import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import pando.*
 import persistence.PandoDatabase
+import java.security.PrivateKey
 
 data class AppConfig(
   val database: DatabaseConfig
@@ -15,12 +16,20 @@ fun loadAppConfig(path: String): AppConfig =
   loadJsonFile<AppConfig>(path)
 
 class PersistenceSpec : Spek({
+
+  fun transaction(blockchainOne: Blockchain, blockchainTwo: Blockchain, privateKey: PrivateKey):Pair<Blockchain, Blockchain> {
+    val send = sendTokens(blockchainOne, blockchainTwo, 0, privateKey)
+    val (blockOne, _) = validateBlock(send.first(), blockchainOne.publicKey, blockchainOne)
+    val (blockTwo, _) = validateBlock(send.last(), blockchainOne.publicKey, blockchainOne)
+    return Pair(addBlockWithoutValidation(blockchainOne, blockOne!!), addBlockWithoutValidation(blockchainTwo, blockTwo!!))
+  }
+
   describe("persistence") {
     val appConfig = loadAppConfig("config/config.json")
     val db = PandoDatabase(appConfig.database)
     db.fixtureInit()
 
-    // Generate some dataZ`
+    // Generate some data`
     val pair = generateAddressPair()
     val blockchain = createNewBlockchain(pair.address, pair.keyPair.public)
     val updatedBlockchain = mintTokens(blockchain, 1000)
@@ -91,6 +100,25 @@ class PersistenceSpec : Spek({
       assertEquals("First blockchain should contain 2 blocks", 2, blockchains.first()!!.blocks.size)
       assertNotNull("A block should contain a transaction", blockchains.first()!!.blocks.first()!!.transaction)
       assertEquals("The first transaction should contain the proper hash", newestBlockchain.blocks.first()!!.transaction.hash, blockchains.first()!!.blocks.first()!!.transaction.hash)
+    }
+
+    it("can add blocks when sent a blockchain") {
+      val (blockchainOne, privateKey) = utility.createNewBlockchain()
+      val (blockchainTwo, _) = utility.createNewBlockchain()
+      db.saveBlockchain(blockchainTwo)
+      val transactionOne = transaction(blockchainOne, blockchainTwo, privateKey)
+      db.saveBlockchain(transactionOne.first)
+      db.saveBlockchain(transactionOne.second)
+      val newBlockchainA = transactionOne.first
+      val newBlockchainB = transactionOne.second
+      val transactionTwo = transaction(newBlockchainA, newBlockchainB, privateKey)
+      db.saveBlockchain(transactionTwo.first)
+      db.saveBlockchain(transactionTwo.second)
+
+      val transactionTwoA = db.loadBlockchain(transactionTwo.first.address)
+      val transactionTwoB = db.loadBlockchain(transactionTwo.second.address)
+      assertEquals(2, transactionTwoA!!.blocks.size)
+      assertEquals(2, transactionTwoB!!.blocks.size)
     }
 
   }

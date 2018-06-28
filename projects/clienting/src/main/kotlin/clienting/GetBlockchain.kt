@@ -37,7 +37,6 @@ fun postBlockchain(blockchain: Blockchain):HttpStatusCode {
     }
   }
 
-//  val resBlock = parseJson<BlockchainData>(res)
   println("Response: ${res.status}")
   return res.status
 }

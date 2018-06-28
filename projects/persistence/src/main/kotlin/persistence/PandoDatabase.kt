@@ -24,7 +24,7 @@ object Blocks : Table() {
   val hash = varchar("hash", 64).primaryKey()
   val index = long("index")
   val address = (varchar("address", 40) references Blockchains.address)
-  val transactionHash = varchar("transactionHash", 64).uniqueIndex()
+  val transactionHash = (varchar("transactionHash", 64)references Transactions.hash)
   val previousBlock = varchar("previousBlock", 64).nullable()
   val createdAt = datetime("createdAt")
   val created = datetime("created")
@@ -32,7 +32,7 @@ object Blocks : Table() {
 }
 
 object Transactions : Table() {
-  val hash = (varchar("hash", 64).primaryKey() references Blocks.transactionHash)
+  val hash = (varchar("hash", 64).primaryKey())
   val value = long("value")
   val to = varchar("to", 40)
   val from = varchar("from", 40).nullable()
@@ -65,19 +65,19 @@ class PandoDatabase(private val config: DatabaseConfig) {
       logger.addLogger(StdOutSqlLogger)
 
       drop(Signatures)
-      drop(Transactions)
       drop(Blocks)
+      drop(Transactions)
       drop(Blockchains)
 
       create(Blockchains)
-      create(Blocks)
       create(Transactions)
+      create(Blocks)
       create(Signatures)
     }
   }
 
   fun saveBlockchain(blockchain: Blockchain) {
-    if (loadBlockchain(blockchain.address) == null) {
+    if (loadBlockchain(blockchain.address) !is Blockchain) {
       Database.connect(source)
       TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
       transaction {
@@ -97,10 +97,14 @@ class PandoDatabase(private val config: DatabaseConfig) {
   fun saveBlocks(blocks: List<Block?>, address: Address) {
     if (loadBlockchain(address)!!.blocks.size != blocks.size) {
       val diff = (blocks.size - loadBlockchain(address)!!.blocks.size)
-      val (oldBlocks, newBlocks) = blocks.partition { it!!.index >= diff}
+
+      val (oldBlocks, newBlocks) = blocks.partition { loadBlock(it!!.hash) is Block }
+      println("BLOCKS: old: $oldBlocks new: $newBlocks")
       for (block in newBlocks) {
-        saveBlock(block!!)
-        saveTransaction(block.transaction)
+        if (loadTransaction(block!!.transaction.hash) !is BaseTransaction) {
+          saveTransaction(block.transaction)
+        }
+        saveBlock(block)
         block.blockSignatures.map {saveSignature(it, block)}
       }
     }

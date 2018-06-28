@@ -37,7 +37,7 @@ data class BaseTransactionData(
 )
 
 data class TransactionContentData(
-  val value: Value,
+  val value: Long,
   val to: String,
   val from: String?
 )
@@ -59,7 +59,7 @@ fun blockToPrimitive(block: Block?): BlockData {
         BaseTransactionData(
           block.contents.transaction.hash,
           TransactionContentData(
-            block.contents.transaction.value,
+            block.contents.transaction.value as Long,
             block.contents.transaction.to,
             block.contents.transaction.from
           )

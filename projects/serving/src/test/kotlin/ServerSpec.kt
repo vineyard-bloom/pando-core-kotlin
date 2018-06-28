@@ -12,9 +12,17 @@ import jsoning.loadJsonFile
 import persistence.AppConfig
 import persistence.PandoDatabase
 import serving.Server
+import java.security.PrivateKey
 
 
 class ServerSpec : Spek({
+
+  fun transaction(blockchainOne: Blockchain, blockchainTwo: Blockchain, privateKey: PrivateKey):Pair<Blockchain, Blockchain> {
+    val send = sendTokens(blockchainOne, blockchainTwo, 0, privateKey)
+    val (blockOne, _) = validateBlock(send.first(), blockchainOne.publicKey, blockchainOne)
+    val (blockTwo, _) = validateBlock(send.last(), blockchainOne.publicKey, blockchainOne)
+    return Pair(addBlockWithoutValidation(blockchainOne, blockOne!!), addBlockWithoutValidation(blockchainTwo, blockTwo!!))
+  }
 
   fun loadAppConfig(path: String): AppConfig =
     loadJsonFile<AppConfig>(path)
@@ -84,6 +92,28 @@ class ServerSpec : Spek({
       val server = fullTest(source.first, source.second)
       val res = postBlockchain(blockchain)
       assertEquals(HttpStatusCode.OK, res)
+    }
+
+    it("can add blocks when sent a blockchain") {
+      val source = initSources()
+      val server = fullTest(source.first, source.second)
+      val url = "http://0.0.0.0:8080"
+      val (blockchainOne, privateKey) = utility.createNewBlockchain()
+      val (blockchainTwo, _) = utility.createNewBlockchain()
+      postBlockchain(blockchainTwo)
+      val transactionOne = transaction(blockchainOne, blockchainTwo, privateKey)
+      postBlockchain(transactionOne.first)
+      postBlockchain(transactionOne.second)
+      val newBlockchainA = transactionOne.first
+      val newBlockchainB = transactionOne.second
+      val transactionTwo = transaction(newBlockchainA, newBlockchainB, privateKey)
+      postBlockchain(transactionTwo.first)
+      postBlockchain(transactionTwo.second)
+
+      val transactionTwoA = getBlockchain(url, transactionTwo.first.address)
+      val transactionTwoB = getBlockchain(url, transactionTwo.second.address)
+      assertEquals(2, transactionTwoA!!.blocks.size)
+      assertEquals(2, transactionTwoB!!.blocks.size)
     }
 
   }
