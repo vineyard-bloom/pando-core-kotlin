@@ -97,9 +97,11 @@ class PandoDatabase(private val config: DatabaseConfig) {
   fun saveBlocks(blocks: List<Block?>, address: Address) {
     if (loadBlockchain(address)!!.blocks.size != blocks.size) {
       val diff = (blocks.size - loadBlockchain(address)!!.blocks.size)
-      val (oldBlocks, newBlocks) = blocks.partition { it!!.index >= diff}
+
+      val (oldBlocks, newBlocks) = blocks.partition { loadBlock(it!!.hash) is Block }
+      println("BLOCKS: old: $oldBlocks new: $newBlocks")
       for (block in newBlocks) {
-        if (loadTransaction(block!!.transaction.hash) == null) {
+        if (loadTransaction(block!!.transaction.hash) !is BaseTransaction) {
           saveTransaction(block.transaction)
         }
         saveBlock(block)

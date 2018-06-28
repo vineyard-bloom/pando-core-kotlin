@@ -105,11 +105,10 @@ class PersistenceSpec : Spek({
     it("can add blocks when sent a blockchain") {
       val (blockchainOne, privateKey) = utility.createNewBlockchain()
       val (blockchainTwo, _) = utility.createNewBlockchain()
+      db.saveBlockchain(blockchainTwo)
       val transactionOne = transaction(blockchainOne, blockchainTwo, privateKey)
       db.saveBlockchain(transactionOne.first)
-//      db.saveBlockchain(transactionOne.second)
-      val hashOne = transactionOne.first.blocks.first()!!.hash
-      val hashTwo = transactionOne.second.blocks.first()!!.hash
+      db.saveBlockchain(transactionOne.second)
       val newBlockchainA = transactionOne.first
       val newBlockchainB = transactionOne.second
       val transactionTwo = transaction(newBlockchainA, newBlockchainB, privateKey)
@@ -118,8 +117,8 @@ class PersistenceSpec : Spek({
 
       val transactionTwoA = db.loadBlockchain(transactionTwo.first.address)
       val transactionTwoB = db.loadBlockchain(transactionTwo.second.address)
-      assertEquals(transactionTwoA, transactionTwo.first)
-      assertEquals(transactionTwoB, transactionTwo.second)
+      assertEquals(2, transactionTwoA!!.blocks.size)
+      assertEquals(2, transactionTwoB!!.blocks.size)
     }
 
   }

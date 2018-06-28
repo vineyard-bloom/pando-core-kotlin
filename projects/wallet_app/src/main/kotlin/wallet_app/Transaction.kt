@@ -76,6 +76,8 @@ fun newTransactionScene(client: Client,  address: String, db: PandoDatabase): Sc
                 val newFrom = addBlockWithoutValidation(fromBlockchain, fromBlock!!)
                 postBlockchain(newSend)
                 postBlockchain(newFrom)
+//                db.saveBlockchain(newFrom)
+
               }
             }
           }
